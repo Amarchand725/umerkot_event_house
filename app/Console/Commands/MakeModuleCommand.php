@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\File;
 
 class MakeModuleCommand extends Command
 {
+    /**
+     * The name and signature of the console command if multiple than 
+     * make:module even-category
+     *
+     * @var string
+     */
+
     protected $signature = 'make:module {name} {--fields=}';
     protected $description = 'Generate a new Blade CRUD module with model, migration, repository, controller, and views';
 
@@ -620,10 +627,13 @@ class MakeModuleCommand extends Command
 
     protected function createRoute($module)
     {
+        $kebab = Str::kebab($module);       // event-category
+        $parameter = Str::camel($module);      // eventCategory
+
         $singular = Str::lower($module);                 // e.g., country
         $plural   = Str::plural($singular); 
         $controller = "{$module}Controller";
-        $routeFile = base_path("routes/back-office/{$singular}.php");
+        $routeFile = base_path("routes/back-office/{$kebab}.php");
 
         $content = <<<PHP
         <?php
@@ -638,18 +648,18 @@ class MakeModuleCommand extends Command
             Route::controller({$controller}::class)->group(function () {
                 Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');
                 Route::post('bulk-restore', 'bulkRestore')->name('bulkRestore');
-                Route::post('{{$singular}}/restore', 'restore')->name('restore');
-                Route::delete('{{$singular}}/force-delete', 'forceDelete')->name('forceDelete');
+                Route::post('{{$parameter}}/restore', 'restore')->name('restore');
+                Route::delete('{{$parameter}}/force-delete', 'forceDelete')->name('forceDelete');
             });
 
             // 🧱 Resource CRUD
             Route::resource('/', {$controller}::class)
-                    ->parameters(['' => '{$singular}']);
+                    ->parameters(['' => '{$parameter}']);
         });
         PHP;
 
         File::put($routeFile, $content);
 
-        $this->info("✅ Route file created: routes/{$singular}.php");
+        $this->info("✅ Route file created: routes/{$kebab}.php");
     }
 }

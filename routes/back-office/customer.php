@@ -8,7 +8,6 @@ Route::group([
     'middleware' => ['web', 'auth']
 ], function () {
     Route::controller(CustomerController::class)->group(function () {
-        Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');
         Route::post('bulk-restore', 'bulkRestore')->name('bulkRestore');
         Route::post('{customer}/restore', 'restore')->name('restore');
         Route::delete('{customer}/force-delete', 'forceDelete')->name('forceDelete');

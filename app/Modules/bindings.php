@@ -8,4 +8,5 @@ return [
     \App\Modules\EventCategory\Repositories\Contracts\EventCategoryContract::class => \App\Modules\EventCategory\Repositories\Eloquent\EventCategoryRepository::class,
     \App\Modules\InventoryCategory\Repositories\Contracts\InventoryCategoryContract::class => \App\Modules\InventoryCategory\Repositories\Eloquent\InventoryCategoryRepository::class,
     \App\Modules\Customer\Repositories\Contracts\CustomerContract::class => \App\Modules\Customer\Repositories\Eloquent\CustomerRepository::class,
+    \App\Modules\Unit\Repositories\Contracts\UnitContract::class => \App\Modules\Unit\Repositories\Eloquent\UnitRepository::class,
 ];

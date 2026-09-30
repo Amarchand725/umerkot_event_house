@@ -28,6 +28,10 @@ class StatusSeeder extends Seeder
             //Customer
             ['model' => 'Customer', 'name' => 'active'],
             ['model' => 'Customer', 'name' => 'de-active'],
+
+            //Unit
+            ['model' => 'Unit', 'name' => 'active'],
+            ['model' => 'Unit', 'name' => 'de-active'],
         ];
 
         foreach ($data as $item) {

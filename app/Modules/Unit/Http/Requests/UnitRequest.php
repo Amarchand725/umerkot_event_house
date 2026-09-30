@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Modules\Unit\Http\Requests;
+
+use App\Models\Status;
+use Illuminate\Foundation\Http\FormRequest;
+
+class UnitRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'status_id' => ['nullable', 'integer'],
+'name' => ['required', 'string', 'max:255'],
+        ];
+    }
+
+    public function prepareForValidation()
+    {   
+        if ($this->has('status_id')) {
+            $this->merge([
+                'status_id' => Status::where('ulid', $this->input('status_id'))->value('id')
+            ]);
+        }
+    }
+}

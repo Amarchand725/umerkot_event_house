@@ -77,6 +77,20 @@
             </a>
         </li>
         @endcan
+        @can('unit-list')
+        <li class="menu-item {{ request()->is('back-office/units') || request()->is('back-office/units/*')?'active open':'' }}">
+            <a href="{{ route('back-office.units.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-users"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Units') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['units'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
 
         @can('event_category-list')
         <li class="menu-item {{ request()->is('back-office/event-categories') || request()->is('back-office/event-categories/*')?'active open':'' }}">

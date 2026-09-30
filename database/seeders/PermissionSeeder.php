@@ -148,6 +148,15 @@ class PermissionSeeder extends Seeder
             'customer-view',
             'customer-edit',
             'customer-delete',
+
+            /*Unit Management
+            |--------------------------------------------------------------------------
+            */
+            'unit-list',
+            'unit-create',
+            'unit-view',
+            'unit-edit',
+            'unit-delete',
         ];
     }
 

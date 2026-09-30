@@ -1,0 +1,78 @@
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6">
+        <label for="inventory_category_id" class="form-label fw-semibold">
+            Inventory Category <span class="text-danger">*</span>
+        </label>
+        <select id="inventory_category_id" name="inventory_category_id" class="form-select">
+          <option value="">Select status</option>
+          @foreach ($inventoryCategories as $inventoryCategory)
+            <option value="{{ $inventoryCategory->ulid }}" {{ old('inventory_category_id') == $inventoryCategory->id ? 'selected' : '' }}>{{ ucfirst($inventoryCategory->name) }}</option>
+          @endforeach
+        </select>
+        <span id="inventory_category_id_error" class="text-danger error">{{ $errors->first('inventory_category_id') }}</span>
+    </div>
+    <div class="col-12 col-md-6">
+        <label for="unit_id" class="form-label fw-semibold">
+            Unit <span class="text-danger">*</span>
+        </label>
+        <select id="unit_id" name="unit_id" class="form-select">
+          <option value="">Select status</option>
+          @foreach ($units as $unit)
+            <option value="{{ $unit->ulid }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>{{ ucfirst($unit->name) }}</option>
+          @endforeach
+        </select>
+        <span id="unit_id_error" class="text-danger error">{{ $errors->first('unit_id') }}</span>
+    </div>
+
+    <div class="col-12 col-md-12">
+        <label for="name" class="form-label fw-semibold">
+            Name <span class="text-danger">*</span>
+        </label>
+        <input
+            type="text"
+            id="name"
+            name="name"
+            class="form-control form-control-lg"
+            placeholder="Enter name"
+            value="{{ old('name') }}"
+        />
+        <span id="name_error" class="text-danger error">{{ $errors->first('name') }}</span>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <label for="total_quantity" class="form-label fw-semibold">
+            Total Qty (Optional)
+        </label>
+        <input
+            type="number"
+            id="total_quantity"
+            name="total_quantity"
+            class="form-control form-control-lg"
+            placeholder="Enter total quantity"
+            value="{{ old('total_quantity') }}"
+        />
+        <span id="total_quantity_error" class="text-danger error">{{ $errors->first('total_quantity') }}</span>
+    </div>
+    <div class="col-12 col-md-6">
+        <label for="minimum_quantity" class="form-label fw-semibold">
+            Min Qty (Optional)
+        </label>
+        <input
+            type="number"
+            id="minimum_quantity"
+            name="minimum_quantity"
+            class="form-control form-control-lg"
+            placeholder="Enter minimum quantity"
+            value="{{ old('minimum_quantity') }}"
+        />
+        <span id="minimum_quantity_error" class="text-danger error">{{ $errors->first('minimum_quantity') }}</span>
+    </div>
+</div>
+
+<script>
+    $('select').each(function () {
+        $(this).select2({
+            dropdownParent: $(this).parent(),
+        });
+    });
+</script>

@@ -131,7 +131,8 @@ class PermissionSeeder extends Seeder
             'event_category-edit',
             'event_category-delete',
 
-            /*Inventory Category Management
+            /*
+            Inventory Category Management
             |--------------------------------------------------------------------------
             */
             'inventory_category-list',
@@ -140,7 +141,8 @@ class PermissionSeeder extends Seeder
             'inventory_category-edit',
             'inventory_category-delete',
 
-            /*Customer Management
+            /*
+            Customer Management
             |--------------------------------------------------------------------------
             */
             'customer-list',
@@ -149,7 +151,8 @@ class PermissionSeeder extends Seeder
             'customer-edit',
             'customer-delete',
 
-            /*Unit Management
+            /*
+            Unit Management
             |--------------------------------------------------------------------------
             */
             'unit-list',
@@ -157,6 +160,16 @@ class PermissionSeeder extends Seeder
             'unit-view',
             'unit-edit',
             'unit-delete',
+
+            /*
+            Inventory Item Management
+            |--------------------------------------------------------------------------
+            */
+            'inventory_item-list',
+            'inventory_item-create',
+            'inventory_item-view',
+            'inventory_item-edit',
+            'inventory_item-delete',
         ];
     }
 

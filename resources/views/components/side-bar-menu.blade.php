@@ -120,6 +120,20 @@
             </a>
         </li>
         @endcan
+        @can('inventory_item-list')
+        <li class="menu-item {{ request()->is('back-office/inventory-items') || request()->is('back-office/inventory-items/*')?'active open':'' }}">
+            <a href="{{ route('back-office.inventory-items.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-list"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Inventory items') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['inventory_items'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
 
         @can('role-list')
         <li class="menu-item {{ request()->is('back-office/roles') || request()->is('back-office/roles/*')?'active open':'' }}">

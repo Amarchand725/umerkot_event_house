@@ -32,6 +32,10 @@ class StatusSeeder extends Seeder
             //Unit
             ['model' => 'Unit', 'name' => 'active'],
             ['model' => 'Unit', 'name' => 'de-active'],
+
+            //Inventory Item
+            ['model' => 'InventoryItem', 'name' => 'active'],
+            ['model' => 'InventoryItem', 'name' => 'de-active'],
         ];
 
         foreach ($data as $item) {

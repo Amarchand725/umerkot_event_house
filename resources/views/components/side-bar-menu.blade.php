@@ -49,51 +49,6 @@
         </li>
         @endcan
 
-        @can('meeting-list')
-        <li class="menu-item {{ request()->is('back-office/meetings') || request()->is('back-office/meetings/*')?'active open':'' }}">
-            <a href="{{ route('back-office.meetings.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-calendar"></i>   
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Meetings') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['meetings'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
-
-        @can('lead-list')
-        <li class="menu-item {{ request()->is('back-office/leads') || request()->is('back-office/leads/*')?'active open':'' }}">
-            <a href="{{ route('back-office.leads.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-user-search"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Leads') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['leads'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
-
-        @can('lead_report-list')
-        <li class="menu-item {{ request()->is('back-office/lead-reports') || request()->is('back-office/lead-reports/*')?'active open':'' }}">
-            <a href="{{ route('back-office.lead-reports.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-chart-bar"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Lead Reports') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['lead Reports'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
-
         @can('user-list')
         <li class="menu-item {{ request()->is('back-office/users') || request()->is('back-office/users/*')?'active open':'' }}">
             <a href="{{ route('back-office.users.index') }}" class="menu-link">
@@ -108,6 +63,7 @@
             </a>
         </li>
         @endcan
+
         @can('role-list')
         <li class="menu-item {{ request()->is('back-office/roles') || request()->is('back-office/roles/*')?'active open':'' }}">
             <a href="{{ route('back-office.roles.index') }}" class="menu-link">
@@ -123,49 +79,6 @@
         </li>
         @endcan
 
-        @can('lead_capture-list')
-        <li class="menu-item {{ request()->is('back-office/lead-captures') || request()->is('back-office/lead-captures/*')?'active open':'' }}">
-            <a href="{{ route('back-office.lead-captures.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-clipboard-list"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Lead Captures') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['lead_captures'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
-
-        @can('campaign-list')
-        <li class="menu-item {{ request()->is('back-office/campaigns') || request()->is('back-office/campaigns/*')?'active open':'' }}">
-            <a href="{{ route('back-office.campaigns.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-rocket"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Campaigns') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['campaigns'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
-        @can('faq-list')
-        <li class="menu-item {{ request()->is('back-office/faqs') || request()->is('back-office/faqs/*')?'active open':'' }}">
-            <a href="{{ route('back-office.faqs.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-info-circle"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Faqs') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['faqs'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
         @can('activity_log-list')
         <li class="menu-item {{ request()->is('back-office/activity-logs') || request()->is('back-office/activity-logs/*')?'active open':'' }}">
             <a href="{{ route('back-office.activity-logs.index') }}" class="menu-link">
@@ -175,6 +88,21 @@
 
                     <span class="badge bg-primary">
                         {{ $sidebarCounts['activity_logs'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
+
+        @can('event_category-list')
+        <li class="menu-item {{ request()->is('back-office/event-categories') || request()->is('back-office/event-categories/*')?'active open':'' }}">
+            <a href="{{ route('back-office.event-categories.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-list"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Event Categories') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['event_categories'] ?? 0 }}
                     </span>
                 </div>
             </a>

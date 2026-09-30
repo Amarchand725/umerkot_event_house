@@ -119,6 +119,17 @@ class PermissionSeeder extends Seeder
             'activity_log-view',
             'activity_log-delete',
 
+            /*
+            |--------------------------------------------------------------------------
+            | Event Category Management
+            |--------------------------------------------------------------------------
+            */
+
+            'event_category-list',
+            'event_category-create',
+            'event_category-view',
+            'event_category-edit',
+            'event_category-delete',
         ];
     }
 

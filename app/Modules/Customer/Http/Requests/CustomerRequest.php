@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Modules\InventoryCategory\Http\Requests;
+namespace App\Modules\Customer\Http\Requests;
 
 use App\Models\Status;
 use Illuminate\Foundation\Http\FormRequest;
 
-class InventoryCategoryRequest extends FormRequest
+class CustomerRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -17,7 +17,12 @@ class InventoryCategoryRequest extends FormRequest
         return [
             'status_id' => ['nullable', 'exists:statuses,id'],
             'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:255'],
+            'cnic_no' => ['nullable', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:20'],
+            'alter_phone' => ['nullable', 'string', 'max:20'],
+            'email' => ['nullable', 'string', 'max:50'],
+            'address' => ['required', 'string', 'max:255'],
+            'note' => ['nullable', 'string', 'max:255'],
         ];
     }
 

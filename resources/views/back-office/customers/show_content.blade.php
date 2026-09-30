@@ -4,8 +4,28 @@
         <td>{{ ucfirst($model?->name ?? '-') }}</td>
     </tr>
     <tr>
-        <td class="text-nowrap fw-semibold">Description</td>
-        <td>{{ ucfirst($model?->description ?? '-') }}</td>
+        <td class="text-nowrap fw-semibold">CNIC No</td>
+        <td>{{ ucfirst($model?->cnic_no ?? '-') }}</td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Phone</td>
+        <td>{{ ucfirst($model?->phone ?? '-') }}</td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Alter Phone</td>
+        <td>{{ ucfirst($model?->alter_phone ?? '-') }}</td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Address</td>
+        <td>{{ ucfirst($model?->address ?? '-') }}</td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Email</td>
+        <td>{{ ucfirst($model?->email ?? '-') }}</td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Important Note</td>
+        <td>{{ ucfirst($model?->note ?? '-') }}</td>
     </tr>
     <tr>
         <td class="text-nowrap fw-semibold">Status</td>

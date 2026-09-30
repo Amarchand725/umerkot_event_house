@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Modules\ActivityLog\Models\ActivityLog;
 use App\Modules\EventCategory\Models\EventCategory;
+use App\Modules\Customer\Models\Customer;
 use App\Modules\InventoryCategory\Models\InventoryCategory;
 use Illuminate\View\View;
 
@@ -18,10 +19,11 @@ class SidebarComposer
         $view->with('sidebarCounts', [
             'notifications' => $notificationCount,
             'users'         => User::count(),
-            'roles'         => Role::count(),
-            'activity_logs' => ActivityLog::count(),
+            'customers'         => Customer::count(),
             'event_categories' => EventCategory::count(),
             'inventory_categories' => InventoryCategory::count(),
+            'roles'         => Role::count(),
+            'activity_logs' => ActivityLog::count(),
         ]);
     }
 }

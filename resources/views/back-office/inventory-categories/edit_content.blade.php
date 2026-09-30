@@ -5,12 +5,12 @@
         <label for="name" class="form-label fw-semibold">
             Name <span class="text-danger">*</span>
         </label>
-        <input 
-            type="text" 
-            id="name" 
-            name="name" 
-            class="form-control form-control-lg" 
-            placeholder="Enter name" 
+        <input
+            type="text"
+            id="name"
+            name="name"
+            class="form-control form-control-lg"
+            placeholder="Enter name"
             value="{{ old('name', $model->name) }}"
         />
         <span id="name_error" class="text-danger error">{{ $errors->first('name') }}</span>
@@ -20,10 +20,10 @@
         <label for="description" class="form-label fw-semibold">
             Description
         </label>
-        <textarea 
-            id="description" 
-            name="description" 
-            class="form-control form-control-lg" 
+        <textarea
+            id="description"
+            name="description"
+            class="form-control form-control-lg"
             placeholder="Enter description"
         >{{ old('description', $model->description) }}</textarea>
         <span id="description_error" class="text-danger error">{{ $errors->first('description') }}</span>

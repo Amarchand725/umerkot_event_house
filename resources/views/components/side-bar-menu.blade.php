@@ -63,31 +63,15 @@
             </a>
         </li>
         @endcan
-
-        @can('role-list')
-        <li class="menu-item {{ request()->is('back-office/roles') || request()->is('back-office/roles/*')?'active open':'' }}">
-            <a href="{{ route('back-office.roles.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-shield-check"></i>
+        @can('customer-list')
+        <li class="menu-item {{ request()->is('back-office/customers') || request()->is('back-office/customers/*')?'active open':'' }}">
+            <a href="{{ route('back-office.customers.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-users"></i>
                 <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Roles') }}</span>
+                    <span>{{ module_label('list', 'Customers') }}</span>
 
                     <span class="badge bg-primary">
-                        {{ $sidebarCounts['roles'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
-
-        @can('activity_log-list')
-        <li class="menu-item {{ request()->is('back-office/activity-logs') || request()->is('back-office/activity-logs/*')?'active open':'' }}">
-            <a href="{{ route('back-office.activity-logs.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-activity"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Activity Logs') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['activity_logs'] ?? 0 }}
+                        {{ $sidebarCounts['customers'] ?? 0 }}
                     </span>
                 </div>
             </a>
@@ -117,6 +101,36 @@
 
                     <span class="badge bg-primary">
                         {{ $sidebarCounts['inventory_categories'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
+
+        @can('role-list')
+        <li class="menu-item {{ request()->is('back-office/roles') || request()->is('back-office/roles/*')?'active open':'' }}">
+            <a href="{{ route('back-office.roles.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-shield-check"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Roles') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['roles'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
+
+        @can('activity_log-list')
+        <li class="menu-item {{ request()->is('back-office/activity-logs') || request()->is('back-office/activity-logs/*')?'active open':'' }}">
+            <a href="{{ route('back-office.activity-logs.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-activity"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Activity Logs') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['activity_logs'] ?? 0 }}
                     </span>
                 </div>
             </a>

@@ -139,6 +139,15 @@ class PermissionSeeder extends Seeder
             'inventory_category-view',
             'inventory_category-edit',
             'inventory_category-delete',
+
+            /*Customer Management
+            |--------------------------------------------------------------------------
+            */
+            'customer-list',
+            'customer-create',
+            'customer-view',
+            'customer-edit',
+            'customer-delete',
         ];
     }
 

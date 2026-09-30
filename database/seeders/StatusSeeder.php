@@ -24,8 +24,12 @@ class StatusSeeder extends Seeder
             //Inventory category
             ['model' => 'InventoryCategory', 'name' => 'active'],
             ['model' => 'InventoryCategory', 'name' => 'de-active'],
+
+            //Customer
+            ['model' => 'Customer', 'name' => 'active'],
+            ['model' => 'Customer', 'name' => 'de-active'],
         ];
-        
+
         foreach ($data as $item) {
             $status = Status::firstOrNew($item);
             $status->toFill($item);

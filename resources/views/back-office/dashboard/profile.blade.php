@@ -1,0 +1,730 @@
+<x-app-layout>
+    @section('title', ($title ?? '').' - '. config('app.name', 'Laravel'))
+    
+    <div class="container-xxl flex-grow-1 container-p-y">
+        <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">User Profile /</span> Profile</h4>
+
+        <!-- Header -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="user-profile-header d-flex flex-column flex-sm-row text-sm-start text-center mb-4">
+                        <div class="flex-shrink-0 mt-n2 mx-sm-0 mx-auto">
+                            <img
+                                src="{{ optional(Auth::user()?->avatar)->path
+                                    ? asset('storage/' . Auth::user()?->avatar->path)
+                                    : asset('back-office/assets/img/avatars/default-avatar.png') }}"
+                                alt="user image"
+                                class="d-block h-auto ms-0 ms-sm-4 rounded user-profile-img"
+                                style="width: 100px; height: 120px; object-fit: cover;"
+                            />
+                        </div>
+                        <div class="flex-grow-1 mt-3 mt-sm-5">
+                            <div class="d-flex align-items-md-end align-items-sm-start align-items-center justify-content-md-between justify-content-start mx-4 flex-md-row flex-column gap-4" >
+                                <div class="user-profile-info">
+                                    <h4>{{ Auth::user()?->name }}</h4>
+                                    <ul
+                                        class="list-inline mb-0 d-flex align-items-center flex-wrap justify-content-sm-start justify-content-center gap-2"
+                                    >
+                                        <li title="Role" class="list-inline-item"><i class="ti ti-color-swatch"></i> {{ Auth::user()?->roles()?->first()?->name }}</li>
+                                        <li title="Date of Joining" class="list-inline-item"><i class="ti ti-calendar"></i> {{ getDateFormat(Auth::user()?->doj) }}</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/ Header -->
+
+        <!-- Navbar pills -->
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="nav nav-pills flex-column flex-sm-row mb-4">
+                    <li class="nav-item">
+                        <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" 
+                        data-bs-target="#navs-profile" aria-controls="navs-profile" 
+                        aria-selected="true"><i class="ti-xs ti ti-user-check me-1"></i> Profile</button>
+                    </li>
+                    {{-- <li class="nav-item">
+                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                        data-bs-target="#navs-teams" aria-controls="navs-teams" 
+                        aria-selected="true"><i class="ti-xs ti ti-users me-1"></i> Teams</button>
+                    </li> --}}
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                        data-bs-target="#navs-edit-profile" aria-controls="navs-edit-profile" 
+                        aria-selected="true"><i class="ti ti-edit me-1 ti-xs"></i>Edit Profile</button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                        data-bs-target="#navs-password" aria-controls="navs-password" 
+                        aria-selected="true"><i class="ti ti-lock me-1 ti-xs"></i>Password</button>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade active show" id="navs-profile" role="tabpanel">
+                        <div class="card-body">
+                            <!-- User Profile Content -->
+                            <div class="row">
+                                <div class="col-xl-4 col-lg-5 col-md-5">
+                                    <!-- About User -->
+                                    <div class="card mb-4">
+                                        <div class="card-body">
+                                            <small class="card-text text-uppercase">About</small>
+                                            <ul class="list-unstyled mb-4 mt-3">
+                                                <li class="d-flex align-items-center mb-3">
+                                                    <i class="ti ti-user"></i><span class="fw-bold mx-2">Name:</span> <span>{{ auth()->user()->name }}</span>
+                                                </li>
+                                                <li class="d-flex align-items-center mb-3">
+                                                    <i class="ti ti-gender-bigender"></i>
+                                                    <span class="fw-bold mx-2">Gender:</span> 
+                                                    <span>
+                                                        @if( auth()->user()->gender=='M')
+                                                            Male
+                                                        @else
+                                                            Female
+                                                        @endif
+                                                    </span>
+                                                </li>
+                                                <li class="d-flex align-items-center mb-3">
+                                                    <i class="ti ti-check"></i><span class="fw-bold mx-2">Status:</span> <span>{{ ucfirst(auth()->user()->status->name) }}</span>
+                                                </li>
+                                                <li class="d-flex align-items-center mb-3">
+                                                    <i class="ti ti-crown"></i><span class="fw-bold mx-2">Role:</span> <span>{{ auth()->user()?->roles()?->first()?->name }}</span>
+                                                </li>
+                                            </ul>
+                                            <small class="card-text text-uppercase">Contacts</small>
+                                            <ul class="list-unstyled mb-4 mt-3">
+                                                <li class="d-flex align-items-center mb-3">
+                                                    <i class="ti ti-phone-call"></i><span class="fw-bold mx-2">Contact:</span>
+                                                    <span>{{ auth()->user()->phone ?? 'N/A' }}</span>
+                                                </li>
+                                                <li class="d-flex align-items-center mb-3">
+                                                    <i class="ti ti-mail"></i><span class="fw-bold mx-2">Email:</span>
+                                                    <span>{{ auth()->user()->email }}</span>
+                                                </li>
+                                            </ul>
+                                            <small class="card-text text-uppercase">Lead Limitation</small>
+                                            <ul class="list-unstyled mb-4 mt-3">
+                                                <li class="d-flex align-items-center mb-3">
+                                                    <i class="ti ti-gauge"></i>
+                                                    <span class="fw-bold mx-2">Daily Limit:</span>
+                                                    <span>{{ auth()->user()->daily_capacity ?? 'N/A' }}</span>
+                                                </li>
+                                            </ul>
+                                            {{-- <small class="card-text text-uppercase">Teams</small>
+                                            <ul class="list-unstyled mb-0 mt-3">
+                                                <li class="d-flex align-items-center mb-3">
+                                                    <i class="ti ti-brand-angular text-danger me-2"></i>
+                                                    <div class="d-flex flex-wrap">
+                                                    <span class="fw-bold me-2">Backend Developer</span><span>(126 Members)</span>
+                                                    </div>
+                                                </li>
+                                            </ul> --}}
+                                        </div>
+                                    </div>
+                                    <!--/ About User -->
+                                </div>
+                                @php
+                                    $activityColors = [
+                                        'lead_assigned' => 'timeline-point-primary',
+                                        'meeting_scheduled' => 'timeline-point-success',
+                                        'document_shared' => 'timeline-point-danger',
+                                        'followup_done' => 'timeline-point-info',
+                                    ];
+                                @endphp
+
+                                <div class="col-xl-8 col-lg-7 col-md-7">
+                                    <!-- Activity Timeline -->
+                                    <div class="card card-action mb-4">
+                                        <div class="card-body pb-0">
+                                            <ul class="timeline ms-1 mb-0">
+                                                @forelse($activities as $activity)
+                                                <li class="timeline-item timeline-item-transparent {{ $loop->last ? 'border-0' : '' }}">
+                                                    <span class="timeline-point 
+                                                        {{ $activityColors[$activity['type']] ?? 'timeline-point-secondary' }}"></span>
+                                                    <div class="timeline-event">
+                                                        <div class="timeline-header">
+                                                            <h6 class="mb-0">{{ ucfirst(str_replace('_', ' ', $activity['type'])) }}</h6>
+                                                            <small class="text-muted">{{ \Carbon\Carbon::parse($activity['created_at'])->diffForHumans() }}</small>
+                                                        </div>
+                                                        <p class="mb-2">{{ $activity['description'] }}</p>
+                                                        @if($activity['related_user'])
+                                                        <div class="d-flex flex-wrap">
+                                                            <div class="avatar me-2">
+                                                                <img src="{{ $activity['related_user']->avatar?->path ?? asset('back-office/assets/img/avatars/default-avatar.png') }}" 
+                                                                    alt="Avatar" class="rounded-circle" />
+                                                            </div>
+                                                            <div class="ms-1">
+                                                                <h6 class="mb-0">{{ $activity['related_user']->name }}</h6>
+                                                                <span>{{ $activity['related_user']->role ?? 'Agent' }}</span>
+                                                            </div>
+                                                        </div>
+                                                        @endif
+                                                    </div>
+                                                </li>
+                                                @empty
+                                                    <li class="timeline-item timeline-item-transparent border-0">
+                                                        <div class="timeline-event text-center p-3">
+                                                            <h6 class="text-muted mb-1">No Activities Found</h6>
+                                                            <small class="text-muted">There are no logs or meetings yet.</small>
+                                                        </div>
+                                                    </li>
+                                                @endforelse
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <!--/ Activity Timeline -->
+                                </div>
+                            </div>
+                            <!--/ User Profile Content -->
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="navs-edit-profile" role="tabpanel">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-10 pl-md-2 pt-md-0 pt-sm-4 pt-4">
+                                    <div class="tab-content px-primary">
+                                        <div id="" class="tab-pane fade active show">
+                                            <div class="d-flex justify-content-between">
+                                                <h5 class="d-flex align-items-center text-capitalize mb-0 title tab-content-header">
+                                                    Edit Profile
+                                                </h5>
+                                                <div class="d-flex align-items-center mb-0"></div>
+                                            </div>
+                                            <hr />
+                                            <div class="content py-primary" id="edit-profile">
+                                                <div class="content" id="">
+                                                    <form class="ajax-form" id="create-form" data-modal-id="edit-profile" action="{{ route('back-office.auth.update-profile') }}" data-method="POST" enctype="multipart/form-data">
+                                                        @csrf
+
+                                                        <!-- Name -->
+                                                        <div class="form-group">
+                                                            <div class="row align-items-center">
+                                                                <div class="col-lg-3 col-md-3">
+                                                                    <label>Name <span class="text-danger">*</span></label>
+                                                                </div>
+
+                                                                <div class="col-lg-8 col-md-8">
+                                                                    <input type="text" value="{{ old('name', auth()->user()->name) }}" class="form-control" id="name" name="name" placeholder="Enter full name">
+                                                                    <span id="name_error" class="text-danger error"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Phone -->
+                                                        <div class="form-group mt-2">
+                                                            <div class="row align-items-center">
+                                                                <div class="col-lg-3 col-md-3">
+                                                                    <label>Phone <span class="text-danger">*</span></label>
+                                                                </div>
+
+                                                                <div class="col-lg-8 col-md-8">
+                                                                    <input type="text" value="{{ old('phone', auth()->user()->phone) }}" class="form-control phone-input" id="phone" name="phone" placeholder="Enter phone number">
+                                                                    <span id="phone_error" class="text-danger error"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Gender -->
+                                                        <div class="form-group mt-2">
+                                                            <div class="row align-items-center">
+                                                                <div class="col-lg-3 col-md-3">
+                                                                    <label>Gender <span class="text-danger">*</span></label>
+                                                                </div>
+
+                                                                <div class="col-lg-8 col-md-8">
+                                                                    <select id="gender" name="gender" class="form-select">
+                                                                        <option value="M" {{ old('name', auth()->user()->gender)=='M' ? 'selected' : '' }}>Male</option>
+                                                                        <option value="F" {{ old('name', auth()->user()->gender)=='F' ? 'selected' : '' }}>Female</option>
+                                                                    </select>
+                                                                    <span id="gender_error" class="text-danger error"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Avatar -->
+                                                        <div class="form-group mt-2">
+                                                            <div class="row align-items-center">
+                                                                <div class="col-lg-3 col-md-3">
+                                                                    <label>Avatar <span class="text-danger">*</span></label>
+                                                                </div>
+
+                                                                <div class="col-lg-8 col-md-8">
+                                                                    <!-- File input -->
+                                                                    <input 
+                                                                        type="file" 
+                                                                        id="avatar" 
+                                                                        name="avatar" 
+                                                                        accept=".png, .jpg, .jpeg" 
+                                                                        class="form-control"
+                                                                        onchange="previewAvatar(event)"
+                                                                    />
+                                                                    <small class="text-muted">Allowed file types: png, jpg, jpeg.</small>
+
+                                                                    <!-- Preview wrapper -->
+                                                                    <div class="mb-3">
+                                                                        <img id="avatar_preview" 
+                                                                            alt="Avatar Preview" 
+                                                                            class="img-thumbnail rounded-circle" 
+                                                                            style="width: 80px; height: 80px; object-fit: cover; {{ auth()->user()?->avatar?->path ? '' : 'display: none;' }}"
+                                                                            src="{{ auth()->user()?->avatar?->path ? asset('storage/'.auth()->user()?->avatar?->path) : '' }}"
+                                                                        >
+                                                                    </div>
+                                                                    <span id="avatar_error" class="text-danger error"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group mt-5 mb-0">
+                                                            <div class="col-12 mt-3">
+                                                                <div class="demo-inline-spacing sub-btn">
+                                                                    <button type="submit" class="btn btn-primary me-sm-3 me-1">Submit</button>
+                                                                </div>
+                                                                <div class="demo-inline-spacing loading-btn" style="display: none;">
+                                                                    <button class="btn btn-primary waves-effect waves-light" type="button" disabled="">
+                                                                    <span class="spinner-border me-1" role="status" aria-hidden="true"></span>
+                                                                    Loading...
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="navs-password" role="tabpanel">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-10 pl-md-2 pt-md-0 pt-sm-4 pt-4">
+                                    <div class="tab-content px-primary">
+                                        <div id="Change Password-1" class="tab-pane fade active show">
+                                            <div class="d-flex justify-content-between">
+                                                <h5 class="d-flex align-items-center text-capitalize mb-0 title tab-content-header">
+                                                    Change Password
+                                                </h5>
+                                                <div class="d-flex align-items-center mb-0"></div>
+                                            </div>
+                                            <hr />
+                                            <div class="content py-primary" id="change-password">
+                                                <div class="content" id="Change Password-1">
+                                                    <form class="ajax-form" id="create-form" data-modal-id="change-password" action="{{ route('back-office.auth.change-password') }}" data-method="POST">
+                                                        @csrf
+
+                                                        <div class="form-group" placeholder="Enter old password" show-password="true">
+                                                            <div class="row align-items-center">
+                                                                <div class="col-lg-3 col-xl-3 col-md-3 col-sm-12">
+                                                                    <label class="text-left d-block mb-lg-0">
+                                                                        Old password <span class="text-danger">*</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-lg-8 col-xl-8 col-md-8 col-sm-12">
+                                                                    <div class="form-password-toggle">
+                                                                        <div class="input-group">
+                                                                            <input type="password" class="form-control" id="old_password" name="old_password" placeholder="············" aria-describedby="basic-default-password2" />
+                                                                            <span id="old_password" class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
+                                                                            <div class="fv-plugins-message-container invalid-feedback">
+                                                                            </div>
+                                                                            <span id="old_password_error" class="text-danger error"></span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group mt-2">
+                                                                <div class="row">
+                                                                    <div class="col-lg-3 col-xl-3">
+                                                                        <label for="input-text-new-password" class="text-left d-block mb-2 mb-lg-0">
+                                                                            New password <span class="text-danger">*</span>
+                                                                        </label>
+                                                                    </div>
+                                                                    <div class="col-lg-8 col-xl-8">
+                                                                        <div class="form-password-toggle">
+                                                                            <div class="input-group">
+                                                                                <input type="password" class="form-control" id="password" name="password" placeholder="············" aria-describedby="basic-default-password2" />
+                                                                                <span id="password" class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
+                                                                                <div class="fv-plugins-message-container invalid-feedback">
+                                                                                </div>
+                                                                                <span id="password_error" class="text-danger error"></span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group mt-2">
+                                                            <div class="row align-items-center">
+                                                                <div class="col-lg-3 col-xl-3 col-md-3 col-sm-12">
+                                                                    <label class="text-left d-block mb-lg-0">
+                                                                        Confirm password <span class="text-danger">*</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-lg-8 col-xl-8 col-md-8 col-sm-12">
+                                                                    <div class="form-password-toggle">
+                                                                        <div class="input-group">
+                                                                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="············" aria-describedby="basic-default-password2" />
+                                                                            <span id="password_confirmation" class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
+                                                                            <div class="fv-plugins-message-container invalid-feedback">
+                                                                            </div>
+                                                                            <span id="password_confirmation_error" class="text-danger error"></span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group mt-5 mb-0">
+                                                            <div class="col-12 mt-3">
+                                                                <div class="demo-inline-spacing sub-btn">
+                                                                    <button type="submit" class="btn btn-primary me-sm-3 me-1">Submit</button>
+                                                                </div>
+                                                                <div class="demo-inline-spacing loading-btn" style="display: none;">
+                                                                    <button class="btn btn-primary waves-effect waves-light" type="button" disabled="">
+                                                                    <span class="spinner-border me-1" role="status" aria-hidden="true"></span>
+                                                                    Loading...
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="navs-teams" role="tabpanel">
+                        <!-- Teams Cards -->
+                        <div class="row g-4">
+                            <div class="col-xl-4 col-lg-6 col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <a href="javascript:;" class="d-flex align-items-center">
+                                        <div class="avatar me-2">
+                                            <img
+                                            src="{{ asset('back-office') }}/assets/img/icons/brands/react-label.png"
+                                            alt="Avatar"
+                                            class="rounded-circle"
+                                            />
+                                        </div>
+                                        <div class="me-2 text-body h5 mb-0">React Developers</div>
+                                        </a>
+                                        <div class="ms-auto">
+                                        <ul class="list-inline mb-0 d-flex align-items-center">
+                                            <li class="list-inline-item me-0">
+                                            <a href="javascript:void(0);" class="text-body"
+                                                ><i class="ti ti-star text-muted me-1"></i
+                                            ></a>
+                                            </li>
+                                            <li class="list-inline-item">
+                                            <div class="dropdown">
+                                                <button
+                                                type="button"
+                                                class="btn dropdown-toggle hide-arrow p-0"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                                >
+                                                <i class="ti ti-dots-vertical text-muted"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item" href="javascript:void(0);">Rename Team</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);">View Details</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);">Add to favorites</a></li>
+                                                <li>
+                                                    <hr class="dropdown-divider" />
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger" href="javascript:void(0);">Delete Team</a>
+                                                </li>
+                                                </ul>
+                                            </div>
+                                            </li>
+                                        </ul>
+                                        </div>
+                                    </div>
+                                    <p class="mb-3">
+                                        We don’t make assumptions about the rest of your technology stack, so you can develop new
+                                        features in React.
+                                    </p>
+                                    <div class="d-flex align-items-center pt-1">
+                                        <div class="d-flex align-items-center">
+                                        <ul class="list-unstyled d-flex align-items-center avatar-group mb-0">
+                                            <li
+                                            data-bs-toggle="tooltip"
+                                            data-popup="tooltip-custom"
+                                            data-bs-placement="top"
+                                            title="Vinnie Mostowy"
+                                            class="avatar avatar-sm pull-up"
+                                            >
+                                            <img class="rounded-circle" src="{{ asset('back-office') }}/assets/img/avatars/5.png" alt="Avatar" />
+                                            </li>
+                                            <li
+                                            data-bs-toggle="tooltip"
+                                            data-popup="tooltip-custom"
+                                            data-bs-placement="top"
+                                            title="Allen Rieske"
+                                            class="avatar avatar-sm pull-up"
+                                            >
+                                            <img class="rounded-circle" src="{{ asset('back-office') }}/assets/img/avatars/12.png" alt="Avatar" />
+                                            </li>
+                                            <li
+                                            data-bs-toggle="tooltip"
+                                            data-popup="tooltip-custom"
+                                            data-bs-placement="top"
+                                            title="Julee Rossignol"
+                                            class="avatar avatar-sm pull-up"
+                                            >
+                                            <img class="rounded-circle" src="{{ asset('back-office') }}/assets/img/avatars/6.png" alt="Avatar" />
+                                            </li>
+                                            <li class="avatar avatar-sm">
+                                            <span
+                                                class="avatar-initial rounded-circle pull-up"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="8 more"
+                                                >+8</span
+                                            >
+                                            </li>
+                                        </ul>
+                                        </div>
+                                        <div class="ms-auto">
+                                        <a href="javascript:;" class="me-2"><span class="badge bg-label-primary">React</span></a>
+                                        <a href="javascript:;"><span class="badge bg-label-warning">Vue.JS</span></a>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-6 col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <a href="javascript:;" class="d-flex align-items-center">
+                                        <div class="avatar me-2">
+                                            <img
+                                            src="{{ asset('back-office') }}/assets/img/icons/brands/vue-label.png"
+                                            alt="Avatar"
+                                            class="rounded-circle"
+                                            />
+                                        </div>
+                                        <div class="me-2 text-body h5 mb-0">Vue.js Dev Team</div>
+                                        </a>
+                                        <div class="ms-auto">
+                                        <ul class="list-inline mb-0 d-flex align-items-center">
+                                            <li class="list-inline-item me-0">
+                                            <a href="javascript:void(0);" class="text-body"
+                                                ><i class="ti ti-star text-muted me-1"></i
+                                            ></a>
+                                            </li>
+                                            <li class="list-inline-item">
+                                            <div class="dropdown">
+                                                <button
+                                                type="button"
+                                                class="btn dropdown-toggle hide-arrow p-0"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                                >
+                                                <i class="ti ti-dots-vertical text-muted"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item" href="javascript:void(0);">Rename Team</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);">View Details</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);">Add to favorites</a></li>
+                                                <li>
+                                                    <hr class="dropdown-divider" />
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger" href="javascript:void(0);">Delete Team</a>
+                                                </li>
+                                                </ul>
+                                            </div>
+                                            </li>
+                                        </ul>
+                                        </div>
+                                    </div>
+                                    <p class="mb-3">
+                                        The development of Vue and its ecosystem is guided by an international team, some of whom have
+                                        chosen to be featured below.
+                                    </p>
+                                    <div class="d-flex align-items-center pt-1">
+                                        <div class="d-flex align-items-center">
+                                        <ul class="list-unstyled d-flex align-items-center avatar-group mb-0">
+                                            <li
+                                            data-bs-toggle="tooltip"
+                                            data-popup="tooltip-custom"
+                                            data-bs-placement="top"
+                                            title="Kaith D'souza"
+                                            class="avatar avatar-sm pull-up"
+                                            >
+                                            <img class="rounded-circle" src="{{ asset('back-office') }}/assets/img/avatars/5.png" alt="Avatar" />
+                                            </li>
+                                            <li
+                                            data-bs-toggle="tooltip"
+                                            data-popup="tooltip-custom"
+                                            data-bs-placement="top"
+                                            title="John Doe"
+                                            class="avatar avatar-sm pull-up"
+                                            >
+                                            <img class="rounded-circle" src="{{ asset('back-office') }}/assets/img/avatars/1.png" alt="Avatar" />
+                                            </li>
+                                            <li
+                                            data-bs-toggle="tooltip"
+                                            data-popup="tooltip-custom"
+                                            data-bs-placement="top"
+                                            title="Alan Walker"
+                                            class="avatar avatar-sm pull-up"
+                                            >
+                                            <img class="rounded-circle" src="{{ asset('back-office') }}/assets/img/avatars/6.png" alt="Avatar" />
+                                            </li>
+                                            <li class="avatar avatar-sm">
+                                            <span
+                                                class="avatar-initial rounded-circle pull-up"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="14 more"
+                                                >+14</span
+                                            >
+                                            </li>
+                                        </ul>
+                                        </div>
+                                        <div class="ms-auto">
+                                        <a href="javascript:;"><span class="badge bg-label-danger">Developer</span></a>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-6 col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <a href="javascript:;" class="d-flex align-items-center">
+                                        <div class="avatar me-2">
+                                            <img src="{{ asset('back-office') }}/assets/img/icons/brands/xd-label.png" alt="Avatar" class="rounded-circle" />
+                                        </div>
+                                        <div class="me-2 text-body h5 mb-0">Creative Designers</div>
+                                        </a>
+                                        <div class="ms-auto">
+                                        <ul class="list-inline mb-0 d-flex align-items-center">
+                                            <li class="list-inline-item me-0">
+                                            <a href="javascript:void(0);" class="text-body"
+                                                ><i class="ti ti-star text-muted me-1"></i
+                                            ></a>
+                                            </li>
+                                            <li class="list-inline-item">
+                                            <div class="dropdown">
+                                                <button
+                                                type="button"
+                                                class="btn dropdown-toggle hide-arrow p-0"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                                >
+                                                <i class="ti ti-dots-vertical text-muted"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item" href="javascript:void(0);">Rename Team</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);">View Details</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);">Add to favorites</a></li>
+                                                <li>
+                                                    <hr class="dropdown-divider" />
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger" href="javascript:void(0);">Delete Team</a>
+                                                </li>
+                                                </ul>
+                                            </div>
+                                            </li>
+                                        </ul>
+                                        </div>
+                                    </div>
+                                    <p class="mb-3">
+                                        A design or product team is more than just the people on it. A team includes the people, the
+                                        roles they play.
+                                    </p>
+                                    <div class="d-flex align-items-center pt-1">
+                                        <div class="d-flex align-items-center">
+                                        <ul class="list-unstyled d-flex align-items-center avatar-group mb-0">
+                                            <li
+                                            data-bs-toggle="tooltip"
+                                            data-popup="tooltip-custom"
+                                            data-bs-placement="top"
+                                            title="Jimmy Ressula"
+                                            class="avatar avatar-sm pull-up"
+                                            >
+                                            <img class="rounded-circle" src="{{ asset('back-office') }}/assets/img/avatars/4.png" alt="Avatar" />
+                                            </li>
+                                            <li
+                                            data-bs-toggle="tooltip"
+                                            data-popup="tooltip-custom"
+                                            data-bs-placement="top"
+                                            title="Kristi Lawker"
+                                            class="avatar avatar-sm pull-up"
+                                            >
+                                            <img class="rounded-circle" src="{{ asset('back-office') }}/assets/img/avatars/2.png" alt="Avatar" />
+                                            </li>
+                                            <li
+                                            data-bs-toggle="tooltip"
+                                            data-popup="tooltip-custom"
+                                            data-bs-placement="top"
+                                            title="Danny Paul"
+                                            class="avatar avatar-sm pull-up"
+                                            >
+                                            <img class="rounded-circle" src="{{ asset('back-office') }}/assets/img/avatars/7.png" alt="Avatar" />
+                                            </li>
+                                            <li class="avatar avatar-sm">
+                                            <span
+                                                class="avatar-initial rounded-circle pull-up"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="19 more"
+                                                >+19</span
+                                            >
+                                            </li>
+                                        </ul>
+                                        </div>
+                                        <div class="ms-auto">
+                                        <a href="javascript:;" class="me-2"><span class="badge bg-label-warning">Sketch</span></a>
+                                        <a href="javascript:;"><span class="badge bg-label-danger">XD</span></a>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--/ Teams Cards -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/ Navbar pills -->
+    </div>
+
+    @push('js')
+        <script>
+            function previewAvatar(event) {
+                const input = event.target;
+                const preview = document.getElementById('avatar_preview');
+
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block'; // show preview
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                } else {
+                    // Reset preview if no file selected
+                    preview.src = '';
+                    preview.style.display = 'none';
+                }
+            }
+        </script>
+    @endpush
+</x-app-layout>

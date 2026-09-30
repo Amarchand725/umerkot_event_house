@@ -555,21 +555,21 @@ class MakeModuleCommand extends Command
         $path = base_path("app/Modules/{$module}/Repositories/Eloquent/{$module}Repository.php");
 
         $stub = <<<PHP
-            <?php
+        <?php
 
-            namespace App\Modules\\{$module}\Repositories\Eloquent;
+        namespace App\Modules\\{$module}\Repositories\Eloquent;
 
-            use App\Repositories\Eloquent\BaseRepository;
-            use App\Modules\\{$module}\Repositories\Contracts\\{$module}Contract;
-            use App\Modules\\{$module}\Models\\{$module};
+        use App\Repositories\Eloquent\BaseRepository;
+        use App\Modules\\{$module}\Repositories\Contracts\\{$module}Contract;
+        use App\Modules\\{$module}\Models\\{$module};
 
-            class {$module}Repository extends BaseRepository implements {$module}Contract
+        class {$module}Repository extends BaseRepository implements {$module}Contract
+        {
+            public function __construct({$module} \$model)
             {
-                public function __construct({$module} \$model)
-                {
-                    parent::__construct(\$model);
-                }
+                parent::__construct(\$model);
             }
+        }
         PHP;
 
         // Save repository file

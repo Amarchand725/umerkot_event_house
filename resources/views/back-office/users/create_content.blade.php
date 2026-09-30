@@ -99,21 +99,6 @@
         />
         <span id="password_confirmation_error" class="text-danger error">{{ $errors->first('password_confirmation') }}</span>
     </div>
-    <!-- Name Input -->
-    <div class="col-12 col-md-6">
-        <label for="daily_capacity" class="form-label fw-semibold">
-            Daily Capacity <span class="text-danger">*</span>
-        </label>
-        <input 
-            type="number" 
-            id="daily_capacity" 
-            name="daily_capacity" 
-            class="form-control dob-picker" 
-            placeholder="Enter daily capacity"
-            value="{{ old('daily_capacity') }}"
-        />
-        <span id="daily_capacity_error" class="text-danger error">{{ $errors->first('daily_capacity') }}</span>
-    </div>
 
      <!-- Name Input -->
     <div class="col-12 col-md-6">

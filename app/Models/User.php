@@ -94,6 +94,11 @@ class User extends Authenticatable
         return $this->morphMany(OtpToken::class, 'model');
     }
 
+    public function statusInfo()
+    {
+        return $this->belongsTo(Status::class, 'status_id');
+    }
+
     public function avatar()
     {
         return $this->belongsTo(Attachment::class, 'avatar_id');

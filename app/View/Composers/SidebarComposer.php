@@ -11,7 +11,6 @@ class SidebarComposer
 {
     public function compose(View $view)
     {
-        $meetingCount = 0;
         $notificationCount = 0;
 
         $view->with('sidebarCounts', [
@@ -19,7 +18,6 @@ class SidebarComposer
             'users'         => User::count(),
             'roles'         => Role::count(),
             'activity_logs' => ActivityLog::count(),
-            'meetings'      => $meetingCount,
         ]);
     }
 }

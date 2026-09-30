@@ -307,3 +307,63 @@ $(document).on('click', '.edit-btn', function () {
     var content_url = $(this).attr('data-edit-url');
     loadForm(targeted_modal, store_url, modal_label, content_url);
 });
+
+function loadForm(targeted_modal, store_url, modal_label, content_url){
+    $(targeted_modal).find('#modal-label').html(modal_label);
+    $(targeted_modal).find("#create-form").attr("action", store_url);
+    $(targeted_modal).find("#create-form").attr("method", 'POST');
+
+    $.ajax({
+        url: content_url,
+        method: 'GET',
+        beforeSend: function () {
+            // Show a loading spinner or text before the response is loaded
+            $(targeted_modal).find('#edit-content').html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i> Loading...</div>');
+        },
+        success: function (response) {
+            const modal = $(targeted_modal);
+
+            if (typeof response.flag !== 'undefined') {
+                // For THIS module only (create = false, edit = true)
+                modal.find('#edit-content').html(response.html);
+            } else {
+                // All other modules
+                modal.find('#edit-content').html(response);
+            }
+
+            // ----- Initialize Select2 for all selects inside fields-wrapper -----
+            $('#fields-wrapper select').each(function () {
+                $(this).select2({
+                    dropdownParent: $(this).closest('.field-item'),
+                    width: '100%',
+                });
+            });
+
+            // ---------- Lead Capture form initialization ----------
+           if (
+                modal.find('#fields-wrapper').length &&
+                (typeof response.flag !== 'undefined' && response.flag === true)
+            ) {
+                // Reset wrapper and index
+                fieldIndex = 0;
+                $('#fields-wrapper').html('');
+
+                // Check if existingFields variable is passed from controller
+                if (typeof existingFields !== 'undefined' && Array.isArray(existingFields)) {
+                    existingFields.forEach((field, i) => renderField(field, i));
+                    fieldIndex = existingFields.length;
+                }
+            }
+            // ------------------------------------------------------
+        },
+        error: function (xhr) {
+            if (xhr.status === 403) {
+                // Handle permission error
+                $(targeted_modal).find('#edit-content').html('<div class="alert alert-danger text-center">You do not have permission to access this resource.</div>');
+            } else {
+                // Handle other errors
+                $(targeted_modal).find('#edit-content').html('<div class="alert alert-danger text-center">An error occurred. Please try again later.</div>');
+            }
+        }    
+    });
+}

@@ -31,14 +31,6 @@
         <td>{{ $model->phone??'-' }}</td>
     </tr>
     <tr>
-        <td class="text-nowrap fw-semibold">Daily Capacity</td>
-        <td>
-            <span class="badge rounded-pill px-3 py-2 bg-info text-white">
-            {{ $model->daily_capacity??'-' }}
-            </span>
-        </td>
-    </tr>
-    <tr>
         <td class="text-nowrap fw-semibold">Gender</td>
         <td>
             @if($model->gender=='M')
@@ -48,12 +40,6 @@
             @else
                 Other
             @endif
-        </td>
-    </tr>
-    <tr>
-        <td class="text-nowrap fw-semibold">Type</td>
-        <td>
-            {{ ucwords(str_replace('_', ' ', $model->type)) }}
         </td>
     </tr>
     

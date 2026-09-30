@@ -99,7 +99,7 @@
             <a href="{{ route('back-office.users.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-users"></i>
                 <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Agents') }}</span>
+                    <span>{{ module_label('list', 'Users') }}</span>
 
                     <span class="badge bg-primary">
                         {{ $sidebarCounts['users'] ?? 0 }}

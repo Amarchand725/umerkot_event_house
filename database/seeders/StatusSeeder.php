@@ -20,6 +20,10 @@ class StatusSeeder extends Seeder
             //EventCategory
             ['model' => 'EventCategory', 'name' => 'active'],
             ['model' => 'EventCategory', 'name' => 'de-active'],
+
+            //Inventory category
+            ['model' => 'InventoryCategory', 'name' => 'active'],
+            ['model' => 'InventoryCategory', 'name' => 'de-active'],
         ];
         
         foreach ($data as $item) {

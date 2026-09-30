@@ -108,5 +108,19 @@
             </a>
         </li>
         @endcan
+        @can('inventory_category-list')
+        <li class="menu-item {{ request()->is('back-office/inventory-categories') || request()->is('back-office/inventory-categories/*')?'active open':'' }}">
+            <a href="{{ route('back-office.inventory-categories.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-list"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Inventory Categories') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['inventory_categories'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
     </ul>
 </aside>

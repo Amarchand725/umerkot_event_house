@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Modules\EventCategory\Http\Requests;
+namespace App\Modules\InventoryCategory\Http\Requests;
 
 use App\Models\Status;
 use Illuminate\Foundation\Http\FormRequest;
 
-class EventCategoryRequest extends FormRequest
+class InventoryCategoryRequest extends FormRequest
 {
     public function authorize(): bool
     {

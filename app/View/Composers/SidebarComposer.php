@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Modules\ActivityLog\Models\ActivityLog;
 use App\Modules\EventCategory\Models\EventCategory;
+use App\Modules\InventoryCategory\Models\InventoryCategory;
 use Illuminate\View\View;
 
 class SidebarComposer
@@ -20,6 +21,7 @@ class SidebarComposer
             'roles'         => Role::count(),
             'activity_logs' => ActivityLog::count(),
             'event_categories' => EventCategory::count(),
+            'inventory_categories' => InventoryCategory::count(),
         ]);
     }
 }

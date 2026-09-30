@@ -130,6 +130,15 @@ class PermissionSeeder extends Seeder
             'event_category-view',
             'event_category-edit',
             'event_category-delete',
+
+            /*Inventory Category Management
+            |--------------------------------------------------------------------------
+            */
+            'inventory_category-list',
+            'inventory_category-create',
+            'inventory_category-view',
+            'inventory_category-edit',
+            'inventory_category-delete',
         ];
     }
 

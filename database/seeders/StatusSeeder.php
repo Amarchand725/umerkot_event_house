@@ -38,12 +38,19 @@ class StatusSeeder extends Seeder
             ['model' => 'InventoryItem', 'name' => 'de-active'],
 
             //Event
-            ['model' => 'Event', 'name' => 'active'],
-            ['model' => 'Event', 'name' => 'de-active'],
+            ['model' => 'Event', 'name' => 'pending'],
+            ['model' => 'Event', 'name' => 'Getting Ready'],
+            ['model' => 'Event', 'name' => 'Confirmed'],
+            ['model' => 'Event', 'name' => 'Cancelled'],
+            ['model' => 'Event', 'name' => 'Completed'],
 
             //Payment Method
-            ['model' => 'PaymentMethod', 'name' => 'active'],
-            ['model' => 'PaymentMethod', 'name' => 'de-active'],
+            ['model' => 'PaymentMethod', 'name' => 'Unpaid'],
+            ['model' => 'PaymentMethod', 'name' => 'Partially Paid'],
+            ['model' => 'PaymentMethod', 'name' => 'Paid'],
+            ['model' => 'PaymentMethod', 'name' => 'Overpaid'],
+            ['model' => 'PaymentMethod', 'name' => 'Refund Due'],
+            ['model' => 'PaymentMethod', 'name' => 'Refunded'],
 
             //Inventory Transaction
             ['model' => 'InventoryTransaction', 'name' => 'in'],

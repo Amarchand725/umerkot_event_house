@@ -6,6 +6,7 @@ use App\Http\Controllers\BackOffice\BaseModuleController;
 use App\Modules\Service\Repositories\Contracts\ServiceContract;
 use App\Modules\Service\Http\Requests\ServiceRequest;
 use App\Modules\Service\Models\Service;
+use App\Modules\Unit\Models\Unit;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -14,11 +15,14 @@ use App\Models\Status;
 class ServiceController extends BaseModuleController
 {
     protected $status;
-    
+    protected $unit;
+
     public function __construct(
         protected ServiceContract $serviceRepo
     ){
         $this->status = new Status();
+        $this->unit = new Unit();
+
         // Initialize common module variables automatically
         $this->autoInit();
     }
@@ -55,7 +59,7 @@ class ServiceController extends BaseModuleController
         $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                     . strtoupper($status) .
                     '</span>';
-        
+
         $row->author_id = $row->author
                 ? view('back-office.partials.avatar', ['user' => $row->author])->render()
                 : '-';
@@ -72,6 +76,8 @@ class ServiceController extends BaseModuleController
 
     public function create()
     {
+        $activeUnitStatusId = $this->status->where('model', 'Service')->where('name', 'active')->value('id');
+        $units = $this->unit->where('status_id', $activeUnitStatusId)->get();
         return (string) view($this->pathInitialize.'.create_content', get_defined_vars());
     }
 

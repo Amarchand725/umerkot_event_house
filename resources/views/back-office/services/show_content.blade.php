@@ -1,18 +1,30 @@
 <table class="table table-flush-spacing">
     <tr>
+        <td class="text-nowrap fw-semibold">Unit</td>
+        <td>{{ ucfirst($model?->unit?->name ?? '-') }}</td>
+    </tr>
+    <tr>
         <td class="text-nowrap fw-semibold">Name</td>
         <td>{{ ucfirst($model?->name ?? '-') }}</td>
     </tr>
     <tr>
+        <td class="text-nowrap fw-semibold">Price</td>
+        <td>{{ ucfirst($model?->price ?? '-') }}</td>
+    </tr>
+    <tr>
         <td class="text-nowrap fw-semibold">Status</td>
         <td>
-            @php 
+            @php
                 $status = $model?->status;
-            @endphp 
+            @endphp
             <span class="badge rounded-pill px-3 py-2 {{ badgeClass(strtolower($status->name)) ?? 'bg-light text-dark' }}">
                 {{ strtoupper($status->name) }}
             </span>
         </td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Description</td>
+        <td>{{ ucfirst($model?->description ?? '-') }}</td>
     </tr>
     @if($author = $model->author)
     <tr>

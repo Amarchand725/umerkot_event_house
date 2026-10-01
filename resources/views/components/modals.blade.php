@@ -42,7 +42,7 @@
                     </div>
                     <form method="POST" class="pt-0 fv-plugins-bootstrap5 fv-plugins-framework" id="create-form" data-modal-id="create-pop-up-modal">
                         @csrf
-    
+
                         <span id="edit-content"></span>
                         <div class="col-12 mt-3 action-btn">
                             <div class="demo-inline-spacing sub-btn">
@@ -81,7 +81,7 @@
                     </div>
                     <form method="POST" class="pt-0 fv-plugins-bootstrap5 fv-plugins-framework submitBtnWithFileUpload" id="create-form" data-modal-id="create-pop-up-modal-for-file" enctype="multipart/form-data">
                         @csrf
-    
+
                         <span id="edit-content"></span>
                         <div class="col-12 mt-3 action-btn">
                             <div class="demo-inline-spacing sub-btn">
@@ -124,7 +124,7 @@
                             type="hidden"
                             name="lead_ids"
                             class="selected_leads">
-    
+
                         <span id="edit-content"></span>
                         <div class="col-12 mt-3 action-btn">
                             <div class="demo-inline-spacing sub-btn">
@@ -150,7 +150,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="modal fade" id="create-pop-up-modal-x-large-for-file" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content p-3 p-md-5">
@@ -161,7 +161,7 @@
                     </div>
                     <form method="POST" class="pt-0 fv-plugins-bootstrap5 fv-plugins-framework submitBtnWithFileUpload" id="create-form" data-modal-id="create-pop-up-modal-x-large-for-file" enctype="multipart/form-data">
                         @csrf
-    
+
                         <div id="edit-content"></div>
                         <div class="col-12 mt-3 action-btn">
                             <div class="demo-inline-spacing sub-btn">
@@ -200,7 +200,7 @@
                     </div>
                     <form method="POST" class="pt-0 fv-plugins-bootstrap5 fv-plugins-framework" id="create-form" data-modal-id="create-pop-up-modal-large">
                         @csrf
-    
+
                         <span id="edit-content"></span>
                         <div class="col-12 mt-3 action-btn">
                             <div class="demo-inline-spacing sub-btn">

@@ -44,6 +44,13 @@ class StatusSeeder extends Seeder
             //Payment Method
             ['model' => 'PaymentMethod', 'name' => 'active'],
             ['model' => 'PaymentMethod', 'name' => 'de-active'],
+
+            //Inventory Transaction
+            ['model' => 'InventoryTransaction', 'name' => 'in'],
+            ['model' => 'InventoryTransaction', 'name' => 'out'],
+            ['model' => 'InventoryTransaction', 'name' => 'returned'],
+            ['model' => 'InventoryTransaction', 'name' => 'damaged'],
+            ['model' => 'InventoryTransaction', 'name' => 'lost'],
         ];
 
         foreach ($data as $item) {

@@ -13,12 +13,14 @@ use App\Models\Status;
 
 use App\Modules\InventoryItem\Models\InventoryItem;
 use App\Modules\EventCategory\Models\EventCategory;
+use App\Modules\PaymentMethod\Models\PaymentMethod;
 
 class EventController extends BaseModuleController
 {
     protected $status;
     protected $eventCategory;
     protected $inventoryItem;
+    protected $paymentMethod;
 
     public function __construct(
         protected EventContract $eventRepo
@@ -26,7 +28,7 @@ class EventController extends BaseModuleController
         $this->status = new Status();
         $this->eventCategory = new EventCategory();
         $this->inventoryItem = new InventoryItem();
-        
+        $this->paymentMethod = new PaymentMethod();
         // Initialize common module variables automatically
         $this->autoInit();
     }
@@ -40,7 +42,7 @@ class EventController extends BaseModuleController
             'total'      => ['label' => 'Total Bill', 'searchable' => 'total'],
             'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
             'payment_status'     => ['label' => 'Payment Status', 'html' => true, 'searchable' => false],
-            'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
+            // 'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
             'action'     => ['label' => 'Action', 'html' => true, 'searchable' => false],
         ];
@@ -154,9 +156,14 @@ class EventController extends BaseModuleController
             ->where('name', 'active')
             ->value('id');
 
+        $activePaymentMethodStatusId = $this->status->where('model', 'PaymentMethod')
+            ->where('name', 'active')
+            ->value('id');
+
         return [
             'eventCategories' => $this->eventCategory->where('status_id', $activeEventCatStatusId)->get(),
             'inventoryItems'   => $this->inventoryItem->where('status_id', $activeInventoryItemStatusId)->get(),
+            'paymentMethods' => $this->paymentMethod->where('status_id', $activePaymentMethodStatusId)->get(),
         ];
     }
 

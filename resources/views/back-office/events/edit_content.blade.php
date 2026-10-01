@@ -117,7 +117,7 @@
                     {{-- Address --}}
                     <div class="col-12">
                         <label for="address" class="form-label fw-semibold">
-                            Address
+                            Full Address
                         </label>
 
                         <textarea
@@ -480,6 +480,29 @@
             <div class="card-body">
 
                 <div class="row g-3">
+                    {{-- Payment Method --}}
+                    <div class="col-12">
+                        <label for="note" class="form-label fw-semibold">
+                            Payment Method
+                        </label>
+
+                        <select
+                            id="payment_method_id"
+                            name="payment_method_id"
+                            class="form-select"
+                        >
+                            <option value="">Select Payment Method</option>
+                            @foreach($paymentMethods as $paymentMethod)
+                                <option value="{{ $paymentMethod->id }}" @selected(old('payment_method_id') == $paymentMethod->id || (isset($model) && $model->payment_method_id == $paymentMethod->id))>
+                                    {{ $paymentMethod->name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <span id="payment_method_id_error" class="text-danger error">
+                            {{ $errors->first('payment_method_id') }}
+                        </span>
+                    </div>
 
                     {{-- Discount --}}
                     <div class="col-12 col-md-4">
@@ -604,34 +627,7 @@
             </div>
         </div>
     </div>
-
-
-    {{-- ============================================================
-        ACTIONS
-    ============================================================= --}}
-    <div class="col-12">
-        <div class="d-flex justify-content-end gap-2">
-
-            <a
-                href="{{ route('events.index') }}"
-                class="btn btn-secondary"
-            >
-                Cancel
-            </a>
-
-            <button
-                type="submit"
-                class="btn btn-primary"
-            >
-                <i class="ti ti-device-floppy me-1"></i>
-                Update Event
-            </button>
-
-        </div>
-    </div>
-
 </div>
-
 
 <script>
     $(document).ready(function () {

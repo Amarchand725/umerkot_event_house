@@ -12,4 +12,5 @@ return [
     \App\Modules\InventoryItem\Repositories\Contracts\InventoryItemContract::class => \App\Modules\InventoryItem\Repositories\Eloquent\InventoryItemRepository::class,
     \App\Modules\Event\Repositories\Contracts\EventContract::class => \App\Modules\Event\Repositories\Eloquent\EventRepository::class,
     \App\Modules\Payment\Repositories\Contracts\PaymentContract::class => \App\Modules\Payment\Repositories\Eloquent\PaymentRepository::class,
+    \App\Modules\PaymentMethod\Repositories\Contracts\PaymentMethodContract::class => \App\Modules\PaymentMethod\Repositories\Eloquent\PaymentMethodRepository::class,
 ];

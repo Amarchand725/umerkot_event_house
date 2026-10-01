@@ -1,6 +1,6 @@
 <div class="row g-3 mb-4">
     <!-- Name Input -->
-    <div class="col-12">
+    <div class="col-12 col-md-12">
         <label for="name" class="form-label fw-semibold">
             Name <span class="text-danger">*</span>
         </label>
@@ -14,8 +14,7 @@
         />
         <span id="name_error" class="text-danger error">{{ $errors->first('name') }}</span>
     </div>
-    <!-- Description Input -->
-    <div class="col-12"></div>
+    <div class="col-12 col-md-12"></div>
         <label for="description" class="form-label fw-semibold">
             Description
         </label>

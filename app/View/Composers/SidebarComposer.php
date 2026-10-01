@@ -28,6 +28,7 @@ class SidebarComposer
             'inventory_categories' => InventoryCategory::count(),
             'inventory_items' => InventoryItem::count(),
             'events' => Event::count(),
+            'payment_methods' => PaymentMethod::count(),
             'roles'         => Role::count(),
             'activity_logs' => ActivityLog::count(),
         ]);

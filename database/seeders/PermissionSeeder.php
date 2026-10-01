@@ -182,6 +182,16 @@ class PermissionSeeder extends Seeder
             'event-delete',
 
             /*
+            Payment Method Management
+            |--------------------------------------------------------------------------
+            */
+            'payment_method-list',
+            'payment_method-create',
+            'payment_method-view',
+            'payment_method-edit',
+            'payment_method-delete',
+
+            /*
             Payment Management
             |--------------------------------------------------------------------------
             */

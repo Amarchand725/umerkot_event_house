@@ -40,6 +40,10 @@ class StatusSeeder extends Seeder
             //Event
             ['model' => 'Event', 'name' => 'active'],
             ['model' => 'Event', 'name' => 'de-active'],
+
+            //Payment Method
+            ['model' => 'PaymentMethod', 'name' => 'active'],
+            ['model' => 'PaymentMethod', 'name' => 'de-active'],
         ];
 
         foreach ($data as $item) {

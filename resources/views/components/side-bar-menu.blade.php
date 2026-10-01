@@ -77,6 +77,20 @@
             </a>
         </li>
         @endcan
+        @can('payment_method-list')
+        <li class="menu-item {{ request()->is('back-office/payment_methods') || request()->is('back-office/payment_methods/*')?'active open':'' }}">
+            <a href="{{ route('back-office.payment_methods.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-list"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Payment Method') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['payment_methods'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
         @can('customer-list')
         <li class="menu-item {{ request()->is('back-office/customers') || request()->is('back-office/customers/*')?'active open':'' }}">
             <a href="{{ route('back-office.customers.index') }}" class="menu-link">

@@ -41,6 +41,7 @@ class StatusSeeder extends Seeder
             ['model' => 'Event', 'name' => 'pending'],
             ['model' => 'Event', 'name' => 'Getting Ready'],
             ['model' => 'Event', 'name' => 'Confirmed'],
+            ['model' => 'Event', 'name' => 'In Progress'],
             ['model' => 'Event', 'name' => 'Cancelled'],
             ['model' => 'Event', 'name' => 'Completed'],
 
@@ -58,6 +59,13 @@ class StatusSeeder extends Seeder
             ['model' => 'InventoryTransaction', 'name' => 'returned'],
             ['model' => 'InventoryTransaction', 'name' => 'damaged'],
             ['model' => 'InventoryTransaction', 'name' => 'lost'],
+
+            //Event Return Item
+            ['model' => 'EventReturnItem', 'name' => 'Pending Return'],
+            ['model' => 'EventReturnItem', 'name' => 'Partially Returned'],
+            ['model' => 'EventReturnItem', 'name' => 'Returned'],
+            ['model' => 'EventReturnItem', 'name' => 'Damaged'],
+            ['model' => 'EventReturnItem', 'name' => 'Lost'],
         ];
 
         foreach ($data as $item) {

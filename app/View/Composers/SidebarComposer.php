@@ -11,6 +11,7 @@ use App\Modules\Unit\Models\Unit;
 use App\Modules\InventoryItem\Models\InventoryItem;
 use App\Modules\Event\Models\Event;
 use App\Modules\InventoryCategory\Models\InventoryCategory;
+use App\Modules\PaymentMethod\Models\PaymentMethod;
 use Illuminate\View\View;
 
 class SidebarComposer

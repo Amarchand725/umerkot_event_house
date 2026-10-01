@@ -15,8 +15,9 @@ class PaymentMethodRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status_id' => ['nullable', 'integer'],
-'name' => ['required', 'string', 'max:255'],
+            'status_id' => ['nullable', 'exists:statuses,id'],
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:255'],
         ];
     }
 

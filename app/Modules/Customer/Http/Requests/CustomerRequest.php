@@ -17,6 +17,7 @@ class CustomerRequest extends FormRequest
         return [
             'status_id' => ['nullable', 'exists:statuses,id'],
             'name' => ['required', 'string', 'max:255'],
+            'caste' => ['required', 'string', 'max:255'],
             'cnic_no' => ['nullable', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20'],
             'alter_phone' => ['nullable', 'string', 'max:20'],

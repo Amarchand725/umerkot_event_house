@@ -15,6 +15,20 @@
         <span id="name_error" class="text-danger error">{{ $errors->first('name') }}</span>
     </div>
     <div class="col-12">
+        <label for="caste" class="form-label fw-semibold">
+            Caste <span class="text-danger">*</span>
+        </label>
+        <input
+            type="text"
+            id="caste"
+            name="caste"
+            class="form-control form-control-lg"
+            placeholder="Enter caste"
+            value="{{ old('caste') }}"
+        />
+        <span id="caste_error" class="text-danger error">{{ $errors->first('caste') }}</span>
+    </div>
+    <div class="col-12">
         <label for="cnic_no" class="form-label fw-semibold">
             CNIC No (Optional)
         </label>

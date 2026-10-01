@@ -27,6 +27,7 @@ class CustomerController extends BaseModuleController
     {
         $columns = [
             'name'      => ['label' => 'Name', 'searchable' => 'name'],
+            'caste'      => ['label' => 'Caste', 'searchable' => 'caste'],
             'phone'      => ['label' => 'Phone', 'searchable' => 'phone'],
             'address'      => ['label' => 'Address', 'searchable' => 'address'],
             'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],

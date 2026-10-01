@@ -4,6 +4,10 @@
         <td>{{ ucfirst($model?->name ?? '-') }}</td>
     </tr>
     <tr>
+        <td class="text-nowrap fw-semibold">Caste</td>
+        <td>{{ ucfirst($model?->caste ?? '-') }}</td>
+    </tr>
+    <tr>
         <td class="text-nowrap fw-semibold">CNIC No</td>
         <td>{{ ucfirst($model?->cnic_no ?? '-') }}</td>
     </tr>

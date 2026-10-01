@@ -11,17 +11,22 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Status;
 
-use App\Modules\InventItem\Models\InventItem;
+use App\Modules\InventoryItem\Models\InventoryItem;
 use App\Modules\EventCategory\Models\EventCategory;
 
 class EventController extends BaseModuleController
 {
     protected $status;
+    protected $eventCategory;
+    protected $inventoryItem;
 
     public function __construct(
         protected EventContract $eventRepo
     ){
         $this->status = new Status();
+        $this->eventCategory = new EventCategory();
+        $this->inventoryItem = new InventoryItem();
+        
         // Initialize common module variables automatically
         $this->autoInit();
     }
@@ -29,9 +34,9 @@ class EventController extends BaseModuleController
     public function index(Request $request)
     {
         $columns = [
-            'customer'      => ['label' => 'name', 'html' => true, 'searchable' => false],
-            'event'      => ['label' => 'Event Category', 'html' => true, 'searchable' => false],
-            'start_date'      => ['label' => 'Start Date', 'searchable' => 'start_date'],
+            'customer'      => ['label' => 'Customer', 'html' => true, 'searchable' => false],
+            'event'      => ['label' => 'Event', 'html' => true, 'searchable' => false],
+            'start_date'      => ['label' => 'Date & Time', 'searchable' => 'start_date'],
             'total'      => ['label' => 'Total Bill', 'searchable' => 'total'],
             'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
             'payment_status'     => ['label' => 'Payment Status', 'html' => true, 'searchable' => false],
@@ -79,12 +84,12 @@ class EventController extends BaseModuleController
 
     public function create()
     {
-        $activeEventCatStatusId = Status::where('model', 'EventCategory')->where('name', 'active')->value('id');
-        $activeInventoryItemStatusId = Status::where('model', 'InventItem')->where('name', 'active')->value('id');
-        $eventCategories = EventCategory::where('status_id', $activeEventCatStatusId)->get();
-        $inventoryItems = InventItem::where('status_id', $activeInventoryItemStatusId)->get();
+        $formData = $this->getFormData();
 
-        return (string) view($this->pathInitialize.'.create_content', get_defined_vars());
+        return (string) view(
+            $this->pathInitialize . '.create_content',
+            array_merge($formData, get_defined_vars())
+        );
     }
 
     public function store(EventRequest $request)
@@ -103,17 +108,17 @@ class EventController extends BaseModuleController
             ]);
         }
     }
-
     public function edit(Event $event)
     {
-        $activeEventCatStatusId = Status::where('model', 'EventCategory')->where('name', 'active')->value('id');
-        $activeInventoryItemStatusId = Status::where('model', 'InventItem')->where('name', 'active')->value('id');
-        $eventCategories = EventCategory::where('status_id', $activeEventCatStatusId)->get();
-        $inventoryItems = InventItem::where('status_id', $activeInventoryItemStatusId)->get();
+        $formData = $this->getFormData();
 
         $statuses = $this->status->where('model', 'Event')->get();
         $model = $this->eventRepo->showModel($event);
-        return (string) view($this->pathInitialize.'.edit_content', get_defined_vars());
+
+        return (string) view(
+            $this->pathInitialize . '.edit_content',
+            array_merge($formData, get_defined_vars())
+        );
     }
 
     public function update(EventRequest $request, Event $event)
@@ -137,6 +142,22 @@ class EventController extends BaseModuleController
     {
         $model = $this->eventRepo->showModel($event);
         return (string) view($this->pathInitialize.'.show_content', get_defined_vars());
+    }
+
+    private function getFormData(): array
+    {
+        $activeEventCatStatusId = $this->status->where('model', 'EventCategory')
+            ->where('name', 'active')
+            ->value('id');
+
+        $activeInventoryItemStatusId = $this->status->where('model', 'InventoryItem')
+            ->where('name', 'active')
+            ->value('id');
+
+        return [
+            'eventCategories' => $this->eventCategory->where('status_id', $activeEventCatStatusId)->get(),
+            'inventoryItems'   => $this->inventoryItem->where('status_id', $activeInventoryItemStatusId)->get(),
+        ];
     }
 
     public function destroy(Event $event)

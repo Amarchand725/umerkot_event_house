@@ -9,6 +9,7 @@ use App\Modules\EventCategory\Models\EventCategory;
 use App\Modules\Customer\Models\Customer;
 use App\Modules\Unit\Models\Unit;
 use App\Modules\InventoryItem\Models\InventoryItem;
+use App\Modules\Event\Models\Event;
 use App\Modules\InventoryCategory\Models\InventoryCategory;
 use Illuminate\View\View;
 
@@ -26,6 +27,7 @@ class SidebarComposer
             'event_categories' => EventCategory::count(),
             'inventory_categories' => InventoryCategory::count(),
             'inventory_items' => InventoryItem::count(),
+            'events' => Event::count(),
             'roles'         => Role::count(),
             'activity_logs' => ActivityLog::count(),
         ]);

@@ -36,6 +36,10 @@ class StatusSeeder extends Seeder
             //Inventory Item
             ['model' => 'InventoryItem', 'name' => 'active'],
             ['model' => 'InventoryItem', 'name' => 'de-active'],
+
+            //Event
+            ['model' => 'Event', 'name' => 'active'],
+            ['model' => 'Event', 'name' => 'de-active'],
         ];
 
         foreach ($data as $item) {

@@ -170,6 +170,26 @@ class PermissionSeeder extends Seeder
             'inventory_item-view',
             'inventory_item-edit',
             'inventory_item-delete',
+
+            /*
+            Event Management
+            |--------------------------------------------------------------------------
+            */
+            'event-list',
+            'event-create',
+            'event-view',
+            'event-edit',
+            'event-delete',
+
+            /*
+            Payment Management
+            |--------------------------------------------------------------------------
+            */
+            'payment-list',
+            'payment-create',
+            'payment-view',
+            'payment-edit',
+            'payment-delete',
         ];
     }
 

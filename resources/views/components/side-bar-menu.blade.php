@@ -63,6 +63,20 @@
             </a>
         </li>
         @endcan
+        @can('event-list')
+        <li class="menu-item {{ request()->is('back-office/events') || request()->is('back-office/events/*')?'active open':'' }}">
+            <a href="{{ route('back-office.events.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-list"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Events') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['events'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
         @can('customer-list')
         <li class="menu-item {{ request()->is('back-office/customers') || request()->is('back-office/customers/*')?'active open':'' }}">
             <a href="{{ route('back-office.customers.index') }}" class="menu-link">

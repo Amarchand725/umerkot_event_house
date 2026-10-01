@@ -10,4 +10,6 @@ return [
     \App\Modules\Customer\Repositories\Contracts\CustomerContract::class => \App\Modules\Customer\Repositories\Eloquent\CustomerRepository::class,
     \App\Modules\Unit\Repositories\Contracts\UnitContract::class => \App\Modules\Unit\Repositories\Eloquent\UnitRepository::class,
     \App\Modules\InventoryItem\Repositories\Contracts\InventoryItemContract::class => \App\Modules\InventoryItem\Repositories\Eloquent\InventoryItemRepository::class,
+    \App\Modules\Event\Repositories\Contracts\EventContract::class => \App\Modules\Event\Repositories\Eloquent\EventRepository::class,
+    \App\Modules\Payment\Repositories\Contracts\PaymentContract::class => \App\Modules\Payment\Repositories\Eloquent\PaymentRepository::class,
 ];

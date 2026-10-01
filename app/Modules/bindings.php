@@ -13,4 +13,5 @@ return [
     \App\Modules\Event\Repositories\Contracts\EventContract::class => \App\Modules\Event\Repositories\Eloquent\EventRepository::class,
     \App\Modules\Payment\Repositories\Contracts\PaymentContract::class => \App\Modules\Payment\Repositories\Eloquent\PaymentRepository::class,
     \App\Modules\PaymentMethod\Repositories\Contracts\PaymentMethodContract::class => \App\Modules\PaymentMethod\Repositories\Eloquent\PaymentMethodRepository::class,
+    \App\Modules\Service\Repositories\Contracts\ServiceContract::class => \App\Modules\Service\Repositories\Eloquent\ServiceRepository::class,
 ];

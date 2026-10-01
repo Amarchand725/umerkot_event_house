@@ -19,6 +19,7 @@ class InventoryItemRequest extends FormRequest
             'inventory_category_id' => ['nullable', 'exists:inventory_categories,id'],
             'unit_id' => ['nullable', 'exists:units,id'],
             'name' => ['required', 'string', 'max:255'],
+            'price_per_unit' => ['required', 'numeric', 'min:0'],
             'total_quantity' => ['nullable', 'integer', 'max:255'],
             'minimum_quantity' => ['nullable', 'integer', 'max:255'],
         ];

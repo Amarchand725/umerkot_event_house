@@ -30,6 +30,7 @@ class InventoryItemController extends BaseModuleController
         $columns = [
             'name'      => ['label' => 'Name', 'searchable' => 'name'],
             'sku'      => ['label' => 'SKU', 'searchable' => 'sku'],
+            'price_per_unit'      => ['label' => 'Price Per Unit', 'searchable' => 'price_per_unit'],
             'total_quantity'      => ['label' => 'Total Qty', 'searchable' => 'total_quantity'],
             'minimum_quantity'      => ['label' => 'Min Qty', 'searchable' => 'minimum_quantity'],
             'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],

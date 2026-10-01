@@ -17,6 +17,7 @@ class CustomerSeeder extends Seeder
         $customers = [
             [
                 'name' => 'Ahmed Ali',
+                'caste' => 'Rajput',
                 'cnic_no' => '41301-1234567-1',
                 'phone' => '03001234567',
                 'alter_phone' => '03111234567',
@@ -26,6 +27,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Muhammad Asif',
+                'caste' => 'Memon',
                 'cnic_no' => '41301-2345678-3',
                 'phone' => '03211234567',
                 'alter_phone' => null,
@@ -35,6 +37,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Sajid Hussain',
+                'caste' => 'Syed',
                 'cnic_no' => '41301-3456789-5',
                 'phone' => '03331234567',
                 'alter_phone' => '03451234567',

@@ -12,6 +12,10 @@
         <td>{{ ucfirst($model?->name ?? '-') }}</td>
     </tr>
     <tr>
+        <td class="text-nowrap fw-semibold">Price Per Unit</td>
+        <td>{{ ucfirst($model?->price_per_unit ?? '-') }}</td>
+    </tr>
+    <tr>
         <td class="text-nowrap fw-semibold">Total Qty</td>
         <td>{{ ucfirst($model?->total_quantity ?? '-') }}</td>
     </tr>

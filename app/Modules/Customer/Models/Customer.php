@@ -15,7 +15,7 @@ class Customer extends Model
 {
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
-    protected $fillable = ['name', 'cnic_no', 'phone', 'alter_phone', 'email', 'address', 'note', 'status_id'];
+    protected $fillable = ['name', 'caste', 'cnic_no', 'phone', 'alter_phone', 'email', 'address', 'note', 'status_id'];
 
     protected static function booted()
     {

@@ -40,6 +40,20 @@
         <span id="name_error" class="text-danger error">{{ $errors->first('name') }}</span>
     </div>
     <div class="col-12 col-md-6">
+        <label for="price_per_unit" class="form-label fw-semibold">
+            Price Per Unit <span class="text-danger">*</span>
+        </label>
+        <input
+            type="text"
+            id="price_per_unit"
+            name="price_per_unit"
+            class="form-control form-control-lg"
+            placeholder="Enter price per unit"
+            value="{{ old('price_per_unit', $model->price_per_unit) }}"
+        />
+        <span id="price_per_unit_error" class="text-danger error">{{ $errors->first('price_per_unit') }}</span>
+    </div>
+    <div class="col-12 col-md-6">
         <label for="total_quantity" class="form-label fw-semibold">
             Total Qty (Optional)
         </label>

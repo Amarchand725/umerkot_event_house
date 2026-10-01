@@ -13,8 +13,8 @@ return new class extends Migration {
             $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
             $table->string('name')->nullable();
-            $table->decimal('price', 2, 12)->default(0);
-            $table->decimal('discount', 2, 12)->default(0);
+            $table->decimal('price', 12, 2)->default(0);
+            $table->decimal('discount', 12, 2)->default(0);
             $table->string('description')->nullable();
             $table->softDeletes();
             $table->timestamps();

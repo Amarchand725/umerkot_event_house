@@ -17,10 +17,10 @@ return new class extends Migration
             $table->foreignId('event_addition_id')->nullable()->constrained('event_additions')->nullOnDelete();
             $table->foreignId('inventory_item_id')->nullable()->constrained('inventory_items')->nullOnDelete();
             $table->integer('quantity')->nullable();
-            $table->decimal('unit_price', 2, 12)->default(0);
+            $table->decimal('unit_price', 12, 2)->default(0);
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->decimal('total', 2, 12)->default(0);
+            $table->decimal('total', 12, 2)->default(0);
             $table->string('note')->nullable();
             $table->timestamps();
         });

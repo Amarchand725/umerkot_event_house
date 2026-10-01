@@ -200,6 +200,16 @@ class PermissionSeeder extends Seeder
             'payment-view',
             'payment-edit',
             'payment-delete',
+
+            /*
+            Package Management
+            |--------------------------------------------------------------------------
+            */
+            'package-list',
+            'package-create',
+            'package-view',
+            'package-edit',
+            'package-delete',
         ];
     }
 

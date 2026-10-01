@@ -66,6 +66,10 @@ class StatusSeeder extends Seeder
             ['model' => 'EventReturnItem', 'name' => 'Returned'],
             ['model' => 'EventReturnItem', 'name' => 'Damaged'],
             ['model' => 'EventReturnItem', 'name' => 'Lost'],
+
+            //Package
+            ['model' => 'Package', 'name' => 'active'],
+            ['model' => 'Package', 'name' => 'de-active'],
         ];
 
         foreach ($data as $item) {

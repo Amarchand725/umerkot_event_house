@@ -13,6 +13,7 @@ use App\Modules\Event\Models\Event;
 use App\Modules\InventoryCategory\Models\InventoryCategory;
 use App\Modules\PaymentMethod\Models\PaymentMethod;
 use App\Modules\Package\Models\Package;
+use App\Modules\Service\Models\Service;
 use Illuminate\View\View;
 
 class SidebarComposer
@@ -27,6 +28,7 @@ class SidebarComposer
             'customers'         => Customer::count(),
             'events' => Event::count(),
             'packages' => Package::count(),
+            'services'         => Service::count(),
             'units'         => Unit::count(),
             'event_categories' => EventCategory::count(),
             'inventory_categories' => InventoryCategory::count(),

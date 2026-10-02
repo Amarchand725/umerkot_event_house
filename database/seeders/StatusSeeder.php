@@ -72,6 +72,10 @@ class StatusSeeder extends Seeder
             //Package
             ['model' => 'Package', 'name' => 'active'],
             ['model' => 'Package', 'name' => 'de-active'],
+
+            //Service
+            ['model' => 'Service', 'name' => 'active'],
+            ['model' => 'Service', 'name' => 'de-active'],
         ];
 
         foreach ($data as $item) {

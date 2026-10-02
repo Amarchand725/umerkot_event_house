@@ -210,6 +210,16 @@ class PermissionSeeder extends Seeder
             'package-view',
             'package-edit',
             'package-delete',
+
+            /*
+            Service Management
+            |--------------------------------------------------------------------------
+            */
+            'service-list',
+            'service-create',
+            'service-view',
+            'service-edit',
+            'service-delete',
         ];
     }
 

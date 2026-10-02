@@ -260,6 +260,20 @@
             </a>
         </li>
         @endcan
+        @can('expense-list')
+        <li class="menu-item {{ request()->is('back-office/expenses') || request()->is('back-office/expenses/*')?'active open':'' }}">
+            <a href="{{ route('back-office.expenses.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-activity"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Expenses') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['expenses'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
 
         <li class="menu-header small text-uppercase">
             <span class="menu-header-text">SYSTEM</span>

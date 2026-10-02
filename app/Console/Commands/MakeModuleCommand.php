@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\File;
 class MakeModuleCommand extends Command
 {
     /**
-     * The name and signature of the console command if multiple than 
+     * The name and signature of the console command if multiple than
      * make:module even-category
      *
      * @var string
@@ -177,6 +177,7 @@ class MakeModuleCommand extends Command
                 [$name, $type] = explode(':', $field);
                 if ($name === 'id') return "\$table->id();";
                 if ($name === 'ulid') return "\$table->ulid('ulid')->unique();";
+                if ($name === 'author_id') return "\$table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();";
                 if ($name === 'status_id') return "\$table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();";
                 return "\$table->{$type}('{$name}')->nullable();";
             })
@@ -194,7 +195,6 @@ class MakeModuleCommand extends Command
             {
                 Schema::create('{$table}', function (Blueprint \$table) {
                     {$columns}
-                    \$table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
                     \$table->softDeletes();
                     \$table->timestamps();
                 });
@@ -234,7 +234,7 @@ class MakeModuleCommand extends Command
         class {$module}Controller extends BaseModuleController
         {
             protected \$status;
-            
+
             public function __construct(
                 protected {$module}Contract \${$variable}Repo
             ){
@@ -275,7 +275,7 @@ class MakeModuleCommand extends Command
                 \$row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass(\$status) .'">'
                             . strtoupper(\$status) .
                             '</span>';
-                
+
                 \$row->author_id = \$row->author
                         ? view('back-office.partials.avatar', ['user' => \$row->author])->render()
                         : '-';
@@ -510,7 +510,7 @@ class MakeModuleCommand extends Command
         }
 
         public function prepareForValidation()
-        {   
+        {
             if (\$this->has('status_id')) {
                 \$this->merge([
                     'status_id' => Status::where('ulid', \$this->input('status_id'))->value('id')
@@ -631,7 +631,7 @@ class MakeModuleCommand extends Command
         $parameter = Str::camel($module);      // eventCategory
 
         $singular = Str::lower($module);                 // e.g., country
-        $plural   = Str::plural($singular); 
+        $plural   = Str::plural($singular);
         $controller = "{$module}Controller";
         $routeFile = base_path("routes/back-office/{$kebab}.php");
 

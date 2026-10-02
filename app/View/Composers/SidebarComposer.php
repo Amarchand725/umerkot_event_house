@@ -16,6 +16,7 @@ use App\Modules\PaymentMethod\Models\PaymentMethod;
 use App\Modules\Package\Models\Package;
 use App\Modules\Service\Models\Service;
 use App\Modules\ExpenseCategory\Models\ExpenseCategory;
+use App\Modules\Expense\Models\Expense;
 use Illuminate\View\View;
 
 class SidebarComposer
@@ -43,6 +44,7 @@ class SidebarComposer
             'payment_methods' => PaymentMethod::count(),
 
             'expense_categories' => ExpenseCategory::count(),
+            'expenses' => Expense::count(),
 
             'activity_logs' => ActivityLog::count(),
         ]);

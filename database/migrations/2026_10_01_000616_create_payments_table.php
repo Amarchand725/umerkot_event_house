@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->decimal('amount', 12, 2)->default(0);
             $table->date('payment_date')->nullable();
             $table->string('reference_number')->nullable();
-            $table->string('note')->nullable();
+            $table->text('note')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

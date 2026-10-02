@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
             $table->foreignId('unit_id')->nullable()->constrained('units')->nullOnDelete();
             $table->string('name')->nullable();
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->decimal('price', 12, 2)->default(0);
             $table->softDeletes();
             $table->timestamps();

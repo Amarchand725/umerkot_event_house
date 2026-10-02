@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('quantity')->default(0);
             $table->integer('available_quantity')->default(0);
             $table->date('transaction_date')->nullable();
-            $table->string('note')->nullable();
+            $table->text('note')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

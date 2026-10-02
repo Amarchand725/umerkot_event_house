@@ -7,15 +7,19 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('event_additions', function (Blueprint $table) {
+        Schema::create('expenses', function (Blueprint $table) {
             $table->id();
             $table->ulid('ulid')->unique();
             $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
             $table->foreignId('event_id')->nullable()->constrained('events')->nullOnDelete();
-            $table->date('addition_date')->nullable();
-            $table->text('reason')->nullable();
-            $table->text('note')->nullable();
+            $table->foreignId('expense_category_id')->nullable()->constrained('expense_categories')->nullOnDelete();
+            $table->foreignId('payment_method_id')->nullable()->constrained('payment_methods')->nullOnDelete();
+            $table->foreignId('attachment_id')->nullable()->constrained('attachments')->nullOnDelete();
+            $table->decimal('amount', 12, 2)->default(0);
+            $table->string('reference')->nullable();
+            $table->date('expense_date')->nullable();
+            $table->text('description')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -23,6 +27,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('event_additions');
+        Schema::dropIfExists('expenses');
     }
 };

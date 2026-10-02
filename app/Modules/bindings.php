@@ -17,4 +17,5 @@ return [
     \App\Modules\EventAddition\Repositories\Contracts\EventAdditionContract::class => \App\Modules\EventAddition\Repositories\Eloquent\EventAdditionRepository::class,
     \App\Modules\Package\Repositories\Contracts\PackageContract::class => \App\Modules\Package\Repositories\Eloquent\PackageRepository::class,
     \App\Modules\ExpenseCategory\Repositories\Contracts\ExpenseCategoryContract::class => \App\Modules\ExpenseCategory\Repositories\Eloquent\ExpenseCategoryRepository::class,
+    \App\Modules\Expense\Repositories\Contracts\ExpenseContract::class => \App\Modules\Expense\Repositories\Eloquent\ExpenseRepository::class,
 ];

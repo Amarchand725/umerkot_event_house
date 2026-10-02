@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('quantity')->default(0);
             $table->decimal('price', 12, 2)->default(0);
             $table->decimal('subtotal', 12, 2)->default(0);
-            $table->string('notes')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

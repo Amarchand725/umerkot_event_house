@@ -27,7 +27,7 @@ class InventoryCategorySeeder extends Seeder
             ->value('id');
 
         foreach ($categories as $category) {
-            InventoryCategory::firstOrCreate(
+            InventoryCategory::updateOrCreate(
                 ['name' => $category],
                 [
                     'status_id' => $statusId,

@@ -35,7 +35,7 @@ class EventCategorySeeder extends Seeder
             ->id;
 
         foreach ($categories as $category) {
-            EventCategory::firstOrCreate([
+            EventCategory::updateOrCreate([
                 'name' => $category,
                 'status_id' => $statusId,
             ]);

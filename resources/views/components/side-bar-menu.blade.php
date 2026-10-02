@@ -244,7 +244,25 @@
         @endcan
 
         <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">BILLING</span>
+            <span class="menu-header-text">FINANCE</span>
+        </li>
+        @can('expense_category-list')
+        <li class="menu-item {{ request()->is('back-office/expense-categories') || request()->is('back-office/expense-categories/*')?'active open':'' }}">
+            <a href="{{ route('back-office.expense-categories.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-activity"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Expense Categories') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['expense_categorys'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
+
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">SYSTEM</span>
         </li>
         @can('activity_log-list')
         <li class="menu-item {{ request()->is('back-office/activity-logs') || request()->is('back-office/activity-logs/*')?'active open':'' }}">

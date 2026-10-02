@@ -76,6 +76,10 @@ class StatusSeeder extends Seeder
             //Service
             ['model' => 'Service', 'name' => 'active'],
             ['model' => 'Service', 'name' => 'de-active'],
+
+            //Expense Category
+            ['model' => 'ExpenseCategory', 'name' => 'active'],
+            ['model' => 'ExpenseCategory', 'name' => 'de-active'],
         ];
 
         foreach ($data as $item) {

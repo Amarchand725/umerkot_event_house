@@ -220,6 +220,16 @@ class PermissionSeeder extends Seeder
             'service-view',
             'service-edit',
             'service-delete',
+
+            /*
+            Expense Category Management
+            |--------------------------------------------------------------------------
+            */
+            'expense_category-list',
+            'expense_category-create',
+            'expense_category-view',
+            'expense_category-edit',
+            'expense_category-delete',
         ];
     }
 

@@ -721,7 +721,6 @@
                                     <select
                                         name="items[0][inventory_item_id]"
                                         class="form-select inventory-item"
-                                        disabled
                                     >
 
                                         <option value="">
@@ -2030,6 +2029,5 @@
     </div>
 
 </div>
-
 
 <script src="{{ asset('back-office/event-js/event-form.js') }}"></script>

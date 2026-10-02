@@ -63,7 +63,7 @@ class InventoryItemSeeder extends Seeder
         $statusId = Status::where('model', 'InventoryItem')->value('id');
 
         foreach ($items as $item) {
-            InventoryItem::firstOrCreate([
+            InventoryItem::updateOrCreate([
                 ...$item,
                 'inventory_category_id' => $inventoryCategoryId,
                 'status_id' => $statusId,

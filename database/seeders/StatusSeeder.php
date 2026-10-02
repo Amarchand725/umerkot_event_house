@@ -46,6 +46,8 @@ class StatusSeeder extends Seeder
             ['model' => 'Event', 'name' => 'Completed'],
 
             //Payment Method
+            ['model' => 'PaymentMethod', 'name' => 'active'],
+            ['model' => 'PaymentMethod', 'name' => 'de-active'],
             ['model' => 'PaymentMethod', 'name' => 'Unpaid'],
             ['model' => 'PaymentMethod', 'name' => 'Partially Paid'],
             ['model' => 'PaymentMethod', 'name' => 'Paid'],

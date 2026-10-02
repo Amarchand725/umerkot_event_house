@@ -20,7 +20,7 @@ class PaymentMethodSeeder extends Seeder
             'Online Payment',
         ];
 
-        $statusId = Status::where('model', 'PaymentMethod')->where('name', 'Active')->value('id');
+        $statusId = Status::where('model', 'PaymentMethod')->where('name', 'active')->value('id');
         foreach ($paymentMethods as $name) {
             ModelsPaymentMethod::updateOrCreate(
                 ['name' => $name],

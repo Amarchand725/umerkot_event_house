@@ -78,21 +78,6 @@
         </li>
         @endcan
 
-        @can('package-list')
-        <li class="menu-item {{ request()->is('back-office/packages') || request()->is('back-office/packages/*')?'active open':'' }}">
-            <a href="{{ route('back-office.packages.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-list"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'packages') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['packages'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
-
         @can('customer-list')
         <li class="menu-item {{ request()->is('back-office/customers') || request()->is('back-office/customers/*')?'active open':'' }}">
             <a href="{{ route('back-office.customers.index') }}" class="menu-link">
@@ -107,6 +92,20 @@
             </a>
         </li>
         @endcan
+        @can('package-list')
+        <li class="menu-item {{ request()->is('back-office/packages') || request()->is('back-office/packages/*')?'active open':'' }}">
+            <a href="{{ route('back-office.packages.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-list"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Packages') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['packages'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
         @can('payment_method-list')
         <li class="menu-item {{ request()->is('back-office/payment-methods') || request()->is('back-office/payment-methods/*')?'active open':'' }}">
             <a href="{{ route('back-office.payment-methods.index') }}" class="menu-link">
@@ -115,7 +114,7 @@
                     <span>{{ module_label('list', 'Payment Method') }}</span>
 
                     <span class="badge bg-primary">
-                        {{ $sidebarCounts['payment-methods'] ?? 0 }}
+                        {{ $sidebarCounts['payment_methods'] ?? 0 }}
                     </span>
                 </div>
             </a>

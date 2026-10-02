@@ -24,6 +24,13 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             RolePermissionSeeder::class,
             UserSeeder::class,
+            InventoryCategorySeeder::class,
+            InventoryItemSeeder::class,
+            EventCategorySeeder::class,
+            UnitSeeder::class,
+            PaymentMethodSeeder::class,
+            PackageSeeder::class,
+            InventoryItemSeeder::class,
         ]);
     }
 }

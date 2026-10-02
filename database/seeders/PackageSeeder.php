@@ -4,11 +4,10 @@ namespace Database\Seeders;
 
 use App\Modules\InventoryItem\Models\InventoryItem;
 use App\Modules\Package\Models\Package;
-use App\Modules\PackageItem\Models\PackageItem;
+use App\Models\PackageItem;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class PackageSeeder extends Seeder
 {

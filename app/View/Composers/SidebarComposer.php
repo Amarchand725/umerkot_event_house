@@ -4,6 +4,7 @@ namespace App\View\Composers;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Models\EventService;
 use App\Modules\ActivityLog\Models\ActivityLog;
 use App\Modules\EventCategory\Models\EventCategory;
 use App\Modules\Customer\Models\Customer;
@@ -26,15 +27,20 @@ class SidebarComposer
             'notifications' => $notificationCount,
             'users'         => User::count(),
             'customers'         => Customer::count(),
-            'events' => Event::count(),
-            'packages' => Package::count(),
+            'roles'         => Role::count(),
+
             'services'         => Service::count(),
+            'packages' => Package::count(),
             'units'         => Unit::count(),
-            'event_categories' => EventCategory::count(),
             'inventory_categories' => InventoryCategory::count(),
             'inventory_items' => InventoryItem::count(),
+
+            'event_categories' => EventCategory::count(),
+            'events' => Event::count(),
+            'event_services' => EventService::count(),
+
             'payment_methods' => PaymentMethod::count(),
-            'roles'         => Role::count(),
+
             'activity_logs' => ActivityLog::count(),
         ]);
     }

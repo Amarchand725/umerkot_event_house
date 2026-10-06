@@ -196,34 +196,6 @@
             </a>
         </li>
         @endcan
-        @can('event_service-list')
-        <li class="menu-item {{ request()->is('back-office/event-services') || request()->is('back-office/event-services/*')?'active open':'' }}">
-            <a href="{{ route('back-office.event-services.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-list"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Event Services') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['event-services'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
-        @can('event_item-list')
-        <li class="menu-item {{ request()->is('back-office/event-items') || request()->is('back-office/event-items/*')?'active open':'' }}">
-            <a href="{{ route('back-office.event-items.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-list"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Event Items') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['event-items'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
 
         <li class="menu-header small text-uppercase">
             <span class="menu-header-text">BILLING</span>
@@ -292,14 +264,5 @@
             </a>
         </li>
         @endcan
-
-        {{-- BILLING
-        ├── Payment Methods
-        ├── Payments
-        └── Payment Allocations
-
-        FINANCE
-        ├── Discounts / Taxes
-        └── Expenses --}}
     </ul>
 </aside>

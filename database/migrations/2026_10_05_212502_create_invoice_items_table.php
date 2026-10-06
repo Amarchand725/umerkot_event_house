@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('invoice_id')->nullable()->constrained('invoices')->nullOnDelete();
             $table->foreignId('order_item_id')->nullable()->constrained('order_items')->nullOnDelete();
             $table->foreignId('order_service_id')->nullable()->constrained('order_services')->nullOnDelete();
-            $table->foreignId('order_package_id')->nullable()->constrained('order_packages')->nullOnDelete();
+            $table->foreignId('package_id')->nullable()->constrained('packages')->nullOnDelete();
             $table->timestamps();
         });
     }

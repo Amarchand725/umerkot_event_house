@@ -37,19 +37,6 @@ return new class extends Migration {
             $table->dateTime('end_date')->nullable();
             $table->string('venue')->nullable();
 
-            // Billing
-            // $table->decimal('subtotal', 12, 2)->default(0);
-            // $table->decimal('discount', 12, 2)->default(0);
-            // $table->decimal('total', 12, 2)->default(0);
-
-            // // Payments
-            // $table->decimal('security_deposit', 12, 2)->default(0);
-            // $table->decimal('advance_amount', 12, 2)->default(0);
-            // $table->decimal('paid_amount', 12, 2)->default(0);
-            // $table->decimal('remaining_amount', 12, 2)->default(0);
-
-            // $table->string('payment_status')->nullable();
-
             $table->text('note')->nullable();
 
             $table->softDeletes();

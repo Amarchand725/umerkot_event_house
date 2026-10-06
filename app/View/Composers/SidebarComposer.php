@@ -4,7 +4,6 @@ namespace App\View\Composers;
 
 use App\Models\Role;
 use App\Models\User;
-use App\Models\EventService;
 use App\Modules\ActivityLog\Models\ActivityLog;
 use App\Modules\EventCategory\Models\EventCategory;
 use App\Modules\Customer\Models\Customer;
@@ -39,7 +38,6 @@ class SidebarComposer
 
             'event_categories' => EventCategory::count(),
             'events' => Event::count(),
-            'event_services' => EventService::count(),
 
             'payment_methods' => PaymentMethod::count(),
 

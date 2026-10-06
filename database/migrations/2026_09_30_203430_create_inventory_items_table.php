@@ -15,6 +15,8 @@ return new class extends Migration {
             $table->foreignId('inventory_category_id')->nullable()->constrained('inventory_categories')->nullOnDelete();
             $table->foreignId('unit_id')->nullable()->constrained('units')->nullOnDelete();
             $table->string('name')->nullable();
+            $table->decimal('price_per_unit', 12, 2)->default(0);
+            $table->string('price_duration')->default('24');
             $table->string('sku')->unique();
             $table->integer('total_quantity')->nullable();
             $table->integer('minimum_quantity')->default(50);

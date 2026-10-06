@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('package_services', function (Blueprint $table) {
             $table->id();
             $table->ulid('ulid')->unique();
+            $table->foreignId('package_id')->nullable()->constrained('packages')->nullOnDelete();
             $table->foreignId('service_id')->nullable()->constrained('services')->nullOnDelete();
             $table->integer('quantity')->default(0);
             $table->decimal('unit_price', 12, 2)->default(0);

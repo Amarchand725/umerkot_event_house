@@ -19,8 +19,8 @@ return new class extends Migration
             $table->foreignId('order_item_id')->nullable()->constrained('order_items')->nullOnDelete();
             $table->foreignId('inventory_item_id')->nullable()->constrained('inventory_items')->nullOnDelete();
             $table->integer('quantity')->default(0);
-            $table->timestamps('allocated_at')->nullable();
-            $table->timestamps('released_at')->nullable();
+            $table->dateTime('allocated_at')->nullable();
+            $table->dateTime('released_at')->nullable();
             $table->text('note')->nullable();
             $table->timestamps();
         });

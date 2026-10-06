@@ -14,7 +14,6 @@ return [
     \App\Modules\Payment\Repositories\Contracts\PaymentContract::class => \App\Modules\Payment\Repositories\Eloquent\PaymentRepository::class,
     \App\Modules\PaymentMethod\Repositories\Contracts\PaymentMethodContract::class => \App\Modules\PaymentMethod\Repositories\Eloquent\PaymentMethodRepository::class,
     \App\Modules\Service\Repositories\Contracts\ServiceContract::class => \App\Modules\Service\Repositories\Eloquent\ServiceRepository::class,
-    \App\Modules\EventAddition\Repositories\Contracts\EventAdditionContract::class => \App\Modules\EventAddition\Repositories\Eloquent\EventAdditionRepository::class,
     \App\Modules\Package\Repositories\Contracts\PackageContract::class => \App\Modules\Package\Repositories\Eloquent\PackageRepository::class,
     \App\Modules\ExpenseCategory\Repositories\Contracts\ExpenseCategoryContract::class => \App\Modules\ExpenseCategory\Repositories\Eloquent\ExpenseCategoryRepository::class,
     \App\Modules\Expense\Repositories\Contracts\ExpenseContract::class => \App\Modules\Expense\Repositories\Eloquent\ExpenseRepository::class,

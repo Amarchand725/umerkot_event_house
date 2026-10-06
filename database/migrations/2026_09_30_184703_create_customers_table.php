@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
             $table->string('name')->nullable();
+            $table->string('caste')->nullable();
             $table->string('cnic_no')->nullable();
             $table->string('phone');
             $table->string('alter_phone')->nullable();

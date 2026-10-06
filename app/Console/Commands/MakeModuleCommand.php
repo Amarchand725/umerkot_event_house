@@ -64,7 +64,7 @@ class MakeModuleCommand extends Command
         $base = ['id:increments', 'ulid:ulid'];
 
         if (empty($raw)) {
-            $dynamic = ['status_id:integer', 'name:string'];
+            $dynamic = ['author_id:integer', 'status_id:integer', 'name:string'];
         } else {
             $dynamic = $raw;
             $hasStatus = collect($dynamic)->contains(fn($f) => Str::startsWith($f, 'status:'));

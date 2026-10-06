@@ -11,19 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inventory_transactions', function (Blueprint $table) {
+        Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->ulid('ulid')->unique();
             $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
-            $table->foreignId('inventory_item_id')->nullable()->constrained('inventory_items')->nullOnDelete();
             $table->foreignId('order_id')->nullable()->constrained('orders')->nullOnDelete();
-            $table->foreignId('order_item_id')->nullable()->constrained('order_items')->nullOnDelete();
-            $table->integer('quantity')->default(0);
-            $table->integer('reference')->default(0);
-            $table->date('transaction_date')->nullable();
+            $table->string('invoice_number')->nullable();
+            $table->date('invoice_date')->nullable();
+            $table->date('due_date')->nullable();
+            $table->decimal('security_deposit', 12, 2)->default(0);
+            $table->decimal('subtotal', 12, 2)->default(0);
+            $table->decimal('total', 12, 2)->default(0);
+            $table->decimal('grand_total', 12, 2)->default(0);
+            $table->decimal('paid_amount', 12, 2)->default(0);
+            $table->decimal('remaining_amount', 12, 2)->default(0);
             $table->text('note')->nullable();
-            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -33,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inventory_transactions');
+        Schema::dropIfExists('invoices');
     }
 };

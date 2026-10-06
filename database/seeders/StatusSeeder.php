@@ -56,8 +56,11 @@ class StatusSeeder extends Seeder
             ['model' => 'PaymentMethod', 'name' => 'Refunded'],
 
             //Inventory Transaction
-            ['model' => 'InventoryTransaction', 'name' => 'in'],
-            ['model' => 'InventoryTransaction', 'name' => 'out'],
+            ['model' => 'InventoryTransaction', 'name' => 'purchase'],
+            ['model' => 'InventoryTransaction', 'name' => 'adjustment'],
+            ['model' => 'InventoryTransaction', 'name' => 'reserved'],
+            ['model' => 'InventoryTransaction', 'name' => 'released'],
+            ['model' => 'InventoryTransaction', 'name' => 'issued'],
             ['model' => 'InventoryTransaction', 'name' => 'returned'],
             ['model' => 'InventoryTransaction', 'name' => 'damaged'],
             ['model' => 'InventoryTransaction', 'name' => 'lost'],
@@ -80,6 +83,14 @@ class StatusSeeder extends Seeder
             //Expense Category
             ['model' => 'ExpenseCategory', 'name' => 'active'],
             ['model' => 'ExpenseCategory', 'name' => 'de-active'],
+
+            //Order
+            ['model' => 'Order', 'name' => 'Draft'],
+            ['model' => 'Order', 'name' => 'Pending'],
+            ['model' => 'Order', 'name' => 'Confirmed'],
+            ['model' => 'Order', 'name' => 'In Progress'],
+            ['model' => 'Order', 'name' => 'Completed'],
+            ['model' => 'Order', 'name' => 'Cancelled'],
         ];
 
         foreach ($data as $item) {

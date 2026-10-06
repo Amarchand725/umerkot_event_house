@@ -18,4 +18,5 @@ return [
     \App\Modules\Package\Repositories\Contracts\PackageContract::class => \App\Modules\Package\Repositories\Eloquent\PackageRepository::class,
     \App\Modules\ExpenseCategory\Repositories\Contracts\ExpenseCategoryContract::class => \App\Modules\ExpenseCategory\Repositories\Eloquent\ExpenseCategoryRepository::class,
     \App\Modules\Expense\Repositories\Contracts\ExpenseContract::class => \App\Modules\Expense\Repositories\Eloquent\ExpenseRepository::class,
+    \App\Modules\Order\Repositories\Contracts\OrderContract::class => \App\Modules\Order\Repositories\Eloquent\OrderRepository::class,
 ];

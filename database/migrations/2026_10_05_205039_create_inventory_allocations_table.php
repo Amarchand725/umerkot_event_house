@@ -11,19 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inventory_transactions', function (Blueprint $table) {
+        Schema::create('inventory_allocations', function (Blueprint $table) {
             $table->id();
             $table->ulid('ulid')->unique();
             $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
-            $table->foreignId('inventory_item_id')->nullable()->constrained('inventory_items')->nullOnDelete();
-            $table->foreignId('order_id')->nullable()->constrained('orders')->nullOnDelete();
             $table->foreignId('order_item_id')->nullable()->constrained('order_items')->nullOnDelete();
+            $table->foreignId('inventory_item_id')->nullable()->constrained('inventory_items')->nullOnDelete();
             $table->integer('quantity')->default(0);
-            $table->integer('reference')->default(0);
-            $table->date('transaction_date')->nullable();
+            $table->timestamps('allocated_at')->nullable();
+            $table->timestamps('released_at')->nullable();
             $table->text('note')->nullable();
-            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -33,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inventory_transactions');
+        Schema::dropIfExists('inventory_allocations');
     }
 };

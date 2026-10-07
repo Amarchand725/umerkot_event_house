@@ -92,8 +92,104 @@
         @endcan
 
         <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">EVENT</span>
+        </li>
+        @can('event-list')
+        <li class="menu-item {{ request()->is('back-office/events') || request()->is('back-office/events/*')?'active open':'' }}">
+            <a href="{{ route('back-office.events.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-list"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Events') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['events'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
+        @can('event_category-list')
+        <li class="menu-item {{ request()->is('back-office/event-categories') || request()->is('back-office/event-categories/*')?'active open':'' }}">
+            <a href="{{ route('back-office.event-categories.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-list"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Event Categories') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['event_categories'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
+
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">BILLING</span>
+        </li>
+        @can('payment_method-list')
+        <li class="menu-item {{ request()->is('back-office/payment-methods') || request()->is('back-office/payment-methods/*')?'active open':'' }}">
+            <a href="{{ route('back-office.payment-methods.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-list"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Payment Method') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['payment_methods'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
+
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">FINANCE</span>
+        </li>
+        @can('expense-list')
+        <li class="menu-item {{ request()->is('back-office/expenses') || request()->is('back-office/expenses/*')?'active open':'' }}">
+            <a href="{{ route('back-office.expenses.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-activity"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Expenses') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['expenses'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
+        @can('expense_category-list')
+        <li class="menu-item {{ request()->is('back-office/expense-categories') || request()->is('back-office/expense-categories/*')?'active open':'' }}">
+            <a href="{{ route('back-office.expense-categories.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-activity"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Expense Categories') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['expense_categories'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
+
+        <li class="menu-header small text-uppercase">
             <span class="menu-header-text">CATALOG</span>
         </li>
+        @can('inventory_item-list')
+        <li class="menu-item {{ request()->is('back-office/inventory-items') || request()->is('back-office/inventory-items/*')?'active open':'' }}">
+            <a href="{{ route('back-office.inventory-items.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-list"></i>
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{ module_label('list', 'Inventory items') }}</span>
+
+                    <span class="badge bg-primary">
+                        {{ $sidebarCounts['inventory_items'] ?? 0 }}
+                    </span>
+                </div>
+            </a>
+        </li>
+        @endcan
         @can('service-list')
         <li class="menu-item {{ request()->is('back-office/services') || request()->is('back-office/services/*')?'active open':'' }}">
             <a href="{{ route('back-office.services.index') }}" class="menu-link">
@@ -122,20 +218,6 @@
             </a>
         </li>
         @endcan
-        @can('unit-list')
-        <li class="menu-item {{ request()->is('back-office/units') || request()->is('back-office/units/*')?'active open':'' }}">
-            <a href="{{ route('back-office.units.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-users"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Units') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['units'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
         @can('inventory_category-list')
         <li class="menu-item {{ request()->is('back-office/inventory-categories') || request()->is('back-office/inventory-categories/*')?'active open':'' }}">
             <a href="{{ route('back-office.inventory-categories.index') }}" class="menu-link">
@@ -150,102 +232,20 @@
             </a>
         </li>
         @endcan
-        @can('inventory_item-list')
-        <li class="menu-item {{ request()->is('back-office/inventory-items') || request()->is('back-office/inventory-items/*')?'active open':'' }}">
-            <a href="{{ route('back-office.inventory-items.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-list"></i>
+        @can('unit-list')
+        <li class="menu-item {{ request()->is('back-office/units') || request()->is('back-office/units/*')?'active open':'' }}">
+            <a href="{{ route('back-office.units.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-users"></i>
                 <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Inventory items') }}</span>
+                    <span>{{ module_label('list', 'Units') }}</span>
 
                     <span class="badge bg-primary">
-                        {{ $sidebarCounts['inventory_items'] ?? 0 }}
+                        {{ $sidebarCounts['units'] ?? 0 }}
                     </span>
                 </div>
             </a>
         </li>
-        @endcan
-
-        <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">EVENT</span>
-        </li>
-        @can('event_category-list')
-        <li class="menu-item {{ request()->is('back-office/event-categories') || request()->is('back-office/event-categories/*')?'active open':'' }}">
-            <a href="{{ route('back-office.event-categories.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-list"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Event Categories') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['event_categories'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
-        @can('event-list')
-        <li class="menu-item {{ request()->is('back-office/events') || request()->is('back-office/events/*')?'active open':'' }}">
-            <a href="{{ route('back-office.events.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-list"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Events') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['events'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
-
-        <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">BILLING</span>
-        </li>
-        @can('payment_method-list')
-        <li class="menu-item {{ request()->is('back-office/payment-methods') || request()->is('back-office/payment-methods/*')?'active open':'' }}">
-            <a href="{{ route('back-office.payment-methods.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-list"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Payment Method') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['payment_methods'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
-
-        <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">FINANCE</span>
-        </li>
-        @can('expense_category-list')
-        <li class="menu-item {{ request()->is('back-office/expense-categories') || request()->is('back-office/expense-categories/*')?'active open':'' }}">
-            <a href="{{ route('back-office.expense-categories.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-activity"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Expense Categories') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['expense_categorys'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
-        @can('expense-list')
-        <li class="menu-item {{ request()->is('back-office/expenses') || request()->is('back-office/expenses/*')?'active open':'' }}">
-            <a href="{{ route('back-office.expenses.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-activity"></i>
-                <div class="d-flex justify-content-between w-100">
-                    <span>{{ module_label('list', 'Expenses') }}</span>
-
-                    <span class="badge bg-primary">
-                        {{ $sidebarCounts['expenses'] ?? 0 }}
-                    </span>
-                </div>
-            </a>
-        </li>
-        @endcan
+        @endcan  
 
         <li class="menu-header small text-uppercase">
             <span class="menu-header-text">SYSTEM</span>

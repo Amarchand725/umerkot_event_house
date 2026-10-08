@@ -13,11 +13,7 @@
 
             {{-- Step 1 --}}
             <li class="nav-item">
-                <button
-                    type="button"
-                    class="nav-link active"
-                    data-step="1"
-                >
+                <button type="button" class="nav-link active" data-step="1">
                     <i class="ti ti-user me-1"></i>
                     1. Customer
                 </button>
@@ -25,11 +21,7 @@
 
             {{-- Step 2 --}}
             <li class="nav-item">
-                <button
-                    type="button"
-                    class="nav-link"
-                    data-step="2"
-                >
+                <button type="button" class="nav-link" data-step="2">
                     <i class="ti ti-calendar-event me-1"></i>
                     2. Event
                 </button>
@@ -37,49 +29,41 @@
 
             {{-- Step 3 --}}
             <li class="nav-item">
-                <button
-                    type="button"
-                    class="nav-link"
-                    data-step="3"
-                >
-                    <i class="ti ti-package me-1"></i>
-                    3. Inventory
+                <button type="button" class="nav-link" data-step="3">
+                    <i class="ti ti-box me-1"></i>
+                    3. Package
                 </button>
             </li>
 
             {{-- Step 4 --}}
             <li class="nav-item">
-                <button
-                    type="button"
-                    class="nav-link"
-                    data-step="4"
-                >
-                    <i class="ti ti-tool me-1"></i>
-                    4. Services
+                <button type="button" class="nav-link" data-step="4">
+                    <i class="ti ti-package me-1"></i>
+                    4. Inventory
                 </button>
             </li>
 
             {{-- Step 5 --}}
             <li class="nav-item">
-                <button
-                    type="button"
-                    class="nav-link"
-                    data-step="5"
-                >
-                    <i class="ti ti-credit-card me-1"></i>
-                    5. Payment
+                <button type="button" class="nav-link" data-step="5">
+                    <i class="ti ti-tool me-1"></i>
+                    5. Services
                 </button>
             </li>
 
             {{-- Step 6 --}}
             <li class="nav-item">
-                <button
-                    type="button"
-                    class="nav-link"
-                    data-step="6"
-                >
+                <button type="button" class="nav-link" data-step="6">
+                    <i class="ti ti-credit-card me-1"></i>
+                    6. Payment
+                </button>
+            </li>
+
+            {{-- Step 7 --}}
+            <li class="nav-item">
+                <button type="button" class="nav-link" data-step="7">
                     <i class="ti ti-file-invoice me-1"></i>
-                    6. Preview
+                    7. Preview
                 </button>
             </li>
 
@@ -476,13 +460,328 @@
 
         </div>
 
-
         {{-- =================================================
-            STEP 3: INVENTORY
+            STEP 3: PACKAGE
         ================================================== --}}
         <div
             class="wizard-step d-none"
             data-step-content="3"
+        >
+
+            <div class="mb-4">
+
+                <h4 class="mb-1">
+                    Event Package
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Select a package for this event and review its details.
+                </p>
+
+            </div>
+
+
+            <div class="row g-4">
+
+                {{-- Package Selection --}}
+                <div class="col-12">
+
+                    <label
+                        for="package_id"
+                        class="form-label fw-semibold"
+                    >
+                        Package
+                    </label>
+
+                    <select
+                        id="package_id"
+                        name="package_id"
+                        class="form-select form-select-lg"
+                    >
+
+                        <option value="">
+                            No Package / Custom Event
+                        </option>
+
+                        @foreach($packages as $package)
+                            <option
+                                value="{{ $package->id }}"
+                                data-name="{{ $package->name }}"
+                                data-price="{{ $package->price }}"
+                                data-description="{{ $package->description }}"
+                                data-inventory="{{ $package->items->map(function ($item) {
+                                    return [
+                                        'category' => $item->inventoryItem->category->name ?? '-',
+                                        'item' => $item->inventoryItem->name ?? '-',
+                                        'quantity' => $item->quantity,
+                                    ];
+                                })->toJson() }}"
+                                data-services="{{ $package->services->map(function ($service) {
+                                    return [
+                                        'name' => $service->name,
+                                        'description' => $service->description,
+                                    ];
+                                })->toJson() }}"
+                                @selected(
+                                    old(
+                                        'package_id',
+                                        $model->package_id ?? ''
+                                    ) == $package->id
+                                )
+                            >
+                                {{ $package->name }}
+                            </option>
+
+                        @endforeach
+
+                    </select>
+
+                    <span class="text-danger error">
+                        {{ $errors->first('package_id') }}
+                    </span>
+
+                </div>
+
+
+                {{-- Package Details --}}
+                <div class="col-12">
+
+                    <div
+                        id="package-details"
+                        class="card border shadow-none d-none"
+                    >
+
+                        <div class="card-header">
+
+                            <h5 class="mb-0">
+                                <i class="ti ti-box me-1"></i>
+                                Package Details
+                            </h5>
+
+                        </div>
+
+
+                        <div class="card-body">
+
+                            <div class="row g-3">
+
+                                {{-- Package Name --}}
+                                <div class="col-12 col-md-6">
+
+                                    <small class="text-muted">
+                                        Package Name
+                                    </small>
+
+                                    <div
+                                        id="package-detail-name"
+                                        class="fw-semibold fs-5"
+                                    >
+                                        -
+                                    </div>
+
+                                </div>
+
+
+                                {{-- Package Price --}}
+                                <div class="col-12 col-md-6">
+
+                                    <small class="text-muted">
+                                        Package Price
+                                    </small>
+
+                                    <div
+                                        id="package-detail-price"
+                                        class="fw-semibold fs-5"
+                                    >
+                                        Rs. 0.00
+                                    </div>
+
+                                </div>
+
+
+                                {{-- Description --}}
+                                <div class="col-12">
+
+                                    <small class="text-muted">
+                                        Description
+                                    </small>
+
+                                    <div
+                                        id="package-detail-description"
+                                        class="mt-1"
+                                    >
+                                        -
+                                    </div>
+
+                                </div>
+
+
+                                {{-- Package Inventory --}}
+                                <div class="col-12">
+
+                                    <div class="border-top pt-3">
+
+                                        <h6>
+                                            <i class="ti ti-package me-1"></i>
+                                            Included Inventory
+                                        </h6>
+
+                                        <div
+                                            id="package-detail-inventory"
+                                            class="text-muted"
+                                        >
+                                            No inventory items.
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                {{-- Package Services --}}
+                                <div class="col-12">
+
+                                    <div class="border-top pt-3">
+
+                                        <h6>
+                                            <i class="ti ti-tool me-1"></i>
+                                            Included Services
+                                        </h6>
+
+                                        <div
+                                            id="package-detail-services"
+                                            class="text-muted"
+                                        >
+                                            No services.
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {{-- Package Inventory --}}
+            <div class="col-12">
+
+                <div class="border-top pt-3">
+
+                    <h6 class="mb-3">
+                        <i class="ti ti-package me-1"></i>
+                        Included Inventory
+                    </h6>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-sm table-bordered mb-0">
+
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Item</th>
+                                    <th class="text-center">Qty</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="package-detail-inventory">
+
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">
+                                        No inventory items.
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- Package Services --}}
+            <div class="col-12">
+
+                <div class="border-top pt-3">
+
+                    <h6 class="mb-3">
+                        <i class="ti ti-tool me-1"></i>
+                        Included Services
+                    </h6>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-sm table-bordered mb-0">
+
+                            <thead>
+                                <tr>
+                                    <th>Service</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="package-detail-services">
+
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">
+                                        No services.
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- Navigation --}}
+            <div class="d-flex justify-content-between mt-4">
+
+                <button
+                    type="button"
+                    class="btn btn-label-secondary previous-step"
+                    data-previous="2"
+                >
+                    <i class="ti ti-arrow-left me-1"></i>
+                    Previous
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-primary next-step"
+                    data-next="4"
+                >
+                    Next
+                    <i class="ti ti-arrow-right ms-1"></i>
+                </button>
+
+            </div>
+
+        </div>
+
+
+        {{-- =================================================
+            STEP 4: INVENTORY
+        ================================================== --}}
+        <div
+            class="wizard-step d-none"
+            data-step-content="4"
         >
 
             <div class="mb-4">
@@ -721,6 +1020,7 @@
                                     <select
                                         name="items[0][inventory_item_id]"
                                         class="form-select inventory-item"
+                                        disabled
                                     >
 
                                         <option value="">
@@ -864,7 +1164,7 @@
                 <button
                     type="button"
                     class="btn btn-label-secondary previous-step"
-                    data-previous="2"
+                    data-previous="3"
                 >
                     <i class="ti ti-arrow-left me-1"></i>
                     Previous
@@ -873,7 +1173,7 @@
                 <button
                     type="button"
                     class="btn btn-primary next-step"
-                    data-next="4"
+                    data-next="5"
                 >
                     Next
                     <i class="ti ti-arrow-right ms-1"></i>
@@ -885,11 +1185,11 @@
 
 
         {{-- =================================================
-            STEP 4: SERVICES
+            STEP 5: SERVICES
         ================================================== --}}
         <div
             class="wizard-step d-none"
-            data-step-content="4"
+            data-step-content="5"
         >
 
             <div class="mb-4">
@@ -1186,7 +1486,7 @@
                 <button
                     type="button"
                     class="btn btn-label-secondary previous-step"
-                    data-previous="3"
+                    data-previous="5"
                 >
                     <i class="ti ti-arrow-left me-1"></i>
                     Previous
@@ -1195,7 +1495,7 @@
                 <button
                     type="button"
                     class="btn btn-primary next-step"
-                    data-next="5"
+                    data-next="7"
                 >
                     Next
                     <i class="ti ti-arrow-right ms-1"></i>
@@ -1207,11 +1507,11 @@
 
 
         {{-- =================================================
-            STEP 5: PAYMENT
+            STEP 6: PAYMENT
         ================================================== --}}
         <div
             class="wizard-step d-none"
-            data-step-content="5"
+            data-step-content="6"
         >
 
             <div class="mb-4">
@@ -1506,7 +1806,7 @@
                 <button
                     type="button"
                     class="btn btn-label-secondary previous-step"
-                    data-previous="4"
+                    data-previous="6"
                 >
                     <i class="ti ti-arrow-left me-1"></i>
                     Previous
@@ -1527,11 +1827,11 @@
 
 
         {{-- =================================================
-            STEP 6: PREVIEW
+            STEP 7: PREVIEW
         ================================================== --}}
         <div
             class="wizard-step d-none"
-            data-step-content="6"
+            data-step-content="7"
         >
 
             <div class="mb-4">
@@ -1723,6 +2023,199 @@
 
             </div>
 
+            {{-- ============================================================
+                PACKAGE PREVIEW
+            ============================================================= --}}
+            <div class="card border shadow-none mb-4">
+
+                <div class="card-header">
+
+                    <h5 class="mb-0">
+                        <i class="ti ti-box me-1"></i>
+                        Package
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    {{-- ====================================================
+                        PACKAGE DETAILS
+                    ===================================================== --}}
+                    <div class="table-responsive mb-4">
+
+                        <table class="table table-bordered">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Package
+                                    </th>
+
+                                    <th>
+                                        Discount
+                                    </th>
+
+                                    <th>
+                                        Price
+                                    </th>
+
+                                    <th>
+                                        Description
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="preview-package-items">
+
+                                <tr>
+
+                                    <td colspan="4" class="text-center text-muted">
+                                        No package selected.
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    {{-- ====================================================
+                        WHAT'S INCLUDED
+                    ===================================================== --}}
+                    <div class="border-top pt-4">
+
+                        <h6 class="mb-3">
+
+                            <i class="ti ti-list-check me-1"></i>
+                            What's Included
+
+                        </h6>
+
+
+                        {{-- Inventory Items --}}
+                        <div class="mb-4">
+
+                            <h6 class="text-muted mb-3">
+                                <i class="ti ti-package me-1"></i>
+                                Inventory Items
+                            </h6>
+
+
+                            <div class="table-responsive">
+
+                                <table class="table table-bordered">
+
+                                    <thead>
+
+                                        <tr>
+
+                                            <th>
+                                                Category
+                                            </th>
+
+                                            <th>
+                                                Item
+                                            </th>
+
+                                            <th class="text-center">
+                                                Qty
+                                            </th>
+
+                                        </tr>
+
+                                    </thead>
+
+
+                                    <tbody id="preview-package-inventory">
+
+                                        <tr>
+
+                                            <td
+                                                colspan="3"
+                                                class="text-center text-muted"
+                                            >
+                                                No inventory items included.
+                                            </td>
+
+                                        </tr>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- Services --}}
+                        <div>
+
+                            <h6 class="text-muted mb-3">
+
+                                <i class="ti ti-tool me-1"></i>
+                                Services
+
+                            </h6>
+
+
+                            <div class="table-responsive">
+
+                                <table class="table table-bordered">
+
+                                    <thead>
+
+                                        <tr>
+
+                                            <th>
+                                                Service
+                                            </th>
+
+                                            <th>
+                                                Description
+                                            </th>
+
+                                        </tr>
+
+                                    </thead>
+
+
+                                    <tbody id="preview-package-services">
+
+                                        <tr>
+
+                                            <td
+                                                colspan="2"
+                                                class="text-center text-muted"
+                                            >
+                                                No services included.
+                                            </td>
+
+                                        </tr>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>           
 
             {{-- Inventory Preview --}}
             <div class="card border shadow-none mb-4">
@@ -2004,7 +2497,7 @@
                 <button
                     type="button"
                     class="btn btn-label-secondary previous-step"
-                    data-previous="5"
+                    data-previous="6"
                 >
                     <i class="ti ti-arrow-left me-1"></i>
                     Previous

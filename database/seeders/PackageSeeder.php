@@ -16,7 +16,8 @@ class PackageSeeder extends Seeder
         $author = User::query()->first();
 
         $activeStatus = Status::query()
-            ->where('name', 'Active')
+            ->where('name', 'active')
+            ->where('model', 'Package')
             ->first();
 
         $items = InventoryItem::query()

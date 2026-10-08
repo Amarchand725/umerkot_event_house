@@ -14,6 +14,7 @@ use App\Models\Status;
 use App\Modules\InventoryItem\Models\InventoryItem;
 use App\Modules\EventCategory\Models\EventCategory;
 use App\Modules\InventoryCategory\Models\InventoryCategory;
+use App\Modules\Package\Models\Package;
 use App\Modules\PaymentMethod\Models\PaymentMethod;
 use App\Modules\Service\Models\Service;
 
@@ -25,6 +26,7 @@ class EventController extends BaseModuleController
     protected $inventoryItem;
     protected $paymentMethod;
     protected $service;
+    protected $package;
 
     public function __construct(
         protected EventContract $eventRepo
@@ -35,6 +37,7 @@ class EventController extends BaseModuleController
         $this->inventoryItem = new InventoryItem();
         $this->paymentMethod = new PaymentMethod();
         $this->service = new Service();
+        $this->package = new Package();
 
         // Initialize common module variables automatically
         $this->autoInit();
@@ -175,12 +178,20 @@ class EventController extends BaseModuleController
             ->where('name', 'active')
             ->value('id');
 
+        $activePackageStatusId = $this->status->where('model', 'Package')
+            ->where('name', 'active')
+            ->value('id');
+
         return [
             'eventCategories' => $this->eventCategory->where('status_id', $activeEventCatStatusId)->get(),
             'inventoryCategories' => $this->inventoryCategory->where('status_id', $activeInventoryCatStatusId)->get(),
             'inventoryItems'   => $this->inventoryItem->where('status_id', $activeInventoryItemStatusId)->get(),
             'paymentMethods' => $this->paymentMethod->where('status_id', $activePaymentMethodStatusId)->get(),
             'services' => $this->service->where('status_id', $activeServiceStatusId)->get(),
+            'packages' => $this->package->with([
+                'items.inventoryItem.inventoryCategory',
+                'services',
+            ])->where('status_id', $activePackageStatusId)->get(),
         ];
     }
 

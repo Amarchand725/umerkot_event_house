@@ -2,6 +2,7 @@
 
 namespace App\Modules\Package\Models;
 
+use App\Models\PackageItem;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\ModelTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,6 +11,7 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Status;
 use App\Models\User;
+use App\Modules\Service\Models\Service;
 
 class Package extends Model
 {
@@ -47,5 +49,15 @@ class Package extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(PackageItem::class, 'package_id');
+    }
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'package_service', 'package_id', 'service_id');
     }
 }

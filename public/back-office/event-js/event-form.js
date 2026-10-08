@@ -108,6 +108,201 @@ $(document).ready(function () {
         }
     );
 
+    $('#package_id').on('change', function () {
+
+        const option = $(this).find(':selected');
+
+        const packageId = option.val();
+
+        if (!packageId) {
+
+            $('#package-details').addClass('d-none');
+
+            $('#package-detail-name').text('-');
+            $('#package-detail-price').text('Rs. 0.00');
+            $('#package-detail-description').text('-');
+
+            $('#package-detail-inventory').html(`
+                <tr>
+                    <td colspan="3" class="text-center text-muted">
+                        No inventory items.
+                    </td>
+                </tr>
+            `);
+
+            $('#package-detail-services').html(`
+                <tr>
+                    <td colspan="2" class="text-center text-muted">
+                        No services.
+                    </td>
+                </tr>
+            `);
+
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Package Basic Details
+        |--------------------------------------------------------------------------
+        */
+
+        const name = option.data('name') || '-';
+
+        const price = parseFloat(option.data('price')) || 0;
+
+        const description = option.data('description') || '-';
+
+
+        $('#package-detail-name').text(name);
+
+        $('#package-detail-price').text(
+            'Rs. ' + price.toLocaleString()
+        );
+
+        $('#package-detail-description').text(description);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Package Inventory
+        |--------------------------------------------------------------------------
+        */
+
+        let inventory = option.data('inventory');
+
+        if (typeof inventory === 'string') {
+            try {
+                inventory = JSON.parse(inventory);
+            } catch (error) {
+                inventory = [];
+            }
+        }
+
+        inventory = inventory || [];
+
+
+        let inventoryHtml = '';
+
+
+        if (inventory.length === 0) {
+
+            inventoryHtml = `
+                <tr>
+                    <td colspan="3" class="text-center text-muted">
+                        No inventory items.
+                    </td>
+                </tr>
+            `;
+
+        } else {
+
+            inventory.forEach(function (item) {
+
+                inventoryHtml += `
+                    <tr>
+
+                        <td>
+                            ${item.category ?? '-'}
+                        </td>
+
+                        <td>
+                            ${item.item ?? '-'}
+                        </td>
+
+                        <td class="text-center">
+                            ${item.quantity ?? 0}
+                        </td>
+
+                    </tr>
+                `;
+
+            });
+
+        }
+
+
+        $('#package-detail-inventory').html(inventoryHtml);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Package Services
+        |--------------------------------------------------------------------------
+        */
+
+        let services = option.data('services');
+
+        if (typeof services === 'string') {
+            try {
+                services = JSON.parse(services);
+            } catch (error) {
+                services = [];
+            }
+        }
+
+        services = services || [];
+
+
+        let servicesHtml = '';
+
+
+        if (services.length === 0) {
+
+            servicesHtml = `
+                <tr>
+                    <td colspan="2" class="text-center text-muted">
+                        No services.
+                    </td>
+                </tr>
+            `;
+
+        } else {
+
+            services.forEach(function (service) {
+
+                servicesHtml += `
+                    <tr>
+
+                        <td>
+                            ${service.name ?? '-'}
+                        </td>
+
+                        <td>
+                            ${service.description ?? '-'}
+                        </td>
+
+                    </tr>
+                `;
+
+            });
+
+        }
+
+
+        $('#package-detail-services').html(servicesHtml);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Show Package Details
+        |--------------------------------------------------------------------------
+        */
+
+        $('#package-details').removeClass('d-none');
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Selected Package On Edit
+    |--------------------------------------------------------------------------
+    */
+
+    $('#package_id').trigger('change');
+
 
     /*
     |--------------------------------------------------------------------------

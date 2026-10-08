@@ -58,6 +58,6 @@ class Package extends Model
 
     public function services()
     {
-        return $this->belongsToMany(Service::class, 'package_service', 'package_id', 'service_id');
+        return $this->belongsToMany(Service::class, 'package_services', 'package_id', 'service_id');
     }
 }

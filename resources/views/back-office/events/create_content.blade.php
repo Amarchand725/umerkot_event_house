@@ -542,8 +542,9 @@
 
                 </div>
 
-
-                {{-- Package Details --}}
+                {{-- ============================================================
+                    PACKAGE DETAILS
+                ============================================================= --}}
                 <div class="col-12">
 
                     <div
@@ -551,6 +552,7 @@
                         class="card border shadow-none d-none"
                     >
 
+                        {{-- Header --}}
                         <div class="card-header">
 
                             <h5 class="mb-0">
@@ -563,12 +565,15 @@
 
                         <div class="card-body">
 
-                            <div class="row g-3">
+                            {{-- ====================================================
+                                PACKAGE INFORMATION
+                            ===================================================== --}}
+                            <div class="row g-3 mb-4">
 
                                 {{-- Package Name --}}
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-4">
 
-                                    <small class="text-muted">
+                                    <small class="text-muted d-block">
                                         Package Name
                                     </small>
 
@@ -583,9 +588,9 @@
 
 
                                 {{-- Package Price --}}
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-4">
 
-                                    <small class="text-muted">
+                                    <small class="text-muted d-block">
                                         Package Price
                                     </small>
 
@@ -600,9 +605,9 @@
 
 
                                 {{-- Description --}}
-                                <div class="col-12">
+                                <div class="col-12 col-md-4">
 
-                                    <small class="text-muted">
+                                    <small class="text-muted d-block">
                                         Description
                                     </small>
 
@@ -615,47 +620,64 @@
 
                                 </div>
 
-
-                                {{-- Package Inventory --}}
-                                <div class="col-12">
-
-                                    <div class="border-top pt-3">
-
-                                        <h6>
-                                            <i class="ti ti-package me-1"></i>
-                                            Included Inventory
-                                        </h6>
-
-                                        <div
-                                            id="package-detail-inventory"
-                                            class="text-muted"
-                                        >
-                                            No inventory items.
-                                        </div>
-
-                                    </div>
-
-                                </div>
+                            </div>
 
 
-                                {{-- Package Services --}}
-                                <div class="col-12">
+                            {{-- ====================================================
+                                PACKAGE INCLUDES
+                            ===================================================== --}}
+                            <div class="border-top pt-4">
 
-                                    <div class="border-top pt-3">
+                                <h6 class="mb-3">
 
-                                        <h6>
-                                            <i class="ti ti-tool me-1"></i>
-                                            Included Services
-                                        </h6>
+                                    <i class="ti ti-list-check me-1"></i>
+                                    Package Includes
 
-                                        <div
-                                            id="package-detail-services"
-                                            class="text-muted"
-                                        >
-                                            No services.
-                                        </div>
+                                </h6>
 
-                                    </div>
+
+                                <div class="table-responsive">
+
+                                    <table class="table table-bordered mb-0">
+
+                                        <thead>
+
+                                            <tr>
+
+                                                <th style="width: 25%;">
+                                                    Type
+                                                </th>
+
+                                                <th>
+                                                    Item / Service
+                                                </th>
+
+                                                <th style="width: 15%;" class="text-center">
+                                                    Qty
+                                                </th>
+
+                                            </tr>
+
+                                        </thead>
+
+
+                                        <tbody id="package-detail-includes">
+
+                                            <tr>
+
+                                                <td
+                                                    colspan="3"
+                                                    class="text-center text-muted"
+                                                >
+                                                    No package items.
+
+                                                </td>
+
+                                            </tr>
+
+                                        </tbody>
+
+                                    </table>
 
                                 </div>
 
@@ -668,87 +690,6 @@
                 </div>
 
             </div>
-
-            {{-- Package Inventory --}}
-            <div class="col-12">
-
-                <div class="border-top pt-3">
-
-                    <h6 class="mb-3">
-                        <i class="ti ti-package me-1"></i>
-                        Included Inventory
-                    </h6>
-
-                    <div class="table-responsive">
-
-                        <table class="table table-sm table-bordered mb-0">
-
-                            <thead>
-                                <tr>
-                                    <th>Category</th>
-                                    <th>Item</th>
-                                    <th class="text-center">Qty</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="package-detail-inventory">
-
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted">
-                                        No inventory items.
-                                    </td>
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {{-- Package Services --}}
-            <div class="col-12">
-
-                <div class="border-top pt-3">
-
-                    <h6 class="mb-3">
-                        <i class="ti ti-tool me-1"></i>
-                        Included Services
-                    </h6>
-
-                    <div class="table-responsive">
-
-                        <table class="table table-sm table-bordered mb-0">
-
-                            <thead>
-                                <tr>
-                                    <th>Service</th>
-                                    <th>Description</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="package-detail-services">
-
-                                <tr>
-                                    <td colspan="2" class="text-center text-muted">
-                                        No services.
-                                    </td>
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
-
-            </div>
-
 
             {{-- Navigation --}}
             <div class="d-flex justify-content-between mt-4">
@@ -1692,6 +1633,23 @@
 
                     <div class="border rounded p-3">
 
+                        {{-- Package Total --}}
+                        <div class="d-flex justify-content-between mb-2">
+
+                            <span>
+                                Package Total
+                            </span>
+
+                            <strong>
+                                Rs.
+                                <span id="payment-package-total">
+                                    0.00
+                                </span>
+                            </strong>
+
+                        </div>
+
+
                         {{-- Inventory Total --}}
                         <div class="d-flex justify-content-between mb-2">
 
@@ -2043,171 +2001,132 @@
                     {{-- ====================================================
                         PACKAGE DETAILS
                     ===================================================== --}}
-                    <div class="table-responsive mb-4">
+                    <div class="row g-3 mb-4">
 
-                        <table class="table table-bordered">
+                        {{-- Package Name --}}
+                        <div class="col-12 col-md-4">
 
-                            <thead>
+                            <small class="text-muted d-block">
+                                Package Name
+                            </small>
 
-                                <tr>
+                            <div
+                                id="preview-package-name"
+                                class="fw-semibold fs-5"
+                            >
+                                -
+                            </div>
 
-                                    <th>
-                                        Package
-                                    </th>
-
-                                    <th>
-                                        Discount
-                                    </th>
-
-                                    <th>
-                                        Price
-                                    </th>
-
-                                    <th>
-                                        Description
-                                    </th>
-
-                                </tr>
-
-                            </thead>
+                        </div>
 
 
-                            <tbody id="preview-package-items">
+                        {{-- Package Discount --}}
+                        <div class="col-12 col-md-4">
 
-                                <tr>
+                            <small class="text-muted d-block">
+                                Discount
+                            </small>
 
-                                    <td colspan="4" class="text-center text-muted">
-                                        No package selected.
-                                    </td>
+                            <div
+                                id="preview-package-discount"
+                                class="fw-semibold fs-5"
+                            >
+                                0%
+                            </div>
 
-                                </tr>
+                        </div>
 
-                            </tbody>
 
-                        </table>
+                        {{-- Package Price --}}
+                        <div class="col-12 col-md-4">
+
+                            <small class="text-muted d-block">
+                                Package Price
+                            </small>
+
+                            <div
+                                id="preview-package-price"
+                                class="fw-semibold fs-5"
+                            >
+                                Rs. 0.00
+                            </div>
+
+                        </div>
+
+
+                        {{-- Description --}}
+                        <div class="col-12">
+
+                            <small class="text-muted d-block">
+                                Description
+                            </small>
+
+                            <div
+                                id="preview-package-description"
+                                class="mt-1"
+                            >
+                                -
+                            </div>
+
+                        </div>
 
                     </div>
 
 
                     {{-- ====================================================
-                        WHAT'S INCLUDED
+                        PACKAGE INCLUDES
                     ===================================================== --}}
                     <div class="border-top pt-4">
 
                         <h6 class="mb-3">
 
                             <i class="ti ti-list-check me-1"></i>
-                            What's Included
+                            Package Includes
 
                         </h6>
 
 
-                        {{-- Inventory Items --}}
-                        <div class="mb-4">
+                        <div class="table-responsive">
 
-                            <h6 class="text-muted mb-3">
-                                <i class="ti ti-package me-1"></i>
-                                Inventory Items
-                            </h6>
+                            <table class="table table-bordered mb-0">
 
+                                <thead>
 
-                            <div class="table-responsive">
+                                    <tr>
 
-                                <table class="table table-bordered">
+                                        <th style="width: 20%;">
+                                            Type
+                                        </th>
 
-                                    <thead>
+                                        <th>
+                                            Item / Service
+                                        </th>
 
-                                        <tr>
+                                        <th style="width: 15%;" class="text-center">
+                                            Qty
+                                        </th>
 
-                                            <th>
-                                                Category
-                                            </th>
+                                    </tr>
 
-                                            <th>
-                                                Item
-                                            </th>
-
-                                            <th class="text-center">
-                                                Qty
-                                            </th>
-
-                                        </tr>
-
-                                    </thead>
+                                </thead>
 
 
-                                    <tbody id="preview-package-inventory">
+                                <tbody id="preview-package-includes">
 
-                                        <tr>
+                                    <tr>
 
-                                            <td
-                                                colspan="3"
-                                                class="text-center text-muted"
-                                            >
-                                                No inventory items included.
-                                            </td>
+                                        <td
+                                            colspan="3"
+                                            class="text-center text-muted"
+                                        >
+                                            No package selected.
+                                        </td>
 
-                                        </tr>
+                                    </tr>
 
-                                    </tbody>
+                                </tbody>
 
-                                </table>
-
-                            </div>
-
-                        </div>
-
-
-                        {{-- Services --}}
-                        <div>
-
-                            <h6 class="text-muted mb-3">
-
-                                <i class="ti ti-tool me-1"></i>
-                                Services
-
-                            </h6>
-
-
-                            <div class="table-responsive">
-
-                                <table class="table table-bordered">
-
-                                    <thead>
-
-                                        <tr>
-
-                                            <th>
-                                                Service
-                                            </th>
-
-                                            <th>
-                                                Description
-                                            </th>
-
-                                        </tr>
-
-                                    </thead>
-
-
-                                    <tbody id="preview-package-services">
-
-                                        <tr>
-
-                                            <td
-                                                colspan="2"
-                                                class="text-center text-muted"
-                                            >
-                                                No services included.
-                                            </td>
-
-                                        </tr>
-
-                                    </tbody>
-
-                                </table>
-
-                            </div>
+                            </table>
 
                         </div>
 
@@ -2215,7 +2134,7 @@
 
                 </div>
 
-            </div>           
+            </div>          
 
             {{-- Inventory Preview --}}
             <div class="card border shadow-none mb-4">
@@ -2371,6 +2290,24 @@
 
                         <div class="card-body">
 
+                            {{-- Package --}}
+                            <div class="d-flex justify-content-between mb-2">
+
+                                <span>
+                                    Package Total
+                                </span>
+
+                                <strong>
+                                    Rs.
+                                    <span id="preview-package-total">
+                                        0.00
+                                    </span>
+                                </strong>
+
+                            </div>
+
+
+                            {{-- Inventory --}}
                             <div class="d-flex justify-content-between mb-2">
 
                                 <span>
@@ -2387,6 +2324,7 @@
                             </div>
 
 
+                            {{-- Services --}}
                             <div class="d-flex justify-content-between mb-2">
 
                                 <span>
@@ -2403,6 +2341,7 @@
                             </div>
 
 
+                            {{-- Discount --}}
                             <div class="d-flex justify-content-between mb-2">
 
                                 <span>
@@ -2419,6 +2358,7 @@
                             </div>
 
 
+                            {{-- Grand Total --}}
                             <div class="d-flex justify-content-between border-top pt-2 mb-2">
 
                                 <strong>
@@ -2435,6 +2375,7 @@
                             </div>
 
 
+                            {{-- Security Deposit --}}
                             <div class="d-flex justify-content-between mb-2">
 
                                 <span>
@@ -2451,6 +2392,7 @@
                             </div>
 
 
+                            {{-- Advance --}}
                             <div class="d-flex justify-content-between mb-2">
 
                                 <span>
@@ -2467,6 +2409,7 @@
                             </div>
 
 
+                            {{-- Remaining --}}
                             <div class="d-flex justify-content-between border-top pt-2">
 
                                 <strong>
@@ -2488,7 +2431,7 @@
 
                 </div>
 
-            </div>
+            </div>  
 
 
             {{-- Navigation --}}

@@ -40,8 +40,7 @@ $(document).ready(function () {
 
         $(`[data-step-content="${step}"]`).removeClass('d-none');
 
-        $('#eventWizardTabs .nav-link')
-            .removeClass('active');
+        $('#eventWizardTabs .nav-link').removeClass('active');
 
         $(`#eventWizardTabs .nav-link[data-step="${step}"]`)
             .addClass('active');
@@ -51,12 +50,39 @@ $(document).ready(function () {
             behavior: 'smooth'
         });
 
-        // Refresh preview whenever step 6 is opened
+
+        /*
+        |--------------------------------------------------------------------------
+        | Refresh calculations whenever wizard step changes
+        |--------------------------------------------------------------------------
+        */
+
+        calculateTotals();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Preview Step
+        |--------------------------------------------------------------------------
+        */
+
         if (step == 6) {
             updatePreview();
         }
 
-        calculateTotals();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Payment Step
+        |--------------------------------------------------------------------------
+        |
+        | Refresh the payment summary when Payment tab is opened.
+        |
+        */
+
+        if (step == 5) {
+            calculateTotals();
+        }
     }
 
 
@@ -108,35 +134,30 @@ $(document).ready(function () {
         }
     );
 
+    /*
+    |--------------------------------------------------------------------------
+    | Package
+    |--------------------------------------------------------------------------
+    */
+
     $('#package_id').on('change', function () {
 
         const option = $(this).find(':selected');
-
         const packageId = option.val();
+
+        /*
+        |--------------------------------------------------------------------------
+        | No Package Selected
+        |--------------------------------------------------------------------------
+        */
 
         if (!packageId) {
 
+            // Hide package details
             $('#package-details').addClass('d-none');
 
-            $('#package-detail-name').text('-');
-            $('#package-detail-price').text('Rs. 0.00');
-            $('#package-detail-description').text('-');
-
-            $('#package-detail-inventory').html(`
-                <tr>
-                    <td colspan="3" class="text-center text-muted">
-                        No inventory items.
-                    </td>
-                </tr>
-            `);
-
-            $('#package-detail-services').html(`
-                <tr>
-                    <td colspan="2" class="text-center text-muted">
-                        No services.
-                    </td>
-                </tr>
-            `);
+            // Reset preview
+            updatePackagePreview();
 
             return;
         }
@@ -144,144 +165,155 @@ $(document).ready(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | Package Basic Details
+        | Package Details
         |--------------------------------------------------------------------------
         */
 
-        const name = option.data('name') || '-';
+        $('#package-detail-name')
+            .text(option.data('name') || '-');
 
-        const price = parseFloat(option.data('price')) || 0;
+        $('#package-detail-price')
+            .text(
+                'Rs. ' +
+                Number(option.data('price') || 0).toLocaleString()
+            );
 
-        const description = option.data('description') || '-';
-
-
-        $('#package-detail-name').text(name);
-
-        $('#package-detail-price').text(
-            'Rs. ' + price.toLocaleString()
-        );
-
-        $('#package-detail-description').text(description);
+        $('#package-detail-description')
+            .text(option.data('description') || '-');
 
 
         /*
         |--------------------------------------------------------------------------
-        | Package Inventory
+        | Inventory
         |--------------------------------------------------------------------------
         */
 
         let inventory = option.data('inventory');
 
         if (typeof inventory === 'string') {
+
             try {
                 inventory = JSON.parse(inventory);
             } catch (error) {
                 inventory = [];
             }
+
         }
 
         inventory = inventory || [];
 
 
-        let inventoryHtml = '';
-
-
-        if (inventory.length === 0) {
-
-            inventoryHtml = `
-                <tr>
-                    <td colspan="3" class="text-center text-muted">
-                        No inventory items.
-                    </td>
-                </tr>
-            `;
-
-        } else {
-
-            inventory.forEach(function (item) {
-
-                inventoryHtml += `
-                    <tr>
-
-                        <td>
-                            ${item.category ?? '-'}
-                        </td>
-
-                        <td>
-                            ${item.item ?? '-'}
-                        </td>
-
-                        <td class="text-center">
-                            ${item.quantity ?? 0}
-                        </td>
-
-                    </tr>
-                `;
-
-            });
-
-        }
-
-
-        $('#package-detail-inventory').html(inventoryHtml);
-
-
         /*
         |--------------------------------------------------------------------------
-        | Package Services
+        | Services
         |--------------------------------------------------------------------------
         */
 
         let services = option.data('services');
 
         if (typeof services === 'string') {
+
             try {
                 services = JSON.parse(services);
             } catch (error) {
                 services = [];
             }
+
         }
 
         services = services || [];
 
 
-        let servicesHtml = '';
+        /*
+        |--------------------------------------------------------------------------
+        | Package Includes
+        |--------------------------------------------------------------------------
+        */
+
+        let html = '';
 
 
-        if (services.length === 0) {
+        /*
+        | Inventory
+        */
 
-            servicesHtml = `
+        inventory.forEach(function (item) {
+
+            html += `
                 <tr>
-                    <td colspan="2" class="text-center text-muted">
-                        No services.
+                    <td>
+                        <span class="badge bg-label-primary">
+                            Inventory
+                        </span>
+                    </td>
+
+                    <td>
+                        ${item.item ?? '-'}
+                    </td>
+
+                    <td class="text-center">
+                        ${item.quantity ?? 0}
                     </td>
                 </tr>
             `;
 
-        } else {
+        });
 
-            services.forEach(function (service) {
 
-                servicesHtml += `
-                    <tr>
+        /*
+        | Services
+        */
 
-                        <td>
+        services.forEach(function (service) {
+
+            html += `
+                <tr>
+                    <td>
+                        <span class="badge bg-label-success">
+                            Service
+                        </span>
+                    </td>
+
+                    <td>
+                        <div class="fw-medium">
                             ${service.name ?? '-'}
-                        </td>
+                        </div>
 
-                        <td>
-                            ${service.description ?? '-'}
-                        </td>
+                        ${
+                            service.description
+                                ? `<small class="text-muted">
+                                    ${service.description}
+                                </small>`
+                                : ''
+                        }
+                    </td>
 
-                    </tr>
-                `;
+                    <td class="text-center">
+                        -
+                    </td>
+                </tr>
+            `;
 
-            });
+        });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Empty Package
+        |--------------------------------------------------------------------------
+        */
+
+        if (!html) {
+
+            html = `
+                <tr>
+                    <td colspan="3" class="text-center text-muted">
+                        No items or services included in this package.
+                    </td>
+                </tr>
+            `;
 
         }
-
-
-        $('#package-detail-services').html(servicesHtml);
 
 
         /*
@@ -290,10 +322,20 @@ $(document).ready(function () {
         |--------------------------------------------------------------------------
         */
 
+        $('#package-detail-includes').html(html);
+
         $('#package-details').removeClass('d-none');
 
-    });
 
+        /*
+        |--------------------------------------------------------------------------
+        | Update Preview
+        |--------------------------------------------------------------------------
+        */
+
+        updatePackagePreview();
+
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -695,42 +737,58 @@ $(document).ready(function () {
 
     function calculateTotals() {
 
-        let inventoryTotal = 0;
-        let totalItems = 0;
+        /*
+        |--------------------------------------------------------------------------
+        | Package Total
+        |--------------------------------------------------------------------------
+        */
+
+        const selectedPackage = $('#package_id').find('option:selected');
+        const packageId = selectedPackage.val();
+
+        let packagePrice = 0;
+
+        if (packageId) {
+            packagePrice = parseFloat(
+                selectedPackage.attr('data-price')
+            ) || 0;
+        }
+
 
         /*
-        | Inventory
+        |--------------------------------------------------------------------------
+        | Inventory Total
+        |--------------------------------------------------------------------------
         */
+
+        let inventoryTotal = 0;
+        let totalItems = 0;
 
         $('.inventory-row').each(function () {
 
             const row = $(this);
 
             const quantity =
-                parseFloat(
-                    row.find('.quantity').val()
-                ) || 0;
+                parseFloat(row.find('.quantity').val()) || 0;
 
             const unitPrice =
-                parseFloat(
-                    row.find('.unit-price').val()
-                ) || 0;
+                parseFloat(row.find('.unit-price').val()) || 0;
 
-            const subtotal =
-                quantity * unitPrice;
+            const subtotal = quantity * unitPrice;
 
-            row.find('.item-subtotal')
-                .val(subtotal.toFixed(2));
+            row.find('.item-subtotal').val(
+                subtotal.toFixed(2)
+            );
 
             inventoryTotal += subtotal;
-
             totalItems += quantity;
-
         });
 
 
         /*
-        | Services
+        |--------------------------------------------------------------------------
+        | Services Total
+        |--------------------------------------------------------------------------
         */
 
         let servicesTotal = 0;
@@ -740,69 +798,63 @@ $(document).ready(function () {
             const row = $(this);
 
             const quantity =
-                parseFloat(
-                    row.find('.service-quantity').val()
-                ) || 0;
+                parseFloat(row.find('.service-quantity').val()) || 0;
 
             const unitPrice =
-                parseFloat(
-                    row.find('.service-unit-price').val()
-                ) || 0;
+                parseFloat(row.find('.service-unit-price').val()) || 0;
 
-            const subtotal =
-                quantity * unitPrice;
+            const subtotal = quantity * unitPrice;
 
-            row.find('.service-subtotal')
-                .val(subtotal.toFixed(2));
+            row.find('.service-subtotal').val(
+                subtotal.toFixed(2)
+            );
 
             servicesTotal += subtotal;
-
         });
 
 
         /*
-        | Discount
+        |--------------------------------------------------------------------------
+        | Discount / Advance / Security Deposit
+        |--------------------------------------------------------------------------
         */
 
         const discount =
             parseFloat($('#discount').val()) || 0;
 
-
-        /*
-        | Advance
-        */
-
         const advance =
             parseFloat($('#advance_amount').val()) || 0;
-
-
-        /*
-        | Security Deposit
-        */
 
         const securityDeposit =
             parseFloat($('#security_deposit').val()) || 0;
 
 
         /*
-        | Total Before Discount
+        |--------------------------------------------------------------------------
+        | Calculations
+        |--------------------------------------------------------------------------
+        |
+        | Package
+        |    +
+        | Inventory
+        |    +
+        | Services
+        |    =
+        | Total
+        |
+        | Total - Discount = Grand Total
+        |
+        | Grand Total - Advance = Remaining
+        |
         */
 
         const total =
-            inventoryTotal + servicesTotal;
-
-
-        /*
-        | Grand Total
-        */
+            packagePrice +
+            inventoryTotal +
+            servicesTotal;
 
         const grandTotal =
             Math.max(total - discount, 0);
-
-
-        /*
-        | Remaining
-        */
 
         const remainingAmount =
             Math.max(grandTotal - advance, 0);
@@ -814,83 +866,105 @@ $(document).ready(function () {
         |--------------------------------------------------------------------------
         */
 
-        $('#inventory-items-total')
-            .text(totalItems);
+        $('#inventory-items-total').text(totalItems);
 
-        $('#inventory-total')
-            .text(inventoryTotal.toFixed(2));
-
-        $('#subtotal')
-            .val(total.toFixed(2));
+        $('#inventory-total').text(
+            inventoryTotal.toFixed(2)
+        );
 
 
         /*
         |--------------------------------------------------------------------------
-        | Services Summary
+        | General / Hidden Totals
         |--------------------------------------------------------------------------
         */
 
-        $('#services-total')
-            .text(servicesTotal.toFixed(2));
+        $('#subtotal').val(
+            total.toFixed(2)
+        );
+
+        $('#services-total').text(
+            servicesTotal.toFixed(2)
+        );
 
 
         /*
         |--------------------------------------------------------------------------
-        | Payment Summary
+        | PAYMENT SUMMARY
         |--------------------------------------------------------------------------
         */
 
-        $('#payment-inventory-total')
-            .text(inventoryTotal.toFixed(2));
+        $('#payment-package-total').text(
+            packagePrice.toFixed(2)
+        );
 
-        $('#payment-services-total')
-            .text(servicesTotal.toFixed(2));
+        $('#payment-inventory-total').text(
+            inventoryTotal.toFixed(2)
+        );
 
-        $('#payment-total')
-            .text(total.toFixed(2));
+        $('#payment-services-total').text(
+            servicesTotal.toFixed(2)
+        );
 
-        $('#payment-discount')
-            .text(discount.toFixed(2));
+        $('#payment-discount').text(
+            discount.toFixed(2)
+        );
 
-        $('#grand-total')
-            .text(grandTotal.toFixed(2));
+        $('#payment-total').text(
+            total.toFixed(2)
+        );
 
-        $('#payment-advance')
-            .text(advance.toFixed(2));
+        $('#grand-total').text(
+            grandTotal.toFixed(2)
+        );
 
-        $('#remaining-total')
-            .text(remainingAmount.toFixed(2));
+        $('#payment-advance').text(
+            advance.toFixed(2)
+        );
+
+        $('#remaining-total').text(
+            remainingAmount.toFixed(2)
+        );
 
 
         /*
         |--------------------------------------------------------------------------
-        | Preview Summary
+        | PREVIEW SUMMARY
         |--------------------------------------------------------------------------
         */
 
-        $('#preview-inventory-total')
-            .text(inventoryTotal.toFixed(2));
+        $('#preview-package-total').text(
+            packagePrice.toFixed(2)
+        );
 
-        $('#preview-services-total')
-            .text(servicesTotal.toFixed(2));
+        $('#preview-inventory-total').text(
+            inventoryTotal.toFixed(2)
+        );
 
-        $('#preview-discount')
-            .text(discount.toFixed(2));
+        $('#preview-services-total').text(
+            servicesTotal.toFixed(2)
+        );
 
-        $('#preview-grand-total')
-            .text(grandTotal.toFixed(2));
+        $('#preview-discount').text(
+            discount.toFixed(2)
+        );
 
-        $('#preview-security-deposit')
-            .text(securityDeposit.toFixed(2));
+        $('#preview-grand-total').text(
+            grandTotal.toFixed(2)
+        );
 
-        $('#preview-advance')
-            .text(advance.toFixed(2));
+        $('#preview-security-deposit').text(
+            securityDeposit.toFixed(2)
+        );
 
-        $('#preview-remaining')
-            .text(remainingAmount.toFixed(2));
+        $('#preview-advance').text(
+            advance.toFixed(2)
+        );
 
+        $('#preview-remaining').text(
+            remainingAmount.toFixed(2)
+        );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -912,202 +986,192 @@ $(document).ready(function () {
     |--------------------------------------------------------------------------
     */
 
-    function updatePreview() {
+    function updatePackagePreview() {
+
+        const option = $('#package_id').find(':selected');
+
+        const packageId = option.val();
+
+        if (!packageId) {
+
+            $('#preview-package-name').text('-');
+
+            $('#preview-package-discount').text('0%');
+
+            $('#preview-package-price').text('Rs. 0.00');
+
+            $('#preview-package-description').text('-');
+
+            $('#preview-package-includes').html(`
+                <tr>
+                    <td colspan="3" class="text-center text-muted">
+                        No package selected.
+                    </td>
+                </tr>
+            `);
+
+            return;
+        }
+
 
         /*
-        | Customer
+        |--------------------------------------------------------------------------
+        | Package Details
+        |--------------------------------------------------------------------------
         */
 
-        $('#preview-customer-name')
-            .text($('#customer_name').val() || '-');
+        $('#preview-package-name')
+            .text(option.data('name') || '-');
 
-        $('#preview-phone')
-            .text($('#phone').val() || '-');
-
-        $('#preview-cnic')
-            .text($('#cnic').val() || '-');
-
-        $('#preview-alternate-phone')
-            .text($('#alternate_phone').val() || '-');
-
-        $('#preview-address')
-            .text($('#address').val() || '-');
-
-
-        /*
-        | Event
-        */
-
-        $('#preview-event-category')
+        $('#preview-package-discount')
             .text(
-                $('#event_category_id option:selected').text() || '-'
+                (option.data('discount') ?? 0) + '%'
             );
 
-        $('#preview-start-date')
-            .text($('#start_date').val() || '-');
+        $('#preview-package-price')
+            .text(
+                'Rs. ' +
+                Number(option.data('price') || 0).toLocaleString()
+            );
 
-        $('#preview-end-date')
-            .text($('#end_date').val() || '-');
-
-        $('#preview-venue')
-            .text($('#venue').val() || '-');
+        $('#preview-package-description')
+            .text(option.data('description') || '-');
 
 
         /*
-        | Inventory Preview
+        |--------------------------------------------------------------------------
+        | Inventory
+        |--------------------------------------------------------------------------
         */
 
-        const inventoryPreview =
-            $('#preview-inventory-items');
+        let inventory = option.data('inventory');
 
-        inventoryPreview.empty();
+        if (typeof inventory === 'string') {
 
-        let hasInventory = false;
-
-        $('.inventory-row').each(function () {
-
-            const row = $(this);
-
-            const itemId =
-                row.find('.inventory-item').val();
-
-            if (!itemId) {
-                return;
+            try {
+                inventory = JSON.parse(inventory);
+            } catch (error) {
+                inventory = [];
             }
 
-            hasInventory = true;
+        }
 
-            const category =
-                row.find('.inventory-category option:selected')
-                    .text();
-
-            const item =
-                row.find('.inventory-item option:selected')
-                    .text();
-
-            const quantity =
-                parseFloat(
-                    row.find('.quantity').val()
-                ) || 0;
-
-            const unitPrice =
-                parseFloat(
-                    row.find('.unit-price').val()
-                ) || 0;
-
-            const subtotal =
-                quantity * unitPrice;
+        inventory = inventory || [];
 
 
-            inventoryPreview.append(`
+        /*
+        |--------------------------------------------------------------------------
+        | Services
+        |--------------------------------------------------------------------------
+        */
+
+        let services = option.data('services');
+
+        if (typeof services === 'string') {
+
+            try {
+                services = JSON.parse(services);
+            } catch (error) {
+                services = [];
+            }
+
+        }
+
+        services = services || [];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Build Includes Table
+        |--------------------------------------------------------------------------
+        */
+
+        let html = '';
+
+
+        // Inventory
+        inventory.forEach(function (item) {
+
+            html += `
                 <tr>
-                    <td>${category}</td>
-                    <td>${item}</td>
-                    <td>${quantity}</td>
-                    <td>Rs. ${unitPrice.toFixed(2)}</td>
-                    <td>Rs. ${subtotal.toFixed(2)}</td>
+
+                    <td>
+                        <span class="badge bg-label-primary">
+                            Inventory
+                        </span>
+                    </td>
+
+                    <td>
+                        ${item.item ?? '-'}
+                    </td>
+
+                    <td class="text-center">
+                        ${item.quantity ?? 0}
+                    </td>
+
                 </tr>
-            `);
+            `;
 
         });
 
 
-        if (!hasInventory) {
+        // Services
+        services.forEach(function (service) {
 
-            inventoryPreview.html(`
+            html += `
                 <tr>
-                    <td
-                        colspan="5"
-                        class="text-center text-muted"
-                    >
-                        No inventory items selected.
+
+                    <td>
+                        <span class="badge bg-label-success">
+                            Service
+                        </span>
                     </td>
+
+                    <td>
+                        <div class="fw-medium">
+                            ${service.name ?? '-'}
+                        </div>
+
+                        ${
+                            service.description
+                                ? `<small class="text-muted">
+                                    ${service.description}
+                                </small>`
+                                : ''
+                        }
+
+                    </td>
+
+                    <td class="text-center">
+                        -
+                    </td>
+
                 </tr>
-            `);
-
-        }
-
-
-        /*
-        |----------------------------------------------------------------------
-        | Services Preview
-        |----------------------------------------------------------------------
-        */
-
-        const servicesPreview =
-            $('#preview-services');
-
-        servicesPreview.empty();
-
-        let hasServices = false;
-
-        $('.service-row').each(function () {
-
-            const row = $(this);
-
-            const serviceId =
-                row.find('.service').val();
-
-            if (!serviceId) {
-                return;
-            }
-
-            hasServices = true;
-
-            const service =
-                row.find('.service option:selected')
-                    .text();
-
-            const quantity =
-                parseFloat(
-                    row.find('.service-quantity').val()
-                ) || 0;
-
-            const unitPrice =
-                parseFloat(
-                    row.find('.service-unit-price').val()
-                ) || 0;
-
-            const subtotal =
-                quantity * unitPrice;
-
-
-            servicesPreview.append(`
-                <tr>
-                    <td>${service}</td>
-                    <td>${quantity}</td>
-                    <td>Rs. ${unitPrice.toFixed(2)}</td>
-                    <td>Rs. ${subtotal.toFixed(2)}</td>
-                </tr>
-            `);
+            `;
 
         });
 
 
-        if (!hasServices) {
+        if (!html) {
 
-            servicesPreview.html(`
+            html = `
                 <tr>
+
                     <td
-                        colspan="4"
+                        colspan="3"
                         class="text-center text-muted"
                     >
-                        No services selected.
+                        No items or services included.
                     </td>
+
                 </tr>
-            `);
+            `;
 
         }
 
 
-        /*
-        | Recalculate totals
-        */
-
-        calculateTotals();
-
+        $('#preview-package-includes').html(html);
     }
-
 
     /*
     |--------------------------------------------------------------------------

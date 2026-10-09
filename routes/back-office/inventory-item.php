@@ -8,6 +8,7 @@ Route::group([
     'middleware' => ['web', 'auth']
 ], function () {
     Route::controller(InventoryItemController::class)->group(function () {
+        Route::get('get-category-inventory-items', 'getCategoryInventoryItems')->name('get-category-inventory-items');
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');
         Route::post('bulk-restore', 'bulkRestore')->name('bulkRestore');
         Route::post('{inventoryItem}/restore', 'restore')->name('restore');

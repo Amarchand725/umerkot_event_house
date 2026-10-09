@@ -35,104 +35,45 @@ $(document).ready(function () {
     */
 
     function showStep(step) {
+        step = Number(step);
+
+        if (step < 1 || step > 7) {
+            return;
+        }
 
         $('.wizard-step').addClass('d-none');
-
         $(`[data-step-content="${step}"]`).removeClass('d-none');
 
         $('#eventWizardTabs .nav-link').removeClass('active');
-
         $(`#eventWizardTabs .nav-link[data-step="${step}"]`)
             .addClass('active');
+
+        calculateTotals();
+
+        if (step === 7) {
+            updatePreview();
+        }
 
         window.scrollTo({
             top: 0,
             behavior: 'smooth'
         });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Refresh calculations whenever wizard step changes
-        |--------------------------------------------------------------------------
-        */
-
-        calculateTotals();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Preview Step
-        |--------------------------------------------------------------------------
-        */
-
-        if (step == 6) {
-            updatePreview();
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Payment Step
-        |--------------------------------------------------------------------------
-        |
-        | Refresh the payment summary when Payment tab is opened.
-        |
-        */
-
-        if (step == 5) {
-            calculateTotals();
-        }
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Next Step
-    |--------------------------------------------------------------------------
-    */
-
-    $('.next-step').on('click', function () {
-
-        const nextStep = $(this).data('next');
-
-        showStep(nextStep);
-
+    $('.next-step').on('click', function (e) {
+        e.preventDefault();
+        showStep($(this).data('next'));
     });
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Previous Step
-    |--------------------------------------------------------------------------
-    */
-
-    $('.previous-step').on('click', function () {
-
-        const previousStep = $(this).data('previous');
-
-        showStep(previousStep);
-
+    $('.previous-step').on('click', function (e) {
+        e.preventDefault();
+        showStep($(this).data('previous'));
     });
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Wizard Tab Click
-    |--------------------------------------------------------------------------
-    */
-
-    $('#eventWizardTabs').on(
-        'click',
-        '.nav-link',
-        function () {
-
-            const step = $(this).data('step');
-
-            showStep(step);
-
-        }
-    );
+    $('#eventWizardTabs').on('click', '.nav-link', function (e) {
+        e.preventDefault();
+        showStep($(this).data('step'));
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -154,13 +95,21 @@ $(document).ready(function () {
         if (!packageId) {
 
             // Hide package details
-            $('#package-details').addClass('d-none');
+            $('#preview-package-section').addClass('d-none');
+
+            $('#preview-package-name').text('');
+            $('#preview-package-discount').text('');
+            $('#preview-package-price').text('');
+            $('#preview-package-description').text('');
+            $('#preview-package-includes').empty();
 
             // Reset preview
             updatePackagePreview();
 
             return;
         }
+
+        $('#preview-package-section').removeClass('d-none');
 
 
         /*
@@ -368,33 +317,70 @@ $(document).ready(function () {
     inventoryContainer.on(
         'change',
         '.inventory-category',
-        function () {
-
+        async function () {
             const row = $(this).closest('.inventory-row');
-
             const categoryId = $(this).val();
-
             const itemSelect = row.find('.inventory-item');
+            const priceInput = row.find('.unit-price');
 
-            itemSelect.empty();
-
-            itemSelect.append(
-                '<option value="">Select Inventory Item</option>'
+            itemSelect.empty().append(
+                new Option('Select Inventory Item', '', true, true)
             );
 
+            priceInput.val(0);
+            row.find('.item-subtotal').val('0.00');
+
             if (!categoryId) {
-
-                itemSelect.prop('disabled', true);
-
-                itemSelect.trigger('change');
-
-                row.find('.unit-price').val(0);
+                itemSelect.prop('disabled', true)
+                    .trigger('change');
 
                 calculateTotals();
-
                 return;
             }
 
+            itemSelect.prop('disabled', true)
+                .append(new Option('Loading items...', ''));
+
+            try {
+                const response = await $.ajax({
+                    url: inventoryContainer.data('items-url'),
+                    method: 'GET',
+                    dataType: 'json',
+                    data: {
+                        inventory_category_id : categoryId
+                    }
+                });
+
+                itemSelect.empty().append(
+                    new Option('Select Inventory Item', '', true, true)
+                );
+
+                if (response.status && Array.isArray(response.data)) {
+                    response.data.forEach(function (item) {
+                        const option = new Option(item.name, item.id);
+
+                        $(option).attr(
+                            'data-unit-price',
+                            Number(item.price_per_unit) || 0
+                        );
+
+                        itemSelect.append(option);
+                    });
+                }
+
+                itemSelect.prop('disabled', false);
+                itemSelect.val('').trigger('change');
+            } catch (error) {
+                itemSelect.empty().append(
+                    new Option('Unable to load items', '')
+                );
+
+                itemSelect.prop('disabled', true).trigger('change');
+
+                console.error('Inventory loading failed:', error);
+            }
+
+            calculateTotals();
         }
     );
 
@@ -1180,5 +1166,178 @@ $(document).ready(function () {
     */
 
     calculateTotals();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Complete Order Preview
+    |--------------------------------------------------------------------------
+    */
+
+    function updatePreview() {
+
+        // Helper: safely display user/database values inside HTML.
+        function escapeHtml(value) {
+            return $('<div>').text(value ?? '').html();
+        }
+
+        function formatMoney(value) {
+            return (parseFloat(value) || 0).toLocaleString('en-PK', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 1. Customer Information
+        |--------------------------------------------------------------------------
+        */
+
+        const name = $('#customer_name').val() || '';
+        const caste = $('#caste').val() || '';
+
+        $('#preview-customer-name').text(
+            [name.trim(), caste.trim()].filter(Boolean).join(' ')
+        );
+
+        $('#preview-phone').text(
+            $('#phone').val() || '-'
+        );
+
+        $('#preview-cnic').text(
+            $('#cnic').val() || '-'
+        );
+
+        $('#preview-alternate-phone').text(
+            $('#alternate_phone').val() || '-'
+        );
+
+        $('#preview-address').text(
+            $('#address').val() || '-'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | 2. Event Information
+        |--------------------------------------------------------------------------
+        */
+
+        $('#preview-event-category').text(
+            $('#event_category_id option:selected').val()
+                ? $('#event_category_id option:selected').text().trim()
+                : '-'
+        );
+
+        $('#preview-start-date').text(
+            $('#start_date').val()?.replace('T', ' ') || '-'
+        );
+
+        $('#preview-end-date').text(
+            $('#end_date').val()?.replace('T', ' ') || '-'
+        );
+
+        $('#preview-venue').text(
+            $('#venue').val() || '-'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | 3. Package Information
+        |--------------------------------------------------------------------------
+        |
+        | Reuse your existing package preview function.
+        |
+        */
+
+        updatePackagePreview();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | 4. Selected Inventory Items
+        |--------------------------------------------------------------------------
+        */
+
+        let inventoryHtml = '';
+
+        $('#inventory-items .inventory-row').each(function () {
+            const row = $(this);
+            const itemSelect = row.find('.inventory-item');
+            const itemId = itemSelect.val();
+
+            if (!itemId) {
+                return;
+            }
+
+            const category = row.find('.inventory-category option:selected').text().trim();
+            const itemName = itemSelect.find('option:selected').text().trim();
+            const quantity = parseFloat(row.find('.quantity').val()) || 0;
+            const unitPrice = parseFloat(row.find('.unit-price').val()) || 0;
+            const subtotal = quantity * unitPrice;
+
+            inventoryHtml += `
+                <tr>
+                    <td>${escapeHtml(category || '-')}</td>
+                    <td>${escapeHtml(itemName || '-')}</td>
+                    <td>${quantity}</td>
+                    <td>Rs. ${formatMoney(unitPrice)}</td>
+                    <td>Rs. ${formatMoney(subtotal)}</td>
+                </tr>
+            `;
+        });
+
+        $('#preview-inventory-items').html(inventoryHtml);
+        $('#preview-inventory-section').toggle(inventoryHtml !== '');
+
+        /*
+        |--------------------------------------------------------------------------
+        | 5. Selected Services
+        |--------------------------------------------------------------------------
+        */
+
+        let servicesHtml = '';
+
+        $('#event-services .service-row').each(function () {
+            const row = $(this);
+            const serviceSelect = row.find('.service');
+            const serviceId = serviceSelect.val();
+
+            if (!serviceId) {
+                return;
+            }
+
+            const serviceName = serviceSelect.find('option:selected').text().trim();
+            const quantity = parseFloat(row.find('.service-quantity').val()) || 0;
+            const unitPrice = parseFloat(row.find('.service-unit-price').val()) || 0;
+            const subtotal = quantity * unitPrice;
+
+            servicesHtml += `
+                <tr>
+                    <td>${escapeHtml(serviceName || '-')}</td>
+                    <td>${quantity}</td>
+                    <td>Rs. ${formatMoney(unitPrice)}</td>
+                    <td>Rs. ${formatMoney(subtotal)}</td>
+                </tr>
+            `;
+        });
+
+        $('#preview-services').html(servicesHtml);
+        $('#preview-services-section').toggle(servicesHtml !== '');
+
+        /*
+        |--------------------------------------------------------------------------
+        | 6. Financial Summary
+        |--------------------------------------------------------------------------
+        |
+        | calculateTotals() already updates the preview totals.
+        | Call it here to ensure the latest values are displayed.
+        |
+        */
+
+        calculateTotals();
+    }
 
 });

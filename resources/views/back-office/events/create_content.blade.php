@@ -760,7 +760,10 @@
 
                 <div class="card-body">
 
-                    <div id="inventory-items">
+                    <div
+                        id="inventory-items"
+                        data-items-url="{{ route('back-office.inventory-items.get-category-inventory-items') }}"
+                    >
 
                         @forelse($model->eventItems ?? [] as $index => $eventItem)
 
@@ -1427,7 +1430,7 @@
                 <button
                     type="button"
                     class="btn btn-label-secondary previous-step"
-                    data-previous="5"
+                    data-previous="4"
                 >
                     <i class="ti ti-arrow-left me-1"></i>
                     Previous
@@ -1436,7 +1439,7 @@
                 <button
                     type="button"
                     class="btn btn-primary next-step"
-                    data-next="7"
+                    data-next="6"
                 >
                     Next
                     <i class="ti ti-arrow-right ms-1"></i>
@@ -1764,7 +1767,7 @@
                 <button
                     type="button"
                     class="btn btn-label-secondary previous-step"
-                    data-previous="6"
+                    data-previous="5"
                 >
                     <i class="ti ti-arrow-left me-1"></i>
                     Previous
@@ -1773,7 +1776,7 @@
                 <button
                     type="button"
                     class="btn btn-primary next-step"
-                    data-next="6"
+                    data-next="7"
                 >
                     Review Order
                     <i class="ti ti-arrow-right ms-1"></i>
@@ -1832,21 +1835,6 @@
                             </div>
                         </div>
 
-
-                        <div class="col-md-6">
-                            <small class="text-muted">
-                                Phone
-                            </small>
-
-                            <div
-                                class="fw-semibold"
-                                id="preview-phone"
-                            >
-                                -
-                            </div>
-                        </div>
-
-
                         <div class="col-md-6">
                             <small class="text-muted">
                                 CNIC
@@ -1860,6 +1848,19 @@
                             </div>
                         </div>
 
+
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                Phone
+                            </small>
+
+                            <div
+                                class="fw-semibold"
+                                id="preview-phone"
+                            >
+                                -
+                            </div>
+                        </div>
 
                         <div class="col-md-6">
                             <small class="text-muted">
@@ -1984,7 +1985,7 @@
             {{-- ============================================================
                 PACKAGE PREVIEW
             ============================================================= --}}
-            <div class="card border shadow-none mb-4">
+            <div class="card border shadow-none mb-4" id="preview-package-section">
 
                 <div class="card-header">
 
@@ -2134,10 +2135,10 @@
 
                 </div>
 
-            </div>          
+            </div>
 
             {{-- Inventory Preview --}}
-            <div class="card border shadow-none mb-4">
+            <div class="card border shadow-none mb-4" id="preview-inventory-section">
 
                 <div class="card-header">
 
@@ -2207,7 +2208,7 @@
 
 
             {{-- Services Preview --}}
-            <div class="card border shadow-none mb-4">
+            <div class="card border shadow-none mb-4" id="preview-services-section">
 
                 <div class="card-header">
 
@@ -2431,7 +2432,7 @@
 
                 </div>
 
-            </div>  
+            </div>
 
 
             {{-- Navigation --}}

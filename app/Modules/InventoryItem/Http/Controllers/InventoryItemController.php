@@ -16,11 +16,13 @@ use App\Models\Status;
 class InventoryItemController extends BaseModuleController
 {
     protected $status;
+    protected $model;
 
     public function __construct(
         protected InventoryItemContract $inventoryItemRepo
     ){
         $this->status = new Status();
+        $this->model = new InventoryItem();
         // Initialize common module variables automatically
         $this->autoInit();
     }
@@ -135,6 +137,19 @@ class InventoryItemController extends BaseModuleController
     {
         $model = $this->inventoryItemRepo->showModel($inventoryItem);
         return (string) view($this->pathInitialize.'.show_content', get_defined_vars());
+    }
+
+    public function getCategoryInventoryItems(Request $request)
+    {
+        $categoryId = $request->input('inventory_category_id');
+        $items = $this->model
+                ->where('inventory_category_id', $categoryId)
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $items,
+        ]);
     }
 
     public function destroy(InventoryItem $inventoryItem)

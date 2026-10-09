@@ -319,7 +319,7 @@
                         @foreach($eventCategories as $category)
 
                             <option
-                                value="{{ $category->id }}"
+                                value="{{ $category->ulid }}"
                                 @selected(
                                     old(
                                         'event_category_id',
@@ -501,7 +501,7 @@
 
                         @foreach($packages as $package)
                             <option
-                                value="{{ $package->id }}"
+                                value="{{ $package->ulid }}"
                                 data-name="{{ $package->name }}"
                                 data-price="{{ $package->price }}"
                                 data-description="{{ $package->description }}"
@@ -510,12 +510,6 @@
                                         'category' => $item->inventoryItem->category->name ?? '-',
                                         'item' => $item->inventoryItem->name ?? '-',
                                         'quantity' => $item->quantity,
-                                    ];
-                                })->toJson() }}"
-                                data-services="{{ $package->services->map(function ($service) {
-                                    return [
-                                        'name' => $service->name,
-                                        'description' => $service->description,
                                     ];
                                 })->toJson() }}"
                                 @selected(
@@ -1182,7 +1176,7 @@
                                     </label>
 
                                     <select
-                                        name="services[{{ $index }}][service_id]"
+                                        name="services[{{ $index }}][quantity]"
                                         class="form-select service"
                                     >
 
@@ -1193,7 +1187,7 @@
                                         @foreach($services as $service)
 
                                             <option
-                                                value="{{ $service->id }}"
+                                                value="{{ $service->ulid }}"
                                                 data-unit-price="{{ $service->price }}"
                                                 @selected(
                                                     $eventService->service_id == $service->id
@@ -1492,7 +1486,7 @@
                         @foreach($paymentMethods as $paymentMethod)
 
                             <option
-                                value="{{ $paymentMethod->id }}"
+                                value="{{ $paymentMethod->ulid }}"
                                 @selected(
                                     old(
                                         'payment_method_id',

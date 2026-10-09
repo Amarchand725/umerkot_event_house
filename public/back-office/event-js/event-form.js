@@ -7,22 +7,37 @@ $(document).ready(function () {
     */
 
     function initializeSelect2(container = document) {
+    $(container).find('select').each(function () {
+        const select = $(this);
 
-        $(container).find('select').each(function () {
+        if (select.hasClass('select2-hidden-accessible')) {
+            return;
+        }
 
-            const select = $(this);
+        select.select2({
+            width: '100%',
+            dropdownParent: select.parent()
+        });
+    });
+    }
 
-            // Prevent duplicate initialization
-            if (select.hasClass('select2-hidden-accessible')) {
-                return;
-            }
+    function prepareClonedRow(row) {
+        // Remove Select2's generated dropdown containers.
+        row.find('.select2').remove();
 
-            select.select2({
-                dropdownParent: select.parent()
-            });
+        // Reset Select2 state on cloned select elements.
+        row.find('select').each(function () {
+            $(this)
+                .removeClass('select2-hidden-accessible')
+                .removeAttr('data-select2-id')
+                .removeAttr('tabindex')
+                .removeAttr('aria-hidden')
+                .removeData('select2');
 
+            $(this).find('option').removeAttr('data-select2-id');
         });
 
+        return row;
     }
 
     initializeSelect2();
@@ -438,98 +453,49 @@ $(document).ready(function () {
     |--------------------------------------------------------------------------
     */
 
+    /* Add Inventory */
+
     addInventoryButton.on('click', function () {
+        const firstRow = inventoryContainer.find('.inventory-row:first');
 
-        const firstRow =
-            inventoryContainer.find('.inventory-row:first');
+        if (!firstRow.length) {
+            return;
+        }
 
-        const newRow =
-            firstRow.clone();
+        const newRow = prepareClonedRow(firstRow.clone());
 
-        /*
-        | Remove Select2 generated markup
-        */
-
-        newRow.find('.select2').remove();
-
-        const category =
-            newRow.find('.inventory-category');
-
-        const select =
-            newRow.find('.inventory-item');
-
-
-        /*
-        | Reset category
-        */
-
-        category
-            .attr(
-                'name',
-                `items[${inventoryIndex}][inventory_category_id]`
-            )
+        // Category: used for filtering, not submitted.
+        newRow.find('.inventory-category')
+            .removeAttr('name')
             .val('');
 
-
-        /*
-        | Reset inventory item
-        */
-
-        select
-            .attr(
-                'name',
-                `items[${inventoryIndex}][inventory_item_id]`
-            )
-            .val('')
+        // Inventory item: wait for category selection.
+        newRow.find('.inventory-item')
+            .attr('name', `items[${inventoryIndex}][inventory_item_id]`)
+            .empty()
+            .append(new Option('Select Inventory Item', ''))
             .prop('disabled', true);
 
-
-        /*
-        | Reset quantity
-        */
-
+        // Quantity.
         newRow.find('.quantity')
-            .attr(
-                'name',
-                `items[${inventoryIndex}][quantity]`
-            )
+            .attr('name', `items[${inventoryIndex}][quantity]`)
             .val(1);
 
-
-        /*
-        | Reset price
-        */
-
+        // Display-only price; the backend fetches the actual price.
         newRow.find('.unit-price')
-            .attr(
-                'name',
-                `items[${inventoryIndex}][unit_price]`
-            )
+            .removeAttr('name')
             .val(0);
 
-
-        /*
-        | Reset subtotal
-        */
-
-        newRow.find('.item-subtotal')
-            .val('0.00');
-
+        // Display-only subtotal.
+        newRow.find('.item-subtotal').val('0.00');
 
         inventoryContainer.append(newRow);
 
-
-        /*
-        | Initialize Select2
-        */
-
         initializeSelect2(newRow);
-
 
         inventoryIndex++;
 
         calculateTotals();
-
     });
 
 
@@ -628,62 +594,42 @@ $(document).ready(function () {
     |--------------------------------------------------------------------------
     */
 
+    /* Add Service */
+
     addServiceButton.on('click', function () {
+        const firstRow = serviceContainer.find('.service-row:first');
 
-        const firstRow =
-            serviceContainer.find('.service-row:first');
+        if (!firstRow.length) {
+            return;
+        }
 
-        const newRow =
-            firstRow.clone();
+        const newRow = prepareClonedRow(firstRow.clone());
 
-        /*
-        | Remove Select2 generated markup
-        */
-
-        newRow.find('.select2').remove();
-
-        const select =
-            newRow.find('.service');
-
-
-        select
-            .attr(
-                'name',
-                `services[${serviceIndex}][service_id]`
-            )
+        // Service dropdown: preserve options, clear selection.
+        newRow.find('.service')
+            .attr('name', `services[${serviceIndex}][service_id]`)
             .val('');
 
-
+        // Quantity.
         newRow.find('.service-quantity')
-            .attr(
-                'name',
-                `services[${serviceIndex}][quantity]`
-            )
+            .attr('name', `services[${serviceIndex}][quantity]`)
             .val(1);
 
-
+        // Display-only price.
         newRow.find('.service-unit-price')
-            .attr(
-                'name',
-                `services[${serviceIndex}][unit_price]`
-            )
-            .val(0);
+            .removeAttr('name')
+            .val('');
 
-
-        newRow.find('.service-subtotal')
-            .val('0.00');
-
+        // Display-only subtotal.
+        newRow.find('.service-subtotal').val('0.00');
 
         serviceContainer.append(newRow);
 
-
         initializeSelect2(newRow);
-
 
         serviceIndex++;
 
         calculateTotals();
-
     });
 
 
@@ -1339,5 +1285,4 @@ $(document).ready(function () {
 
         calculateTotals();
     }
-
 });

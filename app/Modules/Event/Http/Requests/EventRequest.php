@@ -16,12 +16,12 @@ class EventRequest extends FormRequest
     {
         return [
             'status_id' => ['nullable', 'integer'],
-'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
         ];
     }
 
     public function prepareForValidation()
-    {   
+    {
         if ($this->has('status_id')) {
             $this->merge([
                 'status_id' => Status::where('ulid', $this->input('status_id'))->value('id')

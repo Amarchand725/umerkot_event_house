@@ -79,10 +79,6 @@
 
         @csrf
 
-        @if(isset($model))
-            @method('PUT')
-        @endif
-
 
         {{-- =================================================
             STEP 1: CUSTOMER

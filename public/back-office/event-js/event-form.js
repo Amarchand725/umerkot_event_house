@@ -372,7 +372,7 @@ $(document).ready(function () {
 
                 if (response.status && Array.isArray(response.data)) {
                     response.data.forEach(function (item) {
-                        const option = new Option(item.name, item.id);
+                        const option = new Option(item.name, item.ulid);
 
                         $(option).attr(
                             'data-unit-price',
@@ -466,24 +466,20 @@ $(document).ready(function () {
 
         // Category: used for filtering, not submitted.
         newRow.find('.inventory-category')
-            .removeAttr('name')
+            .attr('name', `items[${inventoryIndex}][inventory_category_id]`)
             .val('');
 
-        // Inventory item: wait for category selection.
         newRow.find('.inventory-item')
             .attr('name', `items[${inventoryIndex}][inventory_item_id]`)
-            .empty()
-            .append(new Option('Select Inventory Item', ''))
+            .val('')
             .prop('disabled', true);
 
-        // Quantity.
         newRow.find('.quantity')
             .attr('name', `items[${inventoryIndex}][quantity]`)
             .val(1);
 
-        // Display-only price; the backend fetches the actual price.
         newRow.find('.unit-price')
-            .removeAttr('name')
+            .attr('name', `items[${inventoryIndex}][unit_price]`)
             .val(0);
 
         // Display-only subtotal.
@@ -605,19 +601,16 @@ $(document).ready(function () {
 
         const newRow = prepareClonedRow(firstRow.clone());
 
-        // Service dropdown: preserve options, clear selection.
         newRow.find('.service')
             .attr('name', `services[${serviceIndex}][service_id]`)
             .val('');
 
-        // Quantity.
         newRow.find('.service-quantity')
             .attr('name', `services[${serviceIndex}][quantity]`)
             .val(1);
 
-        // Display-only price.
         newRow.find('.service-unit-price')
-            .removeAttr('name')
+            .attr('name', `services[${serviceIndex}][unit_price]`)
             .val('');
 
         // Display-only subtotal.

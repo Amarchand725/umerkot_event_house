@@ -103,7 +103,7 @@
                 <div class="col-12 col-md-6">
 
                     <label
-                        for="customer_name"
+                        for="name"
                         class="form-label fw-semibold"
                     >
                         Full Name <span class="text-danger">*</span>
@@ -111,15 +111,15 @@
 
                     <input
                         type="text"
-                        id="customer_name"
-                        name="customer_name"
+                        id="name"
+                        name="name"
                         class="form-control form-control-lg"
                         placeholder="Enter full name"
-                        value="{{ old('customer_name', $model->customer_name ?? '') }}"
+                        value="{{ old('name', $model->name ?? '') }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('customer_name') }}
+                        {{ $errors->first('name') }}
                     </span>
 
                 </div>
@@ -155,7 +155,7 @@
                 <div class="col-12 col-md-6">
 
                     <label
-                        for="cnic"
+                        for="cnic_no"
                         class="form-label fw-semibold"
                     >
                         CNIC
@@ -163,15 +163,15 @@
 
                     <input
                         type="text"
-                        id="cnic"
-                        name="cnic"
+                        id="cnic_no"
+                        name="cnic_no"
                         class="form-control form-control-lg"
                         placeholder="XXXXX-XXXXXXX-X"
-                        value="{{ old('cnic', $model->cnic ?? '') }}"
+                        value="{{ old('cnic_no', $model->cnic_no ?? '') }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('cnic') }}
+                        {{ $errors->first('cnic_no') }}
                     </span>
 
                 </div>
@@ -207,23 +207,23 @@
                 <div class="col-12 col-md-6">
 
                     <label
-                        for="alternate_phone"
+                        for="alter_phone"
                         class="form-label fw-semibold"
                     >
-                        Alternate Phone
+                        Alter Phone
                     </label>
 
                     <input
                         type="text"
-                        id="alternate_phone"
-                        name="alternate_phone"
+                        id="alter_phone"
+                        name="alter_phone"
                         class="form-control form-control-lg"
                         placeholder="Enter alternate phone"
-                        value="{{ old('alternate_phone', $model->alternate_phone ?? '') }}"
+                        value="{{ old('alter_phone', $model->alter_phone ?? '') }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('alternate_phone') }}
+                        {{ $errors->first('alter_phone') }}
                     </span>
 
                 </div>
@@ -779,7 +779,7 @@
                                         @foreach($inventoryCategories as $category)
 
                                             <option
-                                                value="{{ $category->id }}"
+                                                value="{{ $category->ulid }}"
                                                 @selected(
                                                     $eventItem->inventory_item->inventory_category_id == $category->id
                                                 )

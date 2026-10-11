@@ -48,12 +48,6 @@ class StatusSeeder extends Seeder
             //Payment Method
             ['model' => 'PaymentMethod', 'name' => 'active'],
             ['model' => 'PaymentMethod', 'name' => 'de-active'],
-            ['model' => 'PaymentMethod', 'name' => 'Unpaid'],
-            ['model' => 'PaymentMethod', 'name' => 'Partially Paid'],
-            ['model' => 'PaymentMethod', 'name' => 'Paid'],
-            ['model' => 'PaymentMethod', 'name' => 'Overpaid'],
-            ['model' => 'PaymentMethod', 'name' => 'Refund Due'],
-            ['model' => 'PaymentMethod', 'name' => 'Refunded'],
 
             //Inventory Transaction
             ['model' => 'InventoryTransaction', 'name' => 'purchase'],
@@ -91,6 +85,18 @@ class StatusSeeder extends Seeder
             ['model' => 'Order', 'name' => 'In Progress'],
             ['model' => 'Order', 'name' => 'Completed'],
             ['model' => 'Order', 'name' => 'Cancelled'],
+
+            //Payment 
+            ['model' => 'Payment', 'name' => 'Pending'],
+            ['model' => 'Payment', 'name' => 'Completed'],
+            ['model' => 'Payment', 'name' => 'Failed'],
+            ['model' => 'Payment', 'name' => 'Refunded'],
+
+            //Invoice
+            ['model' => 'Invoice', 'name' => 'Draft'],
+            ['model' => 'Invoice', 'name' => 'Pending'],
+            ['model' => 'Invoice', 'name' => 'Paid'],
+            ['model' => 'Invoice', 'name' => 'Overdue'],
         ];
 
         foreach ($data as $item) {

@@ -68,9 +68,14 @@ class EventRequest extends FormRequest
             ]);
         }
 
-        if ($this->has('event_category_id')) {
+        if ($this->has('event.event_category_id')) {
             $this->merge([
-                'event_category_id' => EventCategory::where('ulid', $this->input('event_category_id'))->value('id')
+                'event' => array_merge($this->input('event', []), [
+                    'event_category_id' => EventCategory::where(
+                        'ulid',
+                        $this->input('event.event_category_id')
+                    )->value('id'),
+                ]),
             ]);
         }
 
@@ -80,9 +85,14 @@ class EventRequest extends FormRequest
             ]);
         }
 
-        if ($this->has('payment_method_id')) {
+        if ($this->has('payment.payment_method_id')) {
             $this->merge([
-                'payment_method_id' => PaymentMethod::where('ulid', $this->input('payment_method_id'))->value('id')
+                'payment' => array_merge($this->input('payment', []), [
+                    'payment_method_id' => PaymentMethod::where(
+                        'ulid',
+                        $this->input('payment.payment_method_id')
+                    )->value('id'),
+                ]),
             ]);
         }
 

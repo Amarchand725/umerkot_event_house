@@ -16,19 +16,24 @@ return new class extends Migration
             $table->ulid('ulid')->unique();
             $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
-            $table->foreignId('order_id')->nullable()->constrained('orders')->nullOnDelete();
+            $table->foreignId('event_id')->nullable()->constrained('events')->nullOnDelete();
             $table->string('invoice_number', 20)->nullable()->unique();
-            $table->date('invoice_date')->nullable();
-            $table->date('due_date')->nullable();
-            $table->decimal('security_deposit', 12, 2)->default(0);
-            $table->decimal('subtotal', 12, 2)->default(0);
-            $table->decimal('total', 12, 2)->default(0);
-            $table->decimal('grand_total', 12, 2)->default(0);
-            $table->decimal('paid_amount', 12, 2)->default(0);
-            $table->decimal('remaining_amount', 12, 2)->default(0);
+
+            $table->decimal('outstanding_amount', 12, 2)->default(0);
+            $table->decimal('discount', 12, 2)->default(0);
+
+             // Amount due on this invoice after its discount.
+            $table->decimal('payable_amount', 12, 2)->default(0);
+
+            $table->date('issued_at')->nullable();
+            $table->date('due_at')->nullable();
+
             $table->text('note')->nullable();
-            $table->softDeletes();
+
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['event_id', 'issued_at']);
         });
     }
 

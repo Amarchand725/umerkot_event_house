@@ -16,14 +16,17 @@ class Payment extends Model
 {
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
-    protected $fillable = ['event_id', 'status_id', 'payment_method_id', 'payment_number', 'amount', 'payment_date', 'reference_number', 'note'];
+    protected $fillable = [
+        'payment_number', 'status_id', 'invoice_id ', 'payment_method_id', 
+        'amount', 'paid_at', 'note'
+    ];
 
     protected static function booted()
     {
         static::creating(function ($model) {
             if (empty($model->status_id)) {
                 $model->status_id = Status::where('model', 'Payment')
-                    ->where('name', 'active')
+                    ->where('name', 'Completed')
                     ->value('id');
             }
 

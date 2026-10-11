@@ -2,11 +2,16 @@
 
 namespace App\Modules\Event\Repositories\Eloquent;
 
+use App\Models\Invoice;
+use App\Models\OrderItem;
+use App\Models\PackageItem;
+use App\Models\Status;
 use App\Modules\Customer\Models\Customer;
 use App\Repositories\Eloquent\BaseRepository;
 use App\Modules\Event\Repositories\Contracts\EventContract;
 use App\Modules\Event\Models\Event;
 use App\Modules\Order\Models\Order;
+use App\Modules\Payment\Models\Payment;
 use Illuminate\Database\Eloquent\Model;
 
 class EventRepository extends BaseRepository implements EventContract
@@ -15,42 +20,6 @@ class EventRepository extends BaseRepository implements EventContract
     {
         parent::__construct($model);
     }
-
-    // public function storeModel(array $data): Event
-    // {
-    //     return DB::transaction(function () use ($data) {
-
-    //         $items = $data['items'] ?? [];
-    //         $services = $data['services'] ?? [];
-
-    //         unset($data['items'], $data['services']);
-
-    //         $event = $this->model->create($data);
-
-    //         // Save inventory items
-    //         foreach ($items as $item) {
-    //             $event->items()->create([
-    //                 'inventory_category_id' => $item['inventory_category_id'],
-    //                 'inventory_item_id' => $item['inventory_item_id'],
-    //                 'quantity' => $item['quantity'],
-    //                 'unit_price' => $item['unit_price'],
-    //                 'subtotal' => $item['quantity'] * $item['unit_price'],
-    //             ]);
-    //         }
-
-    //         // Save services
-    //         foreach ($services as $service) {
-    //             $event->services()->create([
-    //                 'service_id' => $service['service_id'],
-    //                 'quantity' => $service['quantity'],
-    //                 'unit_price' => $service['unit_price'],
-    //                 'subtotal' => $service['quantity'] * $service['unit_price'],
-    //             ]);
-    //         }
-
-    //         return $event;
-    //     });
-    // }
 
     public function storeModel(array $payload): Model
     {
@@ -71,10 +40,13 @@ class EventRepository extends BaseRepository implements EventContract
         */
 
         $event = $this->model;
-        $event = $payload['event'] ?? [];
-        $event['customer_id'] = $customer->id;
+        $eventData = $payload['event'] ?? [];
+        $eventData['customer_id'] = $customer->id;
+        $eventData['status_id'] = Status::where('model', 'Event')
+            ->where('name', 'Confirmed')
+            ->value('id');
 
-        $event->fill($event);
+        $event->toFill($eventData);
         $event->save();
 
         /*
@@ -118,6 +90,25 @@ class EventRepository extends BaseRepository implements EventContract
             $subtotal += $lineTotal;
         }
 
+        if($payload['package_id']) {
+            $packageItems = PackageItem::where('package_id', $payload['package_id'])->get();
+            foreach ($packageItems as $packageItem) {
+                $quantity = (float) $packageItem->quantity;
+                $unitPrice = (float) $packageItem->unit_price;
+                $lineTotal = $quantity * $unitPrice;
+
+                $lines[] = [
+                    'inventory_item_id' => $packageItem->inventory_item_id,
+                    'service_id'        => null,
+                    'quantity'          => $quantity,
+                    'unit_price'        => $unitPrice,
+                    'subtotal'          => $lineTotal,
+                ];
+
+                $subtotal += $lineTotal;
+            }
+        }
+
         /*
         |--------------------------------------------------------------------------
         | 4. Create Order
@@ -126,34 +117,35 @@ class EventRepository extends BaseRepository implements EventContract
 
         $order = new Order();
 
-        $order = Order::create([
-            // 'customer_id' => $customer->id,
-            'event_id'    => $event->id,
-            // 'package_id'  => $payload['package_id'] ?? null,
-            'subtotal'    => $subtotal,
-            'total'    => $payload['payment']['discount'] ?? 0,
-        ]);
-
-        foreach ($lines as $line) {
-            $line['order_id'] = $order->id;
-
-            OrderItem::create($line);
-        }
-
         /*
         |--------------------------------------------------------------------------
         | 5. Calculate Invoice
         |--------------------------------------------------------------------------
         */
 
-        $discount = (float) ($payload['discount'] ?? 0);
-        $securityDeposit = (float) ($payload['security_deposit'] ?? 0);
-        $advanceAmount = (float) ($payload['advance_amount'] ?? 0);
+        $discount = (float) ($payload['payment']['discount'] ?? 0);
+        $securityDeposit = (float) ($payload['payment']['security_deposit'] ?? 0);
+        $advanceAmount = (float) ($payload['payment']['advance_amount'] ?? 0);
 
         // Assumes discount is a fixed monetary amount.
         $discount = min($discount, $subtotal);
 
         $total = $subtotal - $discount;
+
+        $order->event_id = $event->id;
+        $order->subtotal = $subtotal;
+        $order->discount = $discount;
+        $order->total = $total;
+        $order->security_deposit = $securityDeposit;
+        $order->status_id = Status::where('model', 'Order')
+            ->where('name', 'Confirmed')
+            ->value('id');
+        $order->save();
+
+        foreach ($lines as $line) {
+            $line['order_id'] = $order->id;
+            OrderItem::create($line);
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -161,23 +153,15 @@ class EventRepository extends BaseRepository implements EventContract
         |--------------------------------------------------------------------------
         */
 
-        $invoice = Invoice::create([
-            'customer_id'      => $customer->id,
-            'event_id'         => $event->id,
-            'order_id'         => $order->id,
-            'subtotal'         => $subtotal,
-            'discount'         => $discount,
-            'total'            => $total,
-            'security_deposit' => $securityDeposit,
-            'advance_amount'   => $advanceAmount,
-            'balance'          => max(0, $total - $advanceAmount),
-        ]);
+        $invoice = new Invoice();
 
-        foreach ($lines as $line) {
-            $line['invoice_id'] = $invoice->id;
-
-            InvoiceItem::create($line);
-        }
+        $invoice->event_id = $event->id;
+        $invoice->issued_at = today();
+        $invoice->due_at = today();
+        $invoice->outstanding_amount = $subtotal;
+        $invoice->discount = 0;
+        $invoice->payable_amount = $advanceAmount;
+        $invoice->save();
 
         /*
         |--------------------------------------------------------------------------
@@ -186,18 +170,30 @@ class EventRepository extends BaseRepository implements EventContract
         */
 
         if ($advanceAmount > 0) {
-            Payment::create([
-                'customer_id'       => $customer->id,
-                'event_id'          => $event->id,
-                'order_id'          => $order->id,
-                'invoice_id'        => $invoice->id,
-                'payment_method_id' => $payload['payment_method_id'],
-                'amount'            => $advanceAmount,
-                'note'              => $payload['note'] ?? null,
-            ]);
+            $payment = new Payment();
+            $payment->invoice_id = $invoice->id;
+            $payment->payment_method_id = $payload['payment']['payment_method_id'];
+            $payment->amount = $advanceAmount;
+            $payment->paid_at = now();
+            $payment->note = $payload['event']['note'] ?? null;
+            $payment->save();
+
+            $paymentStatusId = Status::where('model', 'Payment')
+                ->where('name', 'Completed')
+                ->value('id');
+
+            if($payment->status_id === $paymentStatusId) {
+                $statusId = Status::where('model', 'Invoice')
+                    ->where('name', 'Paid')
+                    ->value('id');
+
+                $invoice->outstanding_amount -= $advanceAmount;
+                $invoice->status_id = $statusId;
+                $invoice->save();
+            }
         }
 
-        return $model;
+        return $event;
     }
 
     // public function updateModel(Model $model, array $payload): Model

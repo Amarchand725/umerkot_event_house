@@ -32,9 +32,8 @@ return new class extends Migration {
                 ->nullOnDelete();
 
             $table->string('payment_number', 20)->nullable()->unique();
-            $table->decimal('amount', 12, 2)->default(0);
-            $table->date('payment_date')->nullable();
-            $table->string('reference_number')->nullable();
+            $table->decimal('amount', 12, 2);
+            $table->dateTime('paid_at')->nullable();
             $table->text('note')->nullable();
 
             $table->softDeletes();

@@ -16,14 +16,16 @@ class Order extends Model
 {
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
-    protected $fillable = ['order_number', 'status_id'];
+    protected $fillable = [
+        'order_number', 'status_id', 'event_id', 'subtotal', 'discount', 'total', 'security_deposit', 'note'
+    ];
 
     protected static function booted()
     {
         static::creating(function ($model) {
             if (empty($model->status_id)) {
                 $model->status_id = Status::where('model', 'Order')
-                    ->where('name', 'active')
+                    ->where('name', 'Pending')
                     ->value('id');
             }
 

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('document_type', 30);
             $table->unsignedSmallInteger('year');
             $table->unsignedBigInteger('last_number')->default(0);
-            $table->timestamps();
 
             $table->unique(
                 ['document_type', 'year'],

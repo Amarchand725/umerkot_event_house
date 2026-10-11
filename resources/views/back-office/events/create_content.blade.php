@@ -1604,14 +1604,14 @@
 
                     <textarea
                         id="note"
-                        name="payment[note]"
+                        name="event[note]"
                         class="form-control"
                         rows="3"
                         placeholder="Enter any additional notes"
-                    >{{ old('payment.note', $model->note ?? '') }}</textarea>
+                    >{{ old('event.note', $model->note ?? '') }}</textarea>
 
                     <span class="text-danger error">
-                        {{ $errors->first('payment.note') }}
+                        {{ $errors->first('event.note') }}
                     </span>
 
                 </div>

@@ -12,16 +12,19 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Invoice extends Model
 {
-     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
+    use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
-    protected $fillable = ['invoice_number', 'status_id'];
+    protected $fillable = [
+        'invoice_number', 'status_id', 'event_id' , 
+        'outstanding_amount', 'discount', 'payable_amount', 'issued_at', 'due_at', 'note'   
+    ];
 
     protected static function booted()
     {
         static::creating(function ($model) {
             if (empty($model->status_id)) {
-                $model->status_id = Status::where('model', 'Order')
-                    ->where('name', 'active')
+                $model->status_id = Status::where('model', 'Invoice')
+                    ->where('name', 'Pending')
                     ->value('id');
             }
 

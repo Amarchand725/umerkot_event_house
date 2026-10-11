@@ -18,7 +18,7 @@ class Event extends Model
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
     protected $fillable = [
-                'customer_id', 'status_id', 'event_category_id', 'event_number', 'start_date', 'end_date', 'venue','note'
+                'status_id', 'customer_id', 'event_category_id', 'event_number', 'start_date', 'end_date', 'venue','note'
             ];
 
     protected static function booted()

@@ -10,12 +10,13 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Status;
 use App\Models\User;
+use App\Services\DocumentNumberService;
 
 class Order extends Model
 {
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
-    protected $fillable = ['name', 'status_id'];
+    protected $fillable = ['order_number', 'status_id'];
 
     protected static function booted()
     {
@@ -24,6 +25,11 @@ class Order extends Model
                 $model->status_id = Status::where('model', 'Order')
                     ->where('name', 'active')
                     ->value('id');
+            }
+
+            if (empty($model->order_number)) {
+                $model->order_number = app(DocumentNumberService::class)
+                    ->generate('order');
             }
         });
     }

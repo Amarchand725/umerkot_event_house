@@ -1145,11 +1145,11 @@ $(document).ready(function () {
         );
 
         $('#preview-cnic').text(
-            $('#cnic').val() || '-'
+            $('#cnic_no').val() || '-'
         );
 
         $('#preview-alternate-phone').text(
-            $('#alternate_phone').val() || '-'
+            $('#alter_phone').val() || '-'
         );
 
         $('#preview-address').text(

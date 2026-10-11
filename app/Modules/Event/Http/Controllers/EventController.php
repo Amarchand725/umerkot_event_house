@@ -107,7 +107,7 @@ class EventController extends BaseModuleController
     public function store(EventRequest $request)
     {
         $payload = $request->validated();
-
+        
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {

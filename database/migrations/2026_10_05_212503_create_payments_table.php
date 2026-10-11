@@ -31,6 +31,7 @@ return new class extends Migration {
                 ->constrained('payment_methods')
                 ->nullOnDelete();
 
+            $table->string('payment_number', 20)->nullable()->unique();
             $table->decimal('amount', 12, 2)->default(0);
             $table->date('payment_date')->nullable();
             $table->string('reference_number')->nullable();

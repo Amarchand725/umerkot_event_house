@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
             $table->foreignId('order_id')->nullable()->constrained('orders')->nullOnDelete();
-            $table->string('invoice_number')->nullable();
+            $table->string('invoice_number', 20)->nullable()->unique();
             $table->date('invoice_date')->nullable();
             $table->date('due_date')->nullable();
             $table->decimal('security_deposit', 12, 2)->default(0);
@@ -27,6 +27,7 @@ return new class extends Migration
             $table->decimal('paid_amount', 12, 2)->default(0);
             $table->decimal('remaining_amount', 12, 2)->default(0);
             $table->text('note')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

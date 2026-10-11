@@ -32,7 +32,7 @@ return new class extends Migration {
                 ->nullOnDelete();
 
             // Event information
-            $table->string('event_number')->nullable();
+            $table->string('event_number', 20)->nullable()->unique();
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();
             $table->string('venue')->nullable();

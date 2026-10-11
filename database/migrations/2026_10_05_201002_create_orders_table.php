@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
             $table->foreignId('event_id')->nullable()->constrained('events')->nullOnDelete();
-            $table->string('order_number')->nullable();
+            $table->string('order_number', 20)->nullable()->unique();
 
             // Billing
             $table->decimal('subtotal', 12, 2)->default(0);

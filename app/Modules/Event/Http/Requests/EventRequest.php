@@ -20,21 +20,23 @@ class EventRequest extends FormRequest
     {
         return [
             // Customer Information
-            'name' => ['required', 'string', 'max:255'],
-            'caste' => ['required', 'string', 'max:255'],
-            'cnic_no' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:20'],
-            'alter_phone' => ['nullable', 'string', 'max:20'],
-            'address' => ['required', 'string', 'max:255'],
+            'customer.name' => ['required', 'string', 'max:255'],
+            'customer.caste' => ['required', 'string', 'max:255'],
+            'customer.cnic_no' => ['required', 'string', 'max:255'],
+            'customer.phone' => ['required', 'string', 'max:20'],
+            'customer.alter_phone' => ['nullable', 'string', 'max:20'],
+            'customer.address' => ['required', 'string', 'max:255'],
+            
+            //package
+            'package_id' => ['nullable', 'exists:packages,id'],
 
             // Event Information
-            'status_id' => ['nullable', 'exists:statuses,id'],
-            'package_id' => ['nullable', 'exists:packages,id'],
-            'event_category_id' => ['required', 'exists:event_categories,id'],
-            'start_date' => ['required', 'date'],
-            'end_date' => ['required', 'date', 'after:start_date'],
-            'venue' => ['required', 'string', 'max:255'],
-            'note' => ['nullable'],
+            'event.status_id' => ['nullable', 'exists:statuses,id'],
+            'event.event_category_id' => ['required', 'exists:event_categories,id'],
+            'event.start_date' => ['required', 'date'],
+            'event.end_date' => ['required', 'date', 'after:event.start_date'],
+            'event.venue' => ['required', 'string', 'max:255'],
+            'event.note' => ['nullable'],
 
             // Inventory Items
             'items' => ['nullable', 'array'],
@@ -50,12 +52,11 @@ class EventRequest extends FormRequest
             'services.*.unit_price' => ['required', 'numeric', 'min:0'],
 
             // Payment Information
-            'payment_method_id' => ['required', 'exists:payment_methods,id'],
-            'subtotal' => ['nullable', 'numeric', 'min:0'],
-            'discount' => ['nullable', 'numeric', 'min:0'],
-            'security_deposit' => ['nullable', 'numeric', 'min:0'],
-            'advance_amount' => ['nullable', 'numeric', 'min:0'],
-            'note' => ['nullable', 'string', 'max:255'],
+            'payment.payment_method_id' => ['required', 'exists:payment_methods,id'],
+            'payment.subtotal' => ['nullable', 'numeric', 'min:0'],
+            'payment.discount' => ['nullable', 'numeric', 'min:0'],
+            'payment.security_deposit' => ['nullable', 'numeric', 'min:0'],
+            'payment.advance_amount' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 

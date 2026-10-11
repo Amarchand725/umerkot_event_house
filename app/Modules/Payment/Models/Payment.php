@@ -10,12 +10,13 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Status;
 use App\Models\User;
+use App\Services\DocumentNumberService;
 
 class Payment extends Model
 {
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
-    protected $fillable = ['event_id', 'status_id', 'payment_method_id', 'amount', 'payment_date', 'reference_number', 'note'];
+    protected $fillable = ['event_id', 'status_id', 'payment_method_id', 'payment_number', 'amount', 'payment_date', 'reference_number', 'note'];
 
     protected static function booted()
     {
@@ -24,6 +25,11 @@ class Payment extends Model
                 $model->status_id = Status::where('model', 'Payment')
                     ->where('name', 'active')
                     ->value('id');
+            }
+
+            if (empty($model->payment_number)) {
+                $model->payment_number = app(DocumentNumberService::class)
+                    ->generate('payment');
             }
         });
     }

@@ -112,14 +112,14 @@
                     <input
                         type="text"
                         id="name"
-                        name="name"
+                        name="customer[name]"
                         class="form-control form-control-lg"
                         placeholder="Enter full name"
-                        value="{{ old('name', $model->name ?? '') }}"
+                        value="{{ old('customer.name', $model->customer->name ?? '') }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('name') }}
+                        {{ $errors->first('customer.name') }}
                     </span>
 
                 </div>
@@ -138,14 +138,14 @@
                     <input
                         type="text"
                         id="caste"
-                        name="caste"
+                        name="customer[caste]"
                         class="form-control form-control-lg"
                         placeholder="Enter caste"
-                        value="{{ old('caste', $model->caste ?? '') }}"
+                        value="{{ old('customer.caste', $model->customer->caste ?? '') }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('caste') }}
+                        {{ $errors->first('customer.caste') }}
                     </span>
 
                 </div>
@@ -164,14 +164,14 @@
                     <input
                         type="text"
                         id="cnic_no"
-                        name="cnic_no"
+                        name="customer[cnic_no]"
                         class="form-control form-control-lg"
                         placeholder="XXXXX-XXXXXXX-X"
-                        value="{{ old('cnic_no', $model->cnic_no ?? '') }}"
+                        value="{{ old('customer.cnic_no', $model->customer->cnic_no ?? '') }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('cnic_no') }}
+                        {{ $errors->first('customer.cnic_no') }}
                     </span>
 
                 </div>
@@ -190,14 +190,14 @@
                     <input
                         type="text"
                         id="phone"
-                        name="phone"
+                        name="customer[phone]"
                         class="form-control form-control-lg"
                         placeholder="Enter phone number"
-                        value="{{ old('phone', $model->phone ?? '') }}"
+                        value="{{ old('customer.phone', $model->customer->phone ?? '') }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('phone') }}
+                        {{ $errors->first('customer.phone') }}
                     </span>
 
                 </div>
@@ -216,14 +216,14 @@
                     <input
                         type="text"
                         id="alter_phone"
-                        name="alter_phone"
+                        name="customer[alter_phone]"
                         class="form-control form-control-lg"
                         placeholder="Enter alternate phone"
-                        value="{{ old('alter_phone', $model->alter_phone ?? '') }}"
+                        value="{{ old('customer.alter_phone', $model->customer->alter_phone ?? '') }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('alter_phone') }}
+                        {{ $errors->first('customer.alter_phone') }}
                     </span>
 
                 </div>
@@ -241,14 +241,14 @@
 
                     <textarea
                         id="address"
-                        name="address"
+                        name="customer[address]"
                         class="form-control"
                         rows="3"
                         placeholder="Enter customer address"
-                    >{{ old('address', $model->address ?? '') }}</textarea>
+                    >{{ old('customer.address', $model->customer->address ?? '') }}</textarea>
 
                     <span class="text-danger error">
-                        {{ $errors->first('address') }}
+                        {{ $errors->first('customer.address') }}
                     </span>
 
                 </div>
@@ -308,7 +308,7 @@
 
                     <select
                         id="event_category_id"
-                        name="event_category_id"
+                        name="event[event_category_id]"
                         class="form-select form-select-lg"
                     >
 
@@ -322,7 +322,7 @@
                                 value="{{ $category->ulid }}"
                                 @selected(
                                     old(
-                                        'event_category_id',
+                                        'event.event_category_id',
                                         $model->event_category_id ?? ''
                                     ) == $category->id
                                 )
@@ -335,7 +335,7 @@
                     </select>
 
                     <span class="text-danger error">
-                        {{ $errors->first('event_category_id') }}
+                        {{ $errors->first('event.event_category_id') }}
                     </span>
 
                 </div>
@@ -355,10 +355,10 @@
                     <input
                         type="datetime-local"
                         id="start_date"
-                        name="start_date"
+                        name="event[start_date]"
                         class="form-control form-control-lg"
                         value="{{ old(
-                            'start_date',
+                            'event.start_date',
                             isset($model->start_date)
                                 ? \Carbon\Carbon::parse($model->start_date)->format('Y-m-d\TH:i')
                                 : ''
@@ -366,7 +366,7 @@
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('start_date') }}
+                        {{ $errors->first('event.start_date') }}
                     </span>
 
                 </div>
@@ -386,10 +386,10 @@
                     <input
                         type="datetime-local"
                         id="end_date"
-                        name="end_date"
+                        name="event[end_date]"
                         class="form-control form-control-lg"
                         value="{{ old(
-                            'end_date',
+                            'event.end_date',
                             isset($model->end_date)
                                 ? \Carbon\Carbon::parse($model->end_date)->format('Y-m-d\TH:i')
                                 : ''
@@ -397,7 +397,7 @@
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('end_date') }}
+                        {{ $errors->first('event.end_date') }}
                     </span>
 
                 </div>
@@ -416,14 +416,14 @@
                     <input
                         type="text"
                         id="venue"
-                        name="venue"
+                        name="event[venue]"
                         class="form-control form-control-lg"
                         placeholder="Enter event venue"
-                        value="{{ old('venue', $model->venue ?? '') }}"
+                        value="{{ old('event.venue', $model->venue ?? '') }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('venue') }}
+                        {{ $errors->first('event.venue') }}
                     </span>
 
                 </div>
@@ -1475,7 +1475,7 @@
 
                     <select
                         id="payment_method_id"
-                        name="payment_method_id"
+                        name="payment[payment_method_id]"
                         class="form-select"
                     >
 
@@ -1489,7 +1489,7 @@
                                 value="{{ $paymentMethod->ulid }}"
                                 @selected(
                                     old(
-                                        'payment_method_id',
+                                        'payment.payment_method_id',
                                         $model->payment_method_id ?? ''
                                     ) == $paymentMethod->id
                                 )
@@ -1505,7 +1505,7 @@
                         id="payment_method_id_error"
                         class="text-danger error"
                     >
-                        {{ $errors->first('payment_method_id') }}
+                        {{ $errors->first('payment.payment_method_id') }}
                     </span>
 
                 </div>
@@ -1524,15 +1524,15 @@
                     <input
                         type="number"
                         id="discount"
-                        name="discount"
+                        name="payment[discount]"
                         class="form-control form-control-lg"
                         min="0"
                         step="0.01"
-                        value="{{ old('discount', $model->discount ?? 0) }}"
+                        value="{{ old('payment.discount', $model->discount ?? 0) }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('discount') }}
+                        {{ $errors->first('payment.discount') }}
                     </span>
 
                 </div>
@@ -1551,15 +1551,15 @@
                     <input
                         type="number"
                         id="security_deposit"
-                        name="security_deposit"
+                        name="payment[security_deposit]"
                         class="form-control form-control-lg"
                         min="0"
                         step="0.01"
-                        value="{{ old('security_deposit', $model->security_deposit ?? 0) }}"
+                        value="{{ old('payment.security_deposit', $model->security_deposit ?? 0) }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('security_deposit') }}
+                        {{ $errors->first('payment.security_deposit') }}
                     </span>
 
                 </div>
@@ -1578,15 +1578,15 @@
                     <input
                         type="number"
                         id="advance_amount"
-                        name="advance_amount"
+                        name="payment[advance_amount]"
                         class="form-control form-control-lg"
                         min="0"
                         step="0.01"
-                        value="{{ old('advance_amount', $model->advance_amount ?? 0) }}"
+                        value="{{ old('payment.advance_amount', $model->advance_amount ?? 0) }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('advance_amount') }}
+                        {{ $errors->first('payment.advance_amount') }}
                     </span>
 
                 </div>
@@ -1604,14 +1604,14 @@
 
                     <textarea
                         id="note"
-                        name="note"
+                        name="payment[note]"
                         class="form-control"
                         rows="3"
                         placeholder="Enter any additional notes"
-                    >{{ old('note', $model->note ?? '') }}</textarea>
+                    >{{ old('payment.note', $model->note ?? '') }}</textarea>
 
                     <span class="text-danger error">
-                        {{ $errors->first('note') }}
+                        {{ $errors->first('payment.note') }}
                     </span>
 
                 </div>

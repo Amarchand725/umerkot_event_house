@@ -17,7 +17,7 @@ class Order extends Model
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
     protected $fillable = [
-        'order_number', 'status_id', 'event_id', 'subtotal', 'discount', 'total', 'security_deposit', 'note'
+        'order_number', 'status_id', 'event_id', 'grand_total', 'discount', 'payable_amount', 'security_deposit', 'note'
     ];
 
     protected static function booted()

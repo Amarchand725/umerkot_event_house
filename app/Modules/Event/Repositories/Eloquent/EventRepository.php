@@ -11,6 +11,7 @@ use App\Repositories\Eloquent\BaseRepository;
 use App\Modules\Event\Repositories\Contracts\EventContract;
 use App\Modules\Event\Models\Event;
 use App\Modules\Order\Models\Order;
+use App\Modules\Package\Models\Package;
 use App\Modules\Payment\Models\Payment;
 use Illuminate\Database\Eloquent\Model;
 
@@ -56,7 +57,7 @@ class EventRepository extends BaseRepository implements EventContract
         */
 
         $lines = [];
-        $subtotal = 0;
+        $grandTotal = 0;
 
         foreach ($payload['items'] ?? [] as $item) {
             $quantity = (float) $item['quantity'];
@@ -71,7 +72,7 @@ class EventRepository extends BaseRepository implements EventContract
                 'subtotal'          => $lineTotal,
             ];
 
-            $subtotal += $lineTotal;
+            $grandTotal += $lineTotal;
         }
 
         foreach ($payload['services'] ?? [] as $service) {
@@ -87,26 +88,20 @@ class EventRepository extends BaseRepository implements EventContract
                 'subtotal'          => $lineTotal,
             ];
 
-            $subtotal += $lineTotal;
+            $grandTotal += $lineTotal;
         }
 
         if($payload['package_id']) {
-            $packageItems = PackageItem::where('package_id', $payload['package_id'])->get();
-            foreach ($packageItems as $packageItem) {
-                $quantity = (float) $packageItem->quantity;
-                $unitPrice = (float) $packageItem->unit_price;
-                $lineTotal = $quantity * $unitPrice;
+            $package = Package::where('id', $payload['package_id'])->first();
+            $lineTotal = $package->price; // Assuming the package has a price attribute
 
-                $lines[] = [
-                    'inventory_item_id' => $packageItem->inventory_item_id,
-                    'service_id'        => null,
-                    'quantity'          => $quantity,
-                    'unit_price'        => $unitPrice,
-                    'subtotal'          => $lineTotal,
-                ];
+            $lines[] = [
+                'package_id'        => $package->id,
+                'unit_price'        => $lineTotal,
+                'subtotal'          => $lineTotal,
+            ];
 
-                $subtotal += $lineTotal;
-            }
+            $grandTotal += $lineTotal;
         }
 
         /*
@@ -128,15 +123,16 @@ class EventRepository extends BaseRepository implements EventContract
         $advanceAmount = (float) ($payload['payment']['advance_amount'] ?? 0);
 
         // Assumes discount is a fixed monetary amount.
-        $discount = min($discount, $subtotal);
+        $discount = min($discount, $grandTotal);
 
-        $total = $subtotal - $discount;
+        $payable = $grandTotal - $discount;
+        //security deposit is not part of the total, it's an additional amount to be paid upfront
+        $order->security_deposit = $securityDeposit;
 
         $order->event_id = $event->id;
-        $order->subtotal = $subtotal;
+        $order->grand_total = $grandTotal;
         $order->discount = $discount;
-        $order->total = $total;
-        $order->security_deposit = $securityDeposit;
+        $order->payable_amount = $payable;
         $order->status_id = Status::where('model', 'Order')
             ->where('name', 'Confirmed')
             ->value('id');
@@ -158,7 +154,7 @@ class EventRepository extends BaseRepository implements EventContract
         $invoice->event_id = $event->id;
         $invoice->issued_at = today();
         $invoice->due_at = today();
-        $invoice->outstanding_amount = $subtotal;
+        $invoice->outstanding_amount = $payable;
         $invoice->discount = 0;
         $invoice->payable_amount = $advanceAmount;
         $invoice->save();

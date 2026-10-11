@@ -16,9 +16,9 @@ return new class extends Migration {
             $table->string('order_number', 20)->nullable()->unique();
 
             // Billing
-            $table->decimal('subtotal', 12, 2)->default(0);
+            $table->decimal('grand_total', 12, 2)->default(0);
             $table->decimal('discount', 12, 2)->default(0);
-            $table->decimal('total', 12, 2)->default(0);
+            $table->decimal('payable_amount', 12, 2)->default(0);
             $table->decimal('security_deposit', 12, 2)->default(0);
 
             $table->text('note')->nullable();

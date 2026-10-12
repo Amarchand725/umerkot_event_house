@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Status;
 use App\Models\User;
 use App\Modules\Customer\Models\Customer;
+use App\Modules\EventCategory\Models\EventCategory;
 use App\Services\DocumentNumberService;
 
 class Event extends Model
@@ -62,4 +63,9 @@ class Event extends Model
     {
         return $this->belongsTo(Customer::class, 'customer_id');
     }   
+
+    public function eventCategory()
+    {
+        return $this->belongsTo(EventCategory::class, 'event_category_id');
+    }
 }

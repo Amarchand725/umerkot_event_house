@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Status;
 use App\Modules\InventoryCategory\Models\InventoryCategory;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class InventoryCategorySeeder extends Seeder
 {
@@ -15,8 +14,6 @@ class InventoryCategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            'Sound & Generator',
-            'LED / Lighting',
             'Bartan',
             'Tent',
             'Flooring / Stage'

@@ -51,7 +51,7 @@ class Package extends Model
         return $this->belongsTo(User::class, 'author_id');
     }
 
-    public function items()
+    public function inventoryItems()
     {
         return $this->hasMany(PackageItem::class, 'package_id');
     }

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Event\Models;
 
+use App\Models\Invoice;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\ModelTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,6 +13,7 @@ use App\Models\Status;
 use App\Models\User;
 use App\Modules\Customer\Models\Customer;
 use App\Modules\EventCategory\Models\EventCategory;
+use App\Modules\Order\Models\Order;
 use App\Services\DocumentNumberService;
 
 class Event extends Model
@@ -67,5 +69,13 @@ class Event extends Model
     public function eventCategory()
     {
         return $this->belongsTo(EventCategory::class, 'event_category_id');
+    }
+
+    public function orders(){
+        return $this->hasMany(Order::class, 'event_id', 'id');
+    }
+
+    public function invoices(){
+        return $this->hasMany(Invoice::class, 'event_id', 'id');
     }
 }

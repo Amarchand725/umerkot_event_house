@@ -2,6 +2,7 @@
 
 namespace App\Modules\Order\Models;
 
+use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\ModelTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -55,5 +56,9 @@ class Order extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function orderItems(){
+        return $this->hasMany(OrderItem::class, 'order_id');
     }
 }

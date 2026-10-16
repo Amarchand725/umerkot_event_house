@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Traits\ModelTrait;
+use App\Modules\Payment\Models\Payment;
 use App\Services\DocumentNumberService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -54,5 +55,9 @@ class Invoice extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function payment(){
+        return $this->hasOne(Payment::class, 'invoice_id', 'id');
     }
 }

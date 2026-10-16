@@ -48,9 +48,9 @@ class EventController extends BaseModuleController
         $columns = [
             'customer'      => ['label' => 'Customer', 'html' => true, 'searchable' => false],
             'event'      => ['label' => 'Event', 'html' => true, 'searchable' => false],
-            'start_date'      => ['label' => 'Date & Time', 'html' => true, 'searchable' => 'start_date'],
+            'event_date'      => ['label' => 'Date & Time', 'html' => true, 'searchable' => 'start_date'],
             // 'total'      => ['label' => 'Total Bill', 'searchable' => 'total'],
-            'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
+            'event_status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
             // 'payment_status'     => ['label' => 'Payment Status', 'html' => true, 'searchable' => false],
             // 'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
@@ -76,7 +76,7 @@ class EventController extends BaseModuleController
     public function formatRow($row)
     {
         $status = $row->status?->name ?? '-';   
-        $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
+        $row->event_status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                     . strtoupper($status) .
                     '</span>';
 
@@ -96,10 +96,15 @@ class EventController extends BaseModuleController
 
         $row->event = $row->eventCategory?->name ?? '-';
 
-        $startDate = $row->start_date ? date('d M y, h:i A', strtotime($row->start_date)) : '-';
-        $endDate = $row->end_date ? date('d M y, h:i A', strtotime($row->end_date)) : '-';
+        $startDate = $row->start_date
+            ? date('d M y, h:i A', strtotime($row->start_date))
+            : '-';
 
-        $row->start_date = $startDate. ' <br><small class="text-muted">to</small> <br>' . $endDate;
+        $endDate = $row->end_date
+            ? date('d M y, h:i A', strtotime($row->end_date))
+            : '-';
+
+        $row->event_date = $startDate. ' <br><small class="text-muted">to</small><br> ' . $endDate;
 
         $row->action = view('back-office.partials.actions', [
             'model'            => $row,

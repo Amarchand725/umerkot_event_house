@@ -165,7 +165,7 @@
                         type="text"
                         id="cnic_no"
                         name="customer[cnic_no]"
-                        class="form-control form-control-lg"
+                        class="form-control form-control-lg cnic-input"
                         placeholder="XXXXX-XXXXXXX-X"
                         value="{{ old('customer.cnic_no', $model->customer->cnic_no ?? '') }}"
                     />
@@ -191,8 +191,8 @@
                         type="text"
                         id="phone"
                         name="customer[phone]"
-                        class="form-control form-control-lg"
-                        placeholder="Enter phone number"
+                        class="form-control form-control-lg phone-input"
+                        placeholder="xxxx-xxxxxxx"
                         value="{{ old('customer.phone', $model->customer->phone ?? '') }}"
                     />
 
@@ -217,8 +217,8 @@
                         type="text"
                         id="alter_phone"
                         name="customer[alter_phone]"
-                        class="form-control form-control-lg"
-                        placeholder="Enter alternate phone"
+                        class="form-control form-control-lg phone-input"
+                        placeholder="xxxx-xxxxxxx"
                         value="{{ old('customer.alter_phone', $model->customer->alter_phone ?? '') }}"
                     />
 
@@ -505,7 +505,7 @@
                                 data-name="{{ $package->name }}"
                                 data-price="{{ $package->price }}"
                                 data-description="{{ $package->description }}"
-                                data-inventory="{{ $package->items->map(function ($item) {
+                                data-inventory="{{ $package->inventoryItems->map(function ($item) {
                                     return [
                                         'category' => $item->inventoryItem->category->name ?? '-',
                                         'item' => $item->inventoryItem->name ?? '-',
@@ -1163,224 +1163,110 @@
 
                     <div id="event-services">
 
-                        @forelse($model->eventServices ?? [] as $index => $eventService)
+                        {{-- Default Service Row --}}
+                        <div class="service-row row g-3 align-items-end mb-3">
 
-                            <div class="service-row row g-3 align-items-end mb-3">
+                            {{-- Service --}}
+                            <div class="col-12 col-md-5">
 
-                                {{-- Service --}}
-                                <div class="col-12 col-md-5">
+                                <label class="form-label fw-semibold">
+                                    Service
+                                    <span class="text-danger">*</span>
+                                </label>
 
-                                    <label class="form-label fw-semibold">
-                                        Service
-                                        <span class="text-danger">*</span>
-                                    </label>
+                                <select
+                                    name="services[0][service_id]"
+                                    class="form-select service"
+                                >
 
-                                    <select
-                                        name="services[{{ $index }}][quantity]"
-                                        class="form-select service"
-                                    >
+                                    <option value="">
+                                        Select Service
+                                    </option>
 
-                                        <option value="">
-                                            Select Service
+                                    @foreach($services as $service)
+
+                                        <option
+                                            value="{{ $service->id }}"
+                                            data-unit-price="{{ $service->price }}"
+                                        >
+                                            {{ $service->name }}
                                         </option>
 
-                                        @foreach($services as $service)
+                                    @endforeach
 
-                                            <option
-                                                value="{{ $service->ulid }}"
-                                                data-unit-price="{{ $service->price }}"
-                                                @selected(
-                                                    $eventService->service_id == $service->id
-                                                )
-                                            >
-                                                {{ $service->name }}
-                                            </option>
-
-                                        @endforeach
-
-                                    </select>
-
-                                </div>
-
-
-                                {{-- Quantity --}}
-                                <div class="col-12 col-md-2">
-
-                                    <label class="form-label fw-semibold">
-                                        Quantity
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        name="services[{{ $index }}][quantity]"
-                                        class="form-control service-quantity"
-                                        min="1"
-                                        value="{{ $eventService->quantity }}"
-                                    />
-
-                                </div>
-
-
-                                {{-- Unit Price --}}
-                                <div class="col-12 col-md-2">
-
-                                    <label class="form-label fw-semibold">
-                                        Unit Price
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        name="services[{{ $index }}][unit_price]"
-                                        class="form-control service-unit-price"
-                                        min="0"
-                                        step="0.01"
-                                        value="{{ $eventService->unit_price }}"
-                                        readonly
-                                    />
-
-                                </div>
-
-
-                                {{-- Subtotal --}}
-                                <div class="col-12 col-md-2">
-
-                                    <label class="form-label fw-semibold">
-                                        Subtotal
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control service-subtotal"
-                                        value="{{ number_format($eventService->subtotal, 2) }}"
-                                        readonly
-                                    />
-
-                                </div>
-
-
-                                {{-- Remove --}}
-                                <div class="col-12 col-md-1">
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-danger remove-service w-100"
-                                    >
-                                        <i class="ti ti-trash"></i>
-                                    </button>
-
-                                </div>
+                                </select>
 
                             </div>
 
-                        @empty
 
-                            {{-- Default Service Row --}}
-                            <div class="service-row row g-3 align-items-end mb-3">
+                            {{-- Quantity --}}
+                            <div class="col-12 col-md-2">
 
-                                {{-- Service --}}
-                                <div class="col-12 col-md-5">
+                                <label class="form-label fw-semibold">
+                                    Quantity
+                                    <span class="text-danger">*</span>
+                                </label>
 
-                                    <label class="form-label fw-semibold">
-                                        Service
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <select
-                                        name="services[0][service_id]"
-                                        class="form-select service"
-                                    >
-
-                                        <option value="">
-                                            Select Service
-                                        </option>
-
-                                        @foreach($services as $service)
-
-                                            <option
-                                                value="{{ $service->id }}"
-                                                data-unit-price="{{ $service->price }}"
-                                            >
-                                                {{ $service->name }}
-                                            </option>
-
-                                        @endforeach
-
-                                    </select>
-
-                                </div>
-
-
-                                {{-- Quantity --}}
-                                <div class="col-12 col-md-2">
-
-                                    <label class="form-label fw-semibold">
-                                        Quantity
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        name="services[0][quantity]"
-                                        class="form-control service-quantity"
-                                        min="1"
-                                        value="1"
-                                    />
-
-                                </div>
-
-
-                                {{-- Unit Price --}}
-                                <div class="col-12 col-md-2">
-
-                                    <label class="form-label fw-semibold">
-                                        Unit Price
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        name="services[0][unit_price]"
-                                        class="form-control service-unit-price"
-                                        min="0"
-                                        step="0.01"
-                                        readonly
-                                    />
-
-                                </div>
-
-
-                                {{-- Subtotal --}}
-                                <div class="col-12 col-md-2">
-
-                                    <label class="form-label fw-semibold">
-                                        Subtotal
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control service-subtotal"
-                                        value="0.00"
-                                        readonly
-                                    />
-
-                                </div>
-
-
-                                {{-- Remove --}}
-                                <div class="col-12 col-md-1">
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-danger remove-service w-100"
-                                    >
-                                        <i class="ti ti-trash"></i>
-                                    </button>
-
-                                </div>
+                                <input
+                                    type="number"
+                                    name="services[0][quantity]"
+                                    class="form-control service-quantity"
+                                    min="1"
+                                    value="1"
+                                />
 
                             </div>
 
-                        @endforelse
+
+                            {{-- Unit Price --}}
+                            <div class="col-12 col-md-2">
+
+                                <label class="form-label fw-semibold">
+                                    Unit Price
+                                </label>
+
+                                <input
+                                    type="number"
+                                    name="services[0][unit_price]"
+                                    class="form-control service-unit-price"
+                                    min="0"
+                                    step="0.01"
+                                    readonly
+                                />
+
+                            </div>
+
+
+                            {{-- Subtotal --}}
+                            <div class="col-12 col-md-2">
+
+                                <label class="form-label fw-semibold">
+                                    Subtotal
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control service-subtotal"
+                                    value="0.00"
+                                    readonly
+                                />
+
+                            </div>
+
+
+                            {{-- Remove --}}
+                            <div class="col-12 col-md-1">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-danger remove-service w-100"
+                                >
+                                    <i class="ti ti-trash"></i>
+                                </button>
+
+                            </div>
+
+                        </div>
 
                     </div>
 

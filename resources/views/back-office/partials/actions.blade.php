@@ -56,7 +56,7 @@
                     title="{{ module_label('edit', $singularLabel) }}"
                     label="{{ module_label('edit', $singularLabel) }}"
                     data-bs-toggle="modal"
-                    data-bs-target="#create-pop-up-modal-for-file"
+                    data-bs-target="#create-pop-up-modal-x-large-for-file"
                     :data-attributes="[
                         'data-url' => route($routeInitialize. '.update', $model->ulid),
                         'data-edit-url' => route($routeInitialize. '.edit', $model->ulid)

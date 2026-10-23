@@ -429,7 +429,7 @@
                         <i class="ti ti-package me-1"></i>
                         Inventory Items
                         <span class="badge bg-label-secondary ms-2">
-                            {{ $inventoryItems?->count() }}
+                            {{ $orderItems->count() }}
                         </span>
                     </h5>
                 </div>

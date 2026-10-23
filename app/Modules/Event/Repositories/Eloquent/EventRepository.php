@@ -183,52 +183,214 @@ class EventRepository extends BaseRepository implements EventContract
                     ->where('name', 'Paid')
                     ->value('id');
 
-                $invoice->outstanding_amount -= $advanceAmount;
+                $outstandingAmount = $invoice->outstanding_amount - $advanceAmount;
+                $invoice->outstanding_amount = max(0, $outstandingAmount);
                 $invoice->status_id = $statusId;
                 $invoice->save();
+
+                $order->payable_amount = $outstandingAmount;
+                $order->save();
             }
         }
 
         return $event;
     }
+    
+    public function updateModel(Model $model, array $payload): Model
+    {
+        // 1. Update Customer
+        $customer = $model->customer;
 
-    // public function updateModel(Model $model, array $payload): Model
-    // {
-    //     $model->toFill($payload, ['status_id', 'assignee_id']);
-    //     $model->save();
+        $customer->toFill($payload['customer']);
+        $customer->save();
 
-    //     $logStatus['amount'] = $payload['budget'];
-    //     $logStatus['status_id'] = $payload['status_id'];
-    //     $logStatus['assignee_id'] = $payload['assignee_id'];
-    //     $logStatus['model_id'] = $model->id;
-    //     $logStatus['model_type'] = $model->getMorphClass();
+        // 2. Update Event
+        $event = $model;
 
-    //     $log = $model->statusLogs()->firstOrNew();
-    //     $log->toFill($logStatus);
-    //     $log->save();
+        $eventData = $payload['event'] ?? [];
+        $eventData['customer_id'] = $customer->id;
 
-    //     if(empty($payload['assignee_id'])){
-    //         $payload['assignee_id'] = LeadAssigner::getNextAgent($payload['iso_code']); //assignee rol-robbin agent id
-    //     }
+        $eventData['status_id'] = Status::where('model', 'Event')
+            ->where('name', 'Confirmed')
+            ->value('id');
 
-    //     if (!empty($payload['assignee_id'])) {
-    //         $model->assignees()->sync([$payload['assignee_id']]);
+        $event->toFill($eventData);
+        $event->save();
 
-    //         // ✅ MANUAL NOTIFICATION RIGHT AFTER SAVE
-    //         $assignees = $model->assignees; // belongsTo
-    //         if ($assignees && $assignees->count()) {
-    //             $this->sendNotification(
-    //                 $model,
-    //                 $model->assignees,
-    //                 ucfirst(auth()->user()->name) . ' has assigned you a lead',
-    //                 "{$model->name} ({$model->email}) - {$model->pipeline}",
-    //                 'lead_assigned'
-    //             );
-    //         }
-    //     }else{
-    //         $model->assignees()->sync([auth()->id()]);
-    //     }
+        // 3. Calculate Order Items
+        $lines = [];
+        $grandTotal = 0;
 
-    //     return $model;
-    // }
+        foreach ($payload['items'] ?? [] as $item) {
+
+            $quantity = (float) $item['quantity'];
+            $unitPrice = (float) $item['unit_price'];
+            $subtotal = $quantity * $unitPrice;
+
+            $lines[] = [
+                'inventory_item_id' => $item['inventory_item_id'],
+                'service_id' => null,
+                'package_id' => null,
+                'quantity' => $quantity,
+                'unit_price' => $unitPrice,
+                'subtotal' => $subtotal,
+            ];
+
+            $grandTotal += $subtotal;
+        }
+
+        foreach ($payload['services'] ?? [] as $service) {
+
+            $quantity = (float) $service['quantity'];
+            $unitPrice = (float) $service['unit_price'];
+            $subtotal = $quantity * $unitPrice;
+
+            $lines[] = [
+                'inventory_item_id' => null,
+                'service_id' => $service['service_id'],
+                'package_id' => null,
+                'quantity' => $quantity,
+                'unit_price' => $unitPrice,
+                'subtotal' => $subtotal,
+            ];
+
+            $grandTotal += $subtotal;
+        }
+
+        if (!empty($payload['package_id'])) {
+
+            $package = Package::findOrFail($payload['package_id']);
+
+            $lines[] = [
+                'inventory_item_id' => null,
+                'service_id' => null,
+                'package_id' => $package->id,
+                'quantity' => 1,
+                'unit_price' => $package->price,
+                'subtotal' => $package->price,
+            ];
+
+            $grandTotal += $package->price;
+        }
+
+        // 4. Update Order
+        $discount = max(
+            0,
+            min(
+                (float) ($payload['payment']['discount'] ?? 0),
+                $grandTotal
+            )
+        );
+
+        $securityDeposit = max(
+            0,
+            (float) ($payload['payment']['security_deposit'] ?? 0)
+        );
+
+        $advanceAmount = max(
+            0,
+            (float) ($payload['payment']['advance_amount'] ?? 0)
+        );
+
+        $payable = $grandTotal - $discount;
+
+        $order = $event->order;
+
+        $order->event_id = $event->id;
+        $order->grand_total = $grandTotal;
+        $order->discount = $discount;
+        $order->security_deposit = $securityDeposit;
+
+        $order->status_id = Status::where('model', 'Order')
+            ->where('name', 'Confirmed')
+            ->value('id');
+
+        $order->save();
+
+        // 5. Synchronize Order Items
+        $existingItemIds = [];
+
+        foreach ($lines as $line) {
+
+            $orderItem = OrderItem::updateOrCreate(
+                [
+                    'order_id' => $order->id,
+                    'inventory_item_id' => $line['inventory_item_id'],
+                    'service_id' => $line['service_id'],
+                    'package_id' => $line['package_id'],
+                ],
+                array_merge($line, [
+                    'order_id' => $order->id,
+                ])
+            );
+
+            $existingItemIds[] = $orderItem->id;
+        }
+
+        // Remove items deleted from the edit form
+        $order->orderItems()
+            ->whereNotIn('id', $existingItemIds)
+            ->delete();
+
+        // 6. Update Invoice
+        $invoice = $event->invoice;
+
+        $invoice->event_id = $event->id;
+        $invoice->issued_at = $invoice->issued_at ?? today();
+        $invoice->due_at = $invoice->due_at ?? today();
+        $invoice->discount = 0;
+
+        // 7. Update Payment
+        $payment = $event->payment;
+
+        if ($advanceAmount > 0) {
+
+            if (!$payment) {
+                $payment = new Payment();
+            }
+
+            $payment->invoice_id = $invoice->id;
+            $payment->payment_method_id =
+                $payload['payment']['payment_method_id'];
+
+            $payment->amount = min($advanceAmount, $payable);
+            $payment->paid_at = $payment->paid_at ?? now();
+            $payment->note = $payload['event']['note'] ?? null;
+
+            $payment->status_id = Status::where('model', 'Payment')
+                ->where('name', 'Completed')
+                ->value('id');
+
+            $payment->save();
+
+        } elseif ($payment) {
+
+            // Only remove an existing advance payment if
+            // your business rules allow editing/deleting it.
+            $payment->delete();
+        }
+
+        // 8. Recalculate Financial Summary
+        $totalPaid = Payment::where('invoice_id', $invoice->id)
+            ->where('status_id', Status::where('model', 'Payment')
+                ->where('name', 'Completed')
+                ->value('id'))
+            ->sum('amount');
+
+        $outstanding = max(0, $payable - $totalPaid);
+
+        $invoice->payable_amount = $payable;
+        $invoice->outstanding_amount = $outstanding;
+
+        $invoice->status_id = Status::where('model', 'Invoice')
+            ->where('name', $outstanding <= 0 ? 'Paid' : 'Unpaid')
+            ->value('id');
+
+        $invoice->save();
+
+        $order->payable_amount = $outstanding;
+        $order->save();
+
+        return $event->refresh();
+    }
 }

@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Modules\Customer\Models\Customer;
 use App\Modules\EventCategory\Models\EventCategory;
 use App\Modules\Order\Models\Order;
+use App\Modules\Payment\Models\Payment;
 use App\Services\DocumentNumberService;
 
 class Event extends Model
@@ -75,7 +76,27 @@ class Event extends Model
         return $this->hasMany(Order::class, 'event_id', 'id');
     }
 
+    public function order(){
+        return $this->hasOne(Order::class, 'event_id', 'id');
+    }
+
     public function invoices(){
         return $this->hasMany(Invoice::class, 'event_id', 'id');
+    }
+
+    public function invoice(){
+        return $this->hasOne(Invoice::class, 'event_id', 'id');
+    }
+
+    public function payment()
+    {
+        return $this->hasOneThrough(
+            Payment::class,
+            Invoice::class,
+            'event_id',   // Foreign key on invoices table
+            'invoice_id', // Foreign key on payments table
+            'id',         // Primary key on events table
+            'id'          // Primary key on invoices table
+        );
     }
 }

@@ -212,7 +212,7 @@ class EventController extends BaseModuleController
             'paymentMethods' => $this->paymentMethod->where('status_id', $activePaymentMethodStatusId)->get(),
             'services' => $this->service->where('status_id', $activeServiceStatusId)->get(),
             'packages' => $this->package->with([
-                'items.inventoryItem.inventoryCategory',
+                'inventoryItems.inventoryItem.inventoryCategory',
                 'services',
             ])->where('status_id', $activePackageStatusId)->get(),
         ];

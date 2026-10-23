@@ -167,7 +167,7 @@
                         type="text"
                         id="cnic_no"
                         name="customer[cnic_no]"
-                        class="form-control form-control-lg"
+                        class="form-control form-control-lg cnic-input"
                         placeholder="XXXXX-XXXXXXX-X"
                         value="{{ old('customer.cnic_no', $model->customer->cnic_no ?? '') }}"
                     />
@@ -193,7 +193,7 @@
                         type="text"
                         id="phone"
                         name="customer[phone]"
-                        class="form-control form-control-lg"
+                        class="form-control form-control-lg phone-input"
                         placeholder="Enter phone number"
                         value="{{ old('customer.phone', $model->customer->phone ?? '') }}"
                     />
@@ -219,7 +219,7 @@
                         type="text"
                         id="alter_phone"
                         name="customer[alter_phone]"
-                        class="form-control form-control-lg"
+                        class="form-control form-control-lg phone-input"
                         placeholder="Enter alternate phone"
                         value="{{ old('customer.alter_phone', $model->customer->alter_phone ?? '') }}"
                     />
@@ -502,12 +502,17 @@
                         </option>
 
                         @foreach($packages as $package)
+                            @php 
+                            $selectedPackageId = $model?->order?->orderItems
+                                ?->firstWhere('package_id', '!=', null)
+                                ?->package_id;
+                            @endphp
                             <option
                                 value="{{ $package->ulid }}"
                                 data-name="{{ $package->name }}"
                                 data-price="{{ $package->price }}"
                                 data-description="{{ $package->description }}"
-                                data-inventory="{{ $package->items->map(function ($item) {
+                                data-inventory="{{ $package->inventoryItems->map(function ($item) {
                                     return [
                                         'category' => $item->inventoryItem->category->name ?? '-',
                                         'item' => $item->inventoryItem->name ?? '-',
@@ -515,9 +520,9 @@
                                     ];
                                 })->toJson() }}"
                                 @selected(
-                                    old(
-                                        'package_id',
-                                        $model->package_id ?? ''
+                                    old('package_id', $selectedPackageId
+                                        ? $packages->firstWhere('id', $selectedPackageId)?->id
+                                        : null
                                     ) == $package->id
                                 )
                             >
@@ -757,159 +762,152 @@
                         data-items-url="{{ route('back-office.inventory-items.get-category-inventory-items') }}"
                     >
 
-                        @forelse($model->eventItems ?? [] as $index => $eventItem)
+                        @forelse($model?->order?->orderItems ?? [] as $orderItemIndex => $orderItem)
+                            @if($orderItem->inventory_item_id)
+                                <div class="inventory-row row g-3 align-items-end mb-3">
 
-                            <div class="inventory-row row g-3 align-items-end mb-3">
+                                    {{-- Inventory Category --}}
+                                    <div class="col-12 col-md-3">
 
-                                {{-- Inventory Category --}}
-                                <div class="col-12 col-md-3">
+                                        <label class="form-label fw-semibold">
+                                            Category
+                                            <span class="text-danger">*</span>
+                                        </label>
 
-                                    <label class="form-label fw-semibold">
-                                        Category
-                                        <span class="text-danger">*</span>
-                                    </label>
+                                        <select
+                                            name="items[{{ $orderItemIndex }}][inventory_category_id]"
+                                            class="form-select inventory-category"
+                                        >
 
-                                    <select
-                                        name="items[{{ $index }}][inventory_category_id]"
-                                        class="form-select inventory-category"
-                                    >
-
-                                        <option value="">
-                                            Select Category
-                                        </option>
-
-                                        @foreach($inventoryCategories as $category)
-
-                                            <option
-                                                value="{{ $category->ulid }}"
-                                                @selected(
-                                                    $eventItem->inventory_item->inventory_category_id == $category->id
-                                                )
-                                            >
-                                                {{ $category->name }}
+                                            <option value="">
+                                                Select Category
                                             </option>
 
-                                        @endforeach
+                                            @foreach($inventoryCategories as $category)
 
-                                    </select>
+                                                <option
+                                                    value="{{ $category->ulid }}"
+                                                    @selected(
+                                                        $orderItem?->item?->inventory_category_id == $category->id
+                                                    )
+                                                >
+                                                    {{ $category->name }}
+                                                </option>
 
-                                </div>
+                                            @endforeach
+
+                                        </select>
+
+                                    </div>
 
 
-                                {{-- Inventory Item --}}
-                                <div class="col-12 col-md-3">
+                                    {{-- Inventory Item --}}
+                                    <div class="col-12 col-md-3">
 
-                                    <label class="form-label fw-semibold">
-                                        Inventory Item
-                                        <span class="text-danger">*</span>
-                                    </label>
+                                        <label class="form-label fw-semibold">
+                                            Inventory Item 
+                                            <span class="text-danger">*</span>
+                                        </label>
 
-                                    <select
-                                        name="items[{{ $index }}][inventory_item_id]"
-                                        class="form-select inventory-item"
-                                        data-selected="{{ $eventItem->inventory_item_id }}"
-                                    >
+                                        <select
+                                            name="items[{{ $orderItemIndex }}][inventory_item_id]"
+                                            class="form-select inventory-item"
+                                            data-selected="{{ $orderItem->inventory_item_id }}"
+                                        >
 
-                                        <option value="">
-                                            Select Inventory Item
-                                        </option>
+                                            <option value="">
+                                                Select Inventory Item
+                                            </option>
 
-                                        @foreach($inventoryItems as $item)
-
-                                            @if(
-                                                $item->inventory_category_id ==
-                                                $eventItem->inventory_item->inventory_category_id
-                                            )
+                                            @foreach($inventoryItems as $item)
 
                                                 <option
                                                     value="{{ $item->id }}"
                                                     data-unit-price="{{ $item->price_per_unit }}"
                                                     @selected(
-                                                        $eventItem->inventory_item_id == $item->id
+                                                        $orderItem->inventory_item_id == $item->id
                                                     )
                                                 >
                                                     {{ $item->name }}
                                                 </option>
 
-                                            @endif
+                                            @endforeach
 
-                                        @endforeach
+                                        </select>
 
-                                    </select>
+                                    </div>
+
+
+                                    {{-- Quantity --}}
+                                    <div class="col-12 col-md-2">
+
+                                        <label class="form-label fw-semibold">
+                                            Quantity
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            name="items[{{ $orderItemIndex }}][quantity]"
+                                            class="form-control quantity"
+                                            min="1"
+                                            value="{{ $orderItem->quantity }}"
+                                        />
+
+                                    </div>
+
+
+                                    {{-- Unit Price --}}
+                                    <div class="col-12 col-md-2">
+
+                                        <label class="form-label fw-semibold">
+                                            Unit Price
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            name="items[{{ $orderItemIndex }}][unit_price]"
+                                            class="form-control unit-price"
+                                            min="0"
+                                            step="0.01"
+                                            value="{{ $orderItem->unit_price }}"
+                                            readonly
+                                        />
+
+                                    </div>
+
+
+                                    {{-- Subtotal --}}
+                                    <div class="col-12 col-md-1">
+
+                                        <label class="form-label fw-semibold">
+                                            Subtotal
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            class="form-control item-subtotal"
+                                            value="{{ number_format($orderItem->subtotal, 2) }}"
+                                            readonly
+                                        />
+
+                                    </div>
+
+
+                                    {{-- Remove --}}
+                                    <div class="col-12 col-md-1">
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-danger remove-inventory w-100"
+                                        >
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+
+                                    </div>
 
                                 </div>
-
-
-                                {{-- Quantity --}}
-                                <div class="col-12 col-md-2">
-
-                                    <label class="form-label fw-semibold">
-                                        Quantity
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        name="items[{{ $index }}][quantity]"
-                                        class="form-control quantity"
-                                        min="1"
-                                        value="{{ $eventItem->quantity }}"
-                                    />
-
-                                </div>
-
-
-                                {{-- Unit Price --}}
-                                <div class="col-12 col-md-2">
-
-                                    <label class="form-label fw-semibold">
-                                        Unit Price
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        name="items[{{ $index }}][unit_price]"
-                                        class="form-control unit-price"
-                                        min="0"
-                                        step="0.01"
-                                        value="{{ $eventItem->price_per_unit }}"
-                                        readonly
-                                    />
-
-                                </div>
-
-
-                                {{-- Subtotal --}}
-                                <div class="col-12 col-md-1">
-
-                                    <label class="form-label fw-semibold">
-                                        Subtotal
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control item-subtotal"
-                                        value="{{ number_format($eventItem->subtotal, 2) }}"
-                                        readonly
-                                    />
-
-                                </div>
-
-
-                                {{-- Remove --}}
-                                <div class="col-12 col-md-1">
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-danger remove-inventory w-100"
-                                    >
-                                        <i class="ti ti-trash"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-
+                            @endif
                         @empty
 
                             {{-- Default Inventory Row --}}
@@ -1165,7 +1163,8 @@
 
                     <div id="event-services">
 
-                        @forelse($model->eventServices ?? [] as $index => $eventService)
+                        @forelse($model?->order?->orderItems ?? [] as $index => $eventService)
+                            @if($eventService->service_id)
 
                             <div class="service-row row g-3 align-items-end mb-3">
 
@@ -1178,7 +1177,7 @@
                                     </label>
 
                                     <select
-                                        name="services[{{ $index }}][quantity]"
+                                        name="services[{{ $index }}][service_id]"
                                         class="form-select service"
                                     >
 
@@ -1274,6 +1273,8 @@
                                 </div>
 
                             </div>
+
+                            @endif
 
                         @empty
 
@@ -1492,7 +1493,7 @@
                                 @selected(
                                     old(
                                         'payment.payment_method_id',
-                                        $model->payment_method_id ?? ''
+                                        $model?->payment?->payment_method_id ?? ''
                                     ) == $paymentMethod->id
                                 )
                             >
@@ -1530,7 +1531,7 @@
                         class="form-control form-control-lg"
                         min="0"
                         step="0.01"
-                        value="{{ old('payment.discount', $model->discount ?? 0) }}"
+                        value="{{ old('payment.discount', $model?->order?->discount ?? 0) }}"
                     />
 
                     <span class="text-danger error">
@@ -1557,7 +1558,7 @@
                         class="form-control form-control-lg"
                         min="0"
                         step="0.01"
-                        value="{{ old('payment.security_deposit', $model->security_deposit ?? 0) }}"
+                        value="{{ old('payment.security_deposit', $model?->order?->security_deposit ?? 0) }}"
                     />
 
                     <span class="text-danger error">
@@ -1584,7 +1585,7 @@
                         class="form-control form-control-lg"
                         min="0"
                         step="0.01"
-                        value="{{ old('payment.advance_amount', $model->advance_amount ?? 0) }}"
+                        value="{{ old('payment.advance_amount', $model?->payment?->amount ?? 0) }}"
                     />
 
                     <span class="text-danger error">

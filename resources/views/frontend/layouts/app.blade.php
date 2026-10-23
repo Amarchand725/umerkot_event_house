@@ -149,56 +149,28 @@
     @stack('js')
 
     <script>
-      $(document).on('keyup', '.phone-input', function() {
-          var phone = $(this).val();
-          var formattedPhone = formatInternationalPhoneNumber(phone);
-          $(this).val(formattedPhone);
-        });
+      
+      $(document).on('input', '.phone-input', function () {
+        let value = $(this).val();
 
-        function formatInternationalPhoneNumber(phone) {
-          // Remove everything except digits and plus sign
-          phone = phone.replace(/[^+\d]/g, '');
+        // Keep digits only
+        value = value.replace(/\D/g, '');
 
-          // Ensure it starts with '+', if user starts with 00, replace with '+'
-          if (phone.startsWith('00')) {
-              phone = '+' + phone.substring(2);
-          }
-
-          // Limit total digits to 15 (excluding the +)
-          if (phone.startsWith('+')) {
-              var plus = '+';
-              var digits = phone.substring(1, 16); // max 15 digits
-              phone = plus + digits;
-          } else {
-              phone = phone.substring(0, 15); // just in case user removed +
-          }
-
-          // Optional: Add a space after country code (1-3 digits)
-          var match = phone.match(/^\+(\d{1,3})(\d*)$/);
-          if (match) {
-              var countryCode = match[1];
-              var number = match[2];
-              phone = '+' + countryCode + (number ? ' ' + number : '');
-          }
-
-          return phone;
+        // Convert +92 / 92 to local Pakistani format
+        if (value.startsWith('92')) {
+            value = '0' + value.substring(2);
         }
 
-      $(document).on('keyup', '.phoneNumber', function() {
-        var phone = $(this).val();
-        var formattedPhone = formatPhoneNumber(phone);
-        $(this).val(formattedPhone);
+        // Limit to 11 digits
+        value = value.substring(0, 11);
+
+        // Format: 0342-1234567
+        if (value.length > 4) {
+            value = value.substring(0, 4) + '-' + value.substring(4);
+        }
+
+        $(this).val(value);
       });
-
-      function formatPhoneNumber(phone) {
-        phone = phone.replace(/\D/g, '');
-        if (phone.length > 3) {
-          var areaCode = phone.substring(0, 3);
-          var telephoneNumber = phone.substring(3, 11);
-          phone = "(" + areaCode + ") - " + telephoneNumber;
-        }
-        return phone;
-      }
 
       @if(Session::has('message'))
         toastr.options =

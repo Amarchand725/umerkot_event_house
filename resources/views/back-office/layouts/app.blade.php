@@ -146,36 +146,45 @@
         $(document).on('input', '.phone-input', function () {
           let value = $(this).val();
 
-          // Keep only digits and +
-          value = value.replace(/[^+\d]/g, '');
+          // Keep digits only
+          value = value.replace(/\D/g, '');
 
-          // Convert 00 → +
-          if (value.startsWith('00')) {
-            value = '+' + value.substring(2);
+          // Convert +92 / 92 to local Pakistani format
+          if (value.startsWith('92')) {
+              value = '0' + value.substring(2);
           }
 
-          // Auto prepend + if missing
-          if (value && !value.startsWith('+')) {
-            value = '+' + value;
+          // Limit to 11 digits
+          value = value.substring(0, 11);
+
+          // Format: 0342-1234567
+          if (value.length > 4) {
+              value = value.substring(0, 4) + '-' + value.substring(4);
           }
 
-          // Enforce max digits (E.164 allows max 15 digits)
-          let digitsOnly = value.replace(/\D/g, '');
-          if (digitsOnly.length > 15) {
-            digitsOnly = digitsOnly.substring(0, 15);
-            value = '+' + digitsOnly; // keep + sign
+          $(this).val(value);
+        });
+
+        $(document).on('input', '.cnic-input', function () {
+          let value = $(this).val();
+
+          // Keep digits only
+          value = value.replace(/\D/g, '');
+
+          // Limit to 13 digits
+          value = value.substring(0, 13);
+
+          // Format: XXXXX-XXXXXXX-X
+          if (value.length > 12) {
+              value = value.substring(0, 5) + '-' +
+                      value.substring(5, 12) + '-' +
+                      value.substring(12);
+          } else if (value.length > 5) {
+              value = value.substring(0, 5) + '-' +
+                      value.substring(5);
           }
 
-          // Format using libphonenumber-js
-          try {
-            let parsed = libphonenumber.parsePhoneNumber(value);
-            if (parsed) {
-              $(this).val(parsed.formatInternational()); // e.g., +92 345 3762 725
-            }
-          } catch (e) {
-            // keep raw value if invalid
-            $(this).val(value);
-          }
+          $(this).val(value);
         });
 
         // Initialize Bootstrap tooltips

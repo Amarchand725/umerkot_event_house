@@ -17,9 +17,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class EventRepository extends BaseRepository implements EventContract
 {
+    protected $status = null;
+
     public function __construct(Event $model)
     {
         parent::__construct($model);
+
+        $this->status = Status::query();
     }
 
     public function storeModel(array $payload): Model
@@ -43,9 +47,10 @@ class EventRepository extends BaseRepository implements EventContract
         $event = $this->model;
         $eventData = $payload['event'] ?? [];
         $eventData['customer_id'] = $customer->id;
-        $eventData['status_id'] = Status::where('model', 'Event')
-            ->where('name', 'Confirmed')
-            ->value('id');
+        $eventData['status_id'] = (clone $this->status)
+                                    ->where('model', 'Event')
+                                    ->where('name', 'Confirmed')
+                                    ->value('id');
 
         $event->toFill($eventData);
         $event->save();
@@ -133,10 +138,12 @@ class EventRepository extends BaseRepository implements EventContract
         $order->grand_total = $grandTotal;
         $order->discount = $discount;
         $order->payable_amount = $payable;
-        $order->status_id = Status::where('model', 'Order')
-            ->where('name', 'Confirmed')
-            ->value('id');
+        $order->status_id = (clone $this->status)
+                            ->where('model', 'Order')
+                            ->where('name', 'Confirmed')
+                            ->value('id');
         $order->save();
+        $order->refresh();
 
         foreach ($lines as $line) {
             $line['order_id'] = $order->id;
@@ -158,6 +165,7 @@ class EventRepository extends BaseRepository implements EventContract
         $invoice->discount = 0;
         $invoice->payable_amount = $advanceAmount;
         $invoice->save();
+        $invoice->refresh();
 
         /*
         |--------------------------------------------------------------------------
@@ -174,19 +182,21 @@ class EventRepository extends BaseRepository implements EventContract
             $payment->note = $payload['event']['note'] ?? null;
             $payment->save();
 
-            $paymentStatusId = Status::where('model', 'Payment')
-                ->where('name', 'Completed')
-                ->value('id');
+            $paymentStatusId = (clone $this->status)
+                                ->where('model', 'Payment')
+                                ->where('name', 'Completed')
+                                ->value('id');
 
             if($payment->status_id === $paymentStatusId) {
-                $statusId = Status::where('model', 'Invoice')
-                    ->where('name', 'Paid')
-                    ->value('id');
+                $statusId = (clone $this->status)
+                                ->where('model', 'Invoice')
+                                ->where('name', 'Paid')
+                                ->value('id');
 
-                $outstandingAmount = $invoice->outstanding_amount - $advanceAmount;
-                $invoice->outstanding_amount = max(0, $outstandingAmount);
                 $invoice->status_id = $statusId;
                 $invoice->save();
+
+                $outstandingAmount = $order->payable_amount - $invoice->payable_amount;
 
                 $order->payable_amount = $outstandingAmount;
                 $order->save();
@@ -210,9 +220,10 @@ class EventRepository extends BaseRepository implements EventContract
         $eventData = $payload['event'] ?? [];
         $eventData['customer_id'] = $customer->id;
 
-        $eventData['status_id'] = Status::where('model', 'Event')
-            ->where('name', 'Confirmed')
-            ->value('id');
+        $eventData['status_id'] = (clone $this->status)
+                                    ->where('model', 'Event')
+                                    ->where('name', 'Confirmed')
+                                    ->value('id');
 
         $event->toFill($eventData);
         $event->save();
@@ -301,9 +312,10 @@ class EventRepository extends BaseRepository implements EventContract
         $order->discount = $discount;
         $order->security_deposit = $securityDeposit;
 
-        $order->status_id = Status::where('model', 'Order')
-            ->where('name', 'Confirmed')
-            ->value('id');
+        $order->status_id = (clone $this->status)
+                                ->where('model', 'Order')
+                                ->where('name', 'Confirmed')
+                                ->value('id');
 
         $order->save();
 
@@ -338,7 +350,9 @@ class EventRepository extends BaseRepository implements EventContract
         $invoice->event_id = $event->id;
         $invoice->issued_at = $invoice->issued_at ?? today();
         $invoice->due_at = $invoice->due_at ?? today();
+        $invoice->outstanding_amount = $payable;
         $invoice->discount = 0;
+        $invoice->payable_amount = $advanceAmount;
 
         // 7. Update Payment
         $payment = $event->payment;
@@ -357,9 +371,10 @@ class EventRepository extends BaseRepository implements EventContract
             $payment->paid_at = $payment->paid_at ?? now();
             $payment->note = $payload['event']['note'] ?? null;
 
-            $payment->status_id = Status::where('model', 'Payment')
-                ->where('name', 'Completed')
-                ->value('id');
+            $payment->status_id = (clone $this->status)
+                                    ->where('model', 'Payment')
+                                    ->where('name', 'Completed')
+                                    ->value('id');
 
             $payment->save();
 
@@ -371,23 +386,13 @@ class EventRepository extends BaseRepository implements EventContract
         }
 
         // 8. Recalculate Financial Summary
-        $totalPaid = Payment::where('invoice_id', $invoice->id)
-            ->where('status_id', Status::where('model', 'Payment')
-                ->where('name', 'Completed')
-                ->value('id'))
-            ->sum('amount');
-
-        $outstanding = max(0, $payable - $totalPaid);
-
-        $invoice->payable_amount = $payable;
-        $invoice->outstanding_amount = $outstanding;
-
-        $invoice->status_id = Status::where('model', 'Invoice')
-            ->where('name', $outstanding <= 0 ? 'Paid' : 'Unpaid')
-            ->value('id');
-
+        $invoice->status_id = (clone $this->status)
+                                ->where('model', 'Invoice')
+                                ->where('name', 'Paid')
+                                ->value('id');
         $invoice->save();
 
+        $outstanding = max(0, $payable - $advanceAmount);
         $order->payable_amount = $outstanding;
         $order->save();
 

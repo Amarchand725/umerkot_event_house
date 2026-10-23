@@ -352,7 +352,7 @@
                                 <div class="col-12 col-md-4">
                                     <small class="text-muted d-block">Discount</small>
                                     <div class="fw-semibold">
-                                        {{ number_format((float) ($package->discount ?? 0), 2) }}%
+                                        {{ number_format((float) ($package->discount ?? 0), 2) }}
                                     </div>
                                 </div>
 

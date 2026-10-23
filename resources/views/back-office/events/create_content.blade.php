@@ -504,6 +504,7 @@
                                 value="{{ $package->ulid }}"
                                 data-name="{{ $package->name }}"
                                 data-price="{{ $package->price }}"
+                                data-discount="{{ $package->discount }}"
                                 data-description="{{ $package->description }}"
                                 data-inventory="{{ $package->inventoryItems->map(function ($item) {
                                     return [
@@ -564,7 +565,7 @@
                                 <div class="col-12 col-md-4">
 
                                     <small class="text-muted d-block">
-                                        Package Name
+                                        Name
                                     </small>
 
                                     <div
@@ -581,11 +582,27 @@
                                 <div class="col-12 col-md-4">
 
                                     <small class="text-muted d-block">
-                                        Package Price
+                                        Price
                                     </small>
 
                                     <div
                                         id="package-detail-price"
+                                        class="fw-semibold fs-5"
+                                    >
+                                        Rs. 0.00
+                                    </div>
+
+                                </div>
+
+                                {{-- Package Discount --}}
+                                <div class="col-12 col-md-4">
+
+                                    <small class="text-muted d-block">
+                                        Discount
+                                    </small>
+
+                                    <div
+                                        id="package-discount"
                                         class="fw-semibold fs-5"
                                     >
                                         Rs. 0.00

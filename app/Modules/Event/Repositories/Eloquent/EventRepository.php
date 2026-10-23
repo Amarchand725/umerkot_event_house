@@ -195,7 +195,7 @@ class EventRepository extends BaseRepository implements EventContract
 
         return $event;
     }
-    
+
     public function updateModel(Model $model, array $payload): Model
     {
         // 1. Update Customer

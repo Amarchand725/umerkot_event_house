@@ -75,7 +75,7 @@ class EventController extends BaseModuleController
 
     public function formatRow($row)
     {
-        $status = $row->status?->name ?? '-';   
+        $status = $row->status?->name ?? '-';
         $row->event_status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                     . strtoupper($status) .
                     '</span>';
@@ -129,7 +129,7 @@ class EventController extends BaseModuleController
     public function store(EventRequest $request)
     {
         $payload = $request->validated();
-        
+
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {
@@ -159,6 +159,7 @@ class EventController extends BaseModuleController
     public function update(EventRequest $request, Event $event)
     {
         $payload = $request->validated();
+
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload, $event) {
@@ -210,7 +211,7 @@ class EventController extends BaseModuleController
             'inventoryCategories' => $this->inventoryCategory->where('status_id', $activeInventoryCatStatusId)->get(),
             'inventoryItems'   => $this->inventoryItem->where('status_id', $activeInventoryItemStatusId)->get(),
             'paymentMethods' => $this->paymentMethod->where('status_id', $activePaymentMethodStatusId)->get(),
-            'services' => $this->service->where('status_id', $activeServiceStatusId)->get(),
+            'inventoryServices' => $this->service->where('status_id', $activeServiceStatusId)->get(),
             'packages' => $this->package->with([
                 'inventoryItems.inventoryItem.inventoryCategory',
                 'services',

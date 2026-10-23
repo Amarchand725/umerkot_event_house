@@ -502,7 +502,7 @@
                         </option>
 
                         @foreach($packages as $package)
-                            @php 
+                            @php
                             $selectedPackageId = $model?->order?->orderItems
                                 ?->firstWhere('package_id', '!=', null)
                                 ?->package_id;
@@ -511,6 +511,7 @@
                                 value="{{ $package->ulid }}"
                                 data-name="{{ $package->name }}"
                                 data-price="{{ $package->price }}"
+                                data-discount="{{ $package->discount }}"
                                 data-description="{{ $package->description }}"
                                 data-inventory="{{ $package->inventoryItems->map(function ($item) {
                                     return [
@@ -571,7 +572,7 @@
                                 <div class="col-12 col-md-4">
 
                                     <small class="text-muted d-block">
-                                        Package Name
+                                        Name
                                     </small>
 
                                     <div
@@ -588,11 +589,27 @@
                                 <div class="col-12 col-md-4">
 
                                     <small class="text-muted d-block">
-                                        Package Price
+                                        Price
                                     </small>
 
                                     <div
                                         id="package-detail-price"
+                                        class="fw-semibold fs-5"
+                                    >
+                                        Rs. 0.00
+                                    </div>
+
+                                </div>
+
+                                {{-- Package Discount --}}
+                                <div class="col-12 col-md-4">
+
+                                    <small class="text-muted d-block">
+                                        Discount
+                                    </small>
+
+                                    <div
+                                        id="package-discount"
                                         class="fw-semibold fs-5"
                                     >
                                         Rs. 0.00
@@ -805,7 +822,7 @@
                                     <div class="col-12 col-md-3">
 
                                         <label class="form-label fw-semibold">
-                                            Inventory Item 
+                                            Inventory Item
                                             <span class="text-danger">*</span>
                                         </label>
 
@@ -822,7 +839,7 @@
                                             @foreach($inventoryItems as $item)
 
                                                 <option
-                                                    value="{{ $item->id }}"
+                                                    value="{{ $item->ulid }}"
                                                     data-unit-price="{{ $item->price_per_unit }}"
                                                     @selected(
                                                         $orderItem->inventory_item_id == $item->id
@@ -1162,118 +1179,118 @@
                 <div class="card-body">
 
                     <div id="event-services">
-
-                        @forelse($model?->order?->orderItems ?? [] as $index => $eventService)
+                        @php $eventServiceindex = 0; @endphp
+                        @forelse($model?->order?->orderItems ?? [] as $eventService)
                             @if($eventService->service_id)
+                                <div class="service-row row g-3 align-items-end mb-3">
 
-                            <div class="service-row row g-3 align-items-end mb-3">
+                                    {{-- Service --}}
+                                    <div class="col-12 col-md-5">
 
-                                {{-- Service --}}
-                                <div class="col-12 col-md-5">
+                                        <label class="form-label fw-semibold">
+                                            Service
+                                            <span class="text-danger">*</span>
+                                        </label>
 
-                                    <label class="form-label fw-semibold">
-                                        Service
-                                        <span class="text-danger">*</span>
-                                    </label>
+                                        <select
+                                            name="services[{{ $eventServiceindex }}][service_id]"
+                                            class="form-select service"
+                                        >
 
-                                    <select
-                                        name="services[{{ $index }}][service_id]"
-                                        class="form-select service"
-                                    >
-
-                                        <option value="">
-                                            Select Service
-                                        </option>
-
-                                        @foreach($services as $service)
-
-                                            <option
-                                                value="{{ $service->ulid }}"
-                                                data-unit-price="{{ $service->price }}"
-                                                @selected(
-                                                    $eventService->service_id == $service->id
-                                                )
-                                            >
-                                                {{ $service->name }}
+                                            <option value="">
+                                                Select Service
                                             </option>
 
-                                        @endforeach
+                                            @foreach($inventoryServices as $service)
 
-                                    </select>
+                                                <option
+                                                    value="{{ $service->ulid }}"
+                                                    data-unit-price="{{ $service->price }}"
+                                                    @selected(
+                                                        $eventService->service_id == $service->id
+                                                    )
+                                                >
+                                                    {{ $service->name }}
+                                                </option>
+
+                                            @endforeach
+
+                                        </select>
+
+                                    </div>
+
+
+                                    {{-- Quantity --}}
+                                    <div class="col-12 col-md-2">
+
+                                        <label class="form-label fw-semibold">
+                                            Quantity
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            name="services[{{ $eventServiceindex }}][quantity]"
+                                            class="form-control service-quantity"
+                                            min="1"
+                                            value="{{ $eventService->quantity }}"
+                                        />
+
+                                    </div>
+
+
+                                    {{-- Unit Price --}}
+                                    <div class="col-12 col-md-2">
+
+                                        <label class="form-label fw-semibold">
+                                            Unit Price
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            name="services[{{ $eventServiceindex }}][unit_price]"
+                                            class="form-control service-unit-price"
+                                            min="0"
+                                            step="0.01"
+                                            value="{{ $eventService->unit_price }}"
+                                            readonly
+                                        />
+
+                                    </div>
+
+
+                                    {{-- Subtotal --}}
+                                    <div class="col-12 col-md-2">
+
+                                        <label class="form-label fw-semibold">
+                                            Subtotal
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            class="form-control service-subtotal"
+                                            value="{{ number_format($eventService->subtotal, 2) }}"
+                                            readonly
+                                        />
+
+                                    </div>
+
+
+                                    {{-- Remove --}}
+                                    <div class="col-12 col-md-1">
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-danger remove-service w-100"
+                                        >
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+
+                                    </div>
 
                                 </div>
 
-
-                                {{-- Quantity --}}
-                                <div class="col-12 col-md-2">
-
-                                    <label class="form-label fw-semibold">
-                                        Quantity
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        name="services[{{ $index }}][quantity]"
-                                        class="form-control service-quantity"
-                                        min="1"
-                                        value="{{ $eventService->quantity }}"
-                                    />
-
-                                </div>
-
-
-                                {{-- Unit Price --}}
-                                <div class="col-12 col-md-2">
-
-                                    <label class="form-label fw-semibold">
-                                        Unit Price
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        name="services[{{ $index }}][unit_price]"
-                                        class="form-control service-unit-price"
-                                        min="0"
-                                        step="0.01"
-                                        value="{{ $eventService->unit_price }}"
-                                        readonly
-                                    />
-
-                                </div>
-
-
-                                {{-- Subtotal --}}
-                                <div class="col-12 col-md-2">
-
-                                    <label class="form-label fw-semibold">
-                                        Subtotal
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control service-subtotal"
-                                        value="{{ number_format($eventService->subtotal, 2) }}"
-                                        readonly
-                                    />
-
-                                </div>
-
-
-                                {{-- Remove --}}
-                                <div class="col-12 col-md-1">
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-danger remove-service w-100"
-                                    >
-                                        <i class="ti ti-trash"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-
+                                @php $eventServiceindex++; @endphp
                             @endif
 
                         @empty
@@ -2001,7 +2018,7 @@
                         <div class="col-12 col-md-4">
 
                             <small class="text-muted d-block">
-                                Package Name
+                                Name
                             </small>
 
                             <div
@@ -2025,7 +2042,7 @@
                                 id="preview-package-discount"
                                 class="fw-semibold fs-5"
                             >
-                                0%
+                                0
                             </div>
 
                         </div>
@@ -2035,7 +2052,7 @@
                         <div class="col-12 col-md-4">
 
                             <small class="text-muted d-block">
-                                Package Price
+                                Price
                             </small>
 
                             <div

@@ -142,6 +142,12 @@ $(document).ready(function () {
                 Number(option.data('price') || 0).toLocaleString()
             );
 
+        $('#package-discount')
+            .text(
+                'Rs. ' +
+                Number(option.data('discount') || 0).toLocaleString()
+            );
+
         $('#package-detail-description')
             .text(option.data('description') || '-');
 
@@ -921,7 +927,7 @@ $(document).ready(function () {
 
             $('#preview-package-name').text('-');
 
-            $('#preview-package-discount').text('0%');
+            $('#preview-package-discount').text('0');
 
             $('#preview-package-price').text('Rs. 0.00');
 
@@ -950,7 +956,7 @@ $(document).ready(function () {
 
         $('#preview-package-discount')
             .text(
-                (option.data('discount') ?? 0) + '%'
+                (option.data('discount') ?? 0)
             );
 
         $('#preview-package-price')

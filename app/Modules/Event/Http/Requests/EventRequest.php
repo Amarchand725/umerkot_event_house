@@ -8,6 +8,8 @@ use App\Modules\EventCategory\Models\EventCategory;
 use App\Modules\Package\Models\Package;
 use App\Modules\PaymentMethod\Models\PaymentMethod;
 use App\Modules\InventoryItem\Models\InventoryItem;
+use App\Modules\InventoryCategory\Models\InventoryCategory;
+use App\Modules\Service\Models\Service;
 
 class EventRequest extends FormRequest
 {
@@ -26,7 +28,7 @@ class EventRequest extends FormRequest
             'customer.phone' => ['required', 'string', 'max:20'],
             'customer.alter_phone' => ['nullable', 'string', 'max:20'],
             'customer.address' => ['required', 'string', 'max:255'],
-            
+
             //package
             'package_id' => ['nullable', 'exists:packages,id'],
 
@@ -106,10 +108,34 @@ class EventRequest extends FormRequest
                         $item['inventory_item_id']
                     )->value('id');
                 }
+
+                if (!empty($item['inventory_category_id'])) {
+                    $items[$key]['inventory_category_id'] = InventoryCategory::where(
+                            'ulid',
+                            $item['inventory_category_id']
+                        )->value('id') ?? $item['inventory_category_id'];
+                }
             }
 
             $this->merge([
                 'items' => $items,
+            ]);
+        }
+
+        if ($this->has('services')) {
+            $services = $this->input('services', []);
+
+            foreach ($services as $key => $service) {
+                if (!empty($service['service_id'])) {
+                    $services[$key]['service_id'] = Service::where(
+                        'ulid',
+                        $service['service_id']
+                    )->value('id');
+                }
+            }
+
+            $this->merge([
+                'services' => $services,
             ]);
         }
     }

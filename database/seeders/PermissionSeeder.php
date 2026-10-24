@@ -180,6 +180,7 @@ class PermissionSeeder extends Seeder
             'event-view',
             'event-edit',
             'event-delete',
+            'event-status',
 
             /*
             Payment Method Management
@@ -230,6 +231,16 @@ class PermissionSeeder extends Seeder
             'expense_category-view',
             'expense_category-edit',
             'expense_category-delete',
+
+            /*
+            Order Management
+            |--------------------------------------------------------------------------
+            */
+            'order-list',
+            'order-create',
+            'order-view',
+            'order-edit',
+            'order-delete',
         ];
     }
 

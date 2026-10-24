@@ -42,7 +42,7 @@ $(document).on('click', '.show', function () {
     if(targeted_modal=='#'){
         dropdown = clicked.closest('.dropdown-menu');
     }else{
-        var modal_label = clicked.attr('title');    
+        var modal_label = clicked.attr('title');
         $(targeted_modal).find('#modal-label').html(modal_label);
         var html = `
         <div class="d-flex justify-content-center align-items-center" style="height: 20vw;">
@@ -59,7 +59,7 @@ $(document).on('click', '.show', function () {
         method: 'GET',
         success: function (response) {
             if (response.hasOwnProperty('flag') && response.flag) { //used for read single notification
-                if(response.status && response.show){ 
+                if(response.status && response.show){
                     // Remove notification from dropdown
                     clicked.closest('.dropdown-notifications-item').remove();
 
@@ -71,7 +71,7 @@ $(document).on('click', '.show', function () {
                         count--;
                         badge.text(count);
                     }
-                }else if(response.status && response.index){ 
+                }else if(response.status && response.index){
                     // Remove all notification items
                     if (!dropdown) {
                         // fallback in case dropdown wasn't set
@@ -130,19 +130,19 @@ $(document).on('click', '.delete', function () {
                 },
                 error: function (xhr) {
                     let errorMessage = "An unexpected error occurred. Please try again.";
-                    
+
                     if (xhr.status === 403 && xhr.responseJSON) {
                         errorMessage = xhr.responseJSON.message || "You do not have permission to perform this action.";
                     } else if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
                     }
-            
+
                     Swal.fire({
                         title: 'Permission Denied!',
                         text: errorMessage,
                         icon: 'error'
                     });
-                } 
+                }
             });
         }
     })
@@ -205,7 +205,7 @@ $("form.submitBtnWithFileUpload").on('submit', function (e) {
             thi.find('.loading-btn').hide();
             // Parse the JSON response to get the error messages
             var errors = JSON.parse(xhr.responseText);
-            
+
             // Reset the form errors
             $('.is-invalid').removeClass('is-invalid');
             $('.invalid-feedback').empty();
@@ -217,7 +217,7 @@ $("form.submitBtnWithFileUpload").on('submit', function (e) {
 
                 // Show a Toastr alert
                 toastr.error(message);
-                
+
                 $('#' + key).addClass('is-invalid'); // Add the is-invalid class to the input element
                 $('#' + key + '_error').text(value[0]); // Add the error message to the error element
             });
@@ -231,7 +231,7 @@ $(document).on('submit', '.ajax-form', function(e) {
     const form = $(this);
     const action = form.attr('action');
     const method = form.data('method') || 'POST';
-    
+
     // Clear previous errors
     form.find('.error').text('');
     form.find('.is-invalid').removeClass('is-invalid');
@@ -364,6 +364,6 @@ function loadForm(targeted_modal, store_url, modal_label, content_url){
                 // Handle other errors
                 $(targeted_modal).find('#edit-content').html('<div class="alert alert-danger text-center">An error occurred. Please try again later.</div>');
             }
-        }    
+        }
     });
 }

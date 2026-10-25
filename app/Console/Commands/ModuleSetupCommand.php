@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 
 class ModuleSetupCommand extends Command
 {
+    //php artisan module:setup
     protected $signature = 'module:setup';
 
     protected $description = 'Run migrations and global application seeders';

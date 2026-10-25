@@ -75,6 +75,7 @@ class EventController extends BaseModuleController
 
     public function formatRow($row)
     {
+        $extraActions = [];
         $status = $row->status?->name ?? '-';
         $row->event_status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                     . strtoupper($status) .
@@ -92,7 +93,7 @@ class EventController extends BaseModuleController
         }elseif(!empty($row->customer?->alter_phone)) {
             $phone = $row->customer->alter_phone ?? null;
         }
-        $row->customer = $customerName .' '. $caste. ' <br><small class="text-muted">' . $phone . '</small>';
+        $row->customer = $customerName .' '. $caste. ' <br><small class="text-muted"><i class="ti ti-phone me-1"></i>' . $phone . '</small>';
 
         $row->event = $row->eventCategory?->name ?? '-';
 
@@ -106,11 +107,20 @@ class EventController extends BaseModuleController
 
         $row->event_date = $startDate. ' <br><small class="text-muted">to</small><br> ' . $endDate;
 
+        //Adding extra custom actions
+        $extraActions[] = view($this->pathInitialize.'.custom-actions', [
+            'model' => $row,
+            'routeInitialize' => $this->routePrefix,
+            'singularLabel' => $this->singularLabel,
+            'permissionPrefix' => $this->permissionPrefix,
+        ])->render();
+
         $row->action = view('back-office.partials.actions', [
             'model'            => $row,
             'permissionPrefix' => $this->permissionPrefix,
             'routeInitialize'  => $this->routePrefix,
             'singularLabel'    => $this->singularLabel,
+            'extraActions' => $extraActions, // Pass the extra buttons
         ])->render();
 
         return $row;
@@ -298,4 +308,105 @@ class EventController extends BaseModuleController
             return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
+
+    public function status(Event $event)
+    {
+        $formData = $this->getFormData();
+        $statuses = $this->status->where('model', 'Event')->get();
+        $model = $this->eventRepo->showModel($event);
+
+        return (string) view(
+            $this->pathInitialize . '.partials.status_content',
+            array_merge($formData, get_defined_vars())
+        );
+    }
+
+    public function payment(Event $event)
+    {
+        $formData = $this->getFormData();
+        $model = $this->eventRepo->showModel($event);
+
+        return (string) view(
+            $this->pathInitialize . '.partials.payment_content',
+            array_merge($formData, get_defined_vars())
+        );
+    }
+
+    public function storePayment(Request $request, Event $event)
+    {
+        $payload = $request->validate([
+            'payment_method_id' => 'required|exists:payment_methods,id',
+            'amount' => 'required|numeric|min:0',
+            'transaction_id' => 'nullable|string|max:255',
+            'payment_date' => 'required|date',
+        ]);
+
+        try {
+            $response = null;
+            DB::transaction(function () use (&$response, $payload, $event) {
+                $response = $this->eventRepo->storePayment($event, $payload);
+            });
+            return successResponse($response, module_message('payment_stored', $this->singularLabel));
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function order(Event $event)
+    {
+        $formData = $this->getFormData();
+        $model = $this->eventRepo->showModel($event);
+
+        return (string) view(
+            $this->pathInitialize . '.partials.order_form_content',
+            array_merge($formData, get_defined_vars())
+        );
+    }
+
+    public function storeOrder(Request $request, Event $event)
+    {
+        $payload = $request->validate([
+            'payment_method_id' => 'required|exists:payment_methods,id',
+            'amount' => 'required|numeric|min:0',
+            'transaction_id' => 'nullable|string|max:255',
+            'payment_date' => 'required|date',
+        ]);
+
+        try {
+            $response = null;
+            DB::transaction(function () use (&$response, $payload, $event) {
+                $response = $this->eventRepo->storePayment($event, $payload);
+            });
+            return successResponse($response, module_message('payment_stored', $this->singularLabel));
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+
+    // public function updateStatus(LeadStatusRequest $request, Lead $lead)
+    // {
+    //     $payload = $request->validated();
+        
+    //     try {
+    //         $response = null;
+    //         DB::transaction(function () use (&$response, $payload, $lead) {        
+    //             $response = $this->leadRepo->statusModel($lead, $payload);
+    //         });
+    //         $response['route'] = route($this->routePrefix . '.index');
+            
+    //         return successResponse($response, module_message('status_changed', $this->singularLabel));
+    //     } catch (Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => $e->getMessage()
+    //         ], 500); // optional HTTP 500
+    //     }
+    // }
 }

@@ -12,6 +12,15 @@ Route::group([
         Route::post('bulk-restore', 'bulkRestore')->name('bulkRestore');
         Route::post('{event}/restore', 'restore')->name('restore');
         Route::delete('{event}/force-delete', 'forceDelete')->name('forceDelete');
+
+        Route::get('action/edit/{event}/status', 'status')->name('action.status');
+        Route::post('{event}/update-status', 'updateStatus')->name('update-status');
+
+        Route::get('action/edit/{event}/payment', 'payment')->name('action.payment');
+        Route::post('{event}/store-payment', 'storePayment')->name('store-payment');
+
+        Route::get('action/edit/{event}/order', 'order')->name('action.order');
+        Route::post('{event}/store-order', 'storeOrder')->name('store-order');
     });
 
     // 🧱 Resource CRUD

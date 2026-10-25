@@ -1200,7 +1200,7 @@
                                         Select Service
                                     </option>
 
-                                    @foreach($services as $service)
+                                    @foreach($inventoryServices as $service)
 
                                         <option
                                             value="{{ $service->id }}"

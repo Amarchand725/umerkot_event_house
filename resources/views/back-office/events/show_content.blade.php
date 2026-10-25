@@ -16,7 +16,7 @@
                 </div>
 
                 <div class="col-12 col-md-4">
-                    <small class="text-muted d-block">Event Category</small>
+                    <small class="text-muted d-block">Category</small>
                     <div class="fw-semibold">{{ $model?->eventCategory?->name ?? '-' }}</div>
                 </div>
 
@@ -38,9 +38,9 @@
                 <div class="col-12 col-md-4">
                     <small class="text-muted d-block">Status</small>
                     <div>
-                        @if($model->status)
-                            <span class="badge rounded-pill px-3 py-2 {{ badgeClass(strtolower($model?->status?->name)) ?? 'bg-light text-dark' }}">
-                                {{ strtoupper($model?->status?->name) }}
+                        @if($model?->lastStatusLog?->status)
+                            <span class="badge rounded-pill px-3 py-2 {{ badgeClass(strtolower($model?->lastStatusLog?->status?->name)) ?? 'bg-light text-dark' }}">
+                                {{ strtoupper($model?->lastStatusLog?->status?->name) }}
                             </span>
                         @else
                             -

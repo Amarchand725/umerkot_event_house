@@ -4,7 +4,6 @@ namespace App\Modules\Event\Repositories\Eloquent;
 
 use App\Models\Invoice;
 use App\Models\OrderItem;
-use App\Models\PackageItem;
 use App\Models\Status;
 use App\Modules\Customer\Models\Customer;
 use App\Repositories\Eloquent\BaseRepository;
@@ -12,8 +11,9 @@ use App\Modules\Event\Repositories\Contracts\EventContract;
 use App\Modules\Event\Models\Event;
 use App\Modules\Order\Models\Order;
 use App\Modules\Package\Models\Package;
-use App\Modules\Payment\Models\Payment;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\ValidationException;
+use App\Modules\Payment\Models\Payment;
 
 class EventRepository extends BaseRepository implements EventContract
 {
@@ -44,16 +44,25 @@ class EventRepository extends BaseRepository implements EventContract
         |--------------------------------------------------------------------------
         */
 
-        $event = $this->model;
         $eventData = $payload['event'] ?? [];
         $eventData['customer_id'] = $customer->id;
-        $eventData['status_id'] = (clone $this->status)
+
+        $event = $this->model;
+        $event->toFill($eventData);
+        $event->save();
+
+        $statusId = (clone $this->status)
                                     ->where('model', 'Event')
                                     ->where('name', 'Confirmed')
                                     ->value('id');
 
-        $event->toFill($eventData);
-        $event->save();
+        $logStatus['status_id'] = $statusId;
+        $logStatus['model_id'] = $event->id;
+        $logStatus['model_type'] = $event->getMorphClass();
+
+        $log = $event->statusLogs()->firstOrNew();
+        $log->toFill($logStatus);
+        $log->save();
 
         /*
         |--------------------------------------------------------------------------
@@ -158,6 +167,7 @@ class EventRepository extends BaseRepository implements EventContract
 
         $invoice = new Invoice();
 
+        $invoice->order_id = $order->id;
         $invoice->event_id = $event->id;
         $invoice->issued_at = today();
         $invoice->due_at = today();
@@ -220,13 +230,16 @@ class EventRepository extends BaseRepository implements EventContract
         $eventData = $payload['event'] ?? [];
         $eventData['customer_id'] = $customer->id;
 
-        $eventData['status_id'] = (clone $this->status)
-                                    ->where('model', 'Event')
-                                    ->where('name', 'Confirmed')
-                                    ->value('id');
-
         $event->toFill($eventData);
         $event->save();
+
+        $logStatus['status_id'] = $payload['status_id'];
+        $logStatus['model_id'] = $event->id;
+        $logStatus['model_type'] = $event->getMorphClass();
+
+        $log = $event->statusLogs()->firstOrNew();
+        $log->toFill($logStatus);
+        $log->save();
 
         // 3. Calculate Order Items
         $lines = [];
@@ -347,6 +360,7 @@ class EventRepository extends BaseRepository implements EventContract
         // 6. Update Invoice
         $invoice = $event->invoice;
 
+        $invoice->order_id = $order->id;
         $invoice->event_id = $event->id;
         $invoice->issued_at = $invoice->issued_at ?? today();
         $invoice->due_at = $invoice->due_at ?? today();
@@ -397,5 +411,146 @@ class EventRepository extends BaseRepository implements EventContract
         $order->save();
 
         return $event->refresh();
+    }
+
+    public function storePayment(Model $model, array $payload): Model
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | 1. Payment Information
+        |--------------------------------------------------------------------------
+        */
+
+        $amount = round((float) $payload['amount'], 2);
+        $discount = round((float) ($payload['discount'] ?? 0), 2);
+
+        /*
+        |--------------------------------------------------------------------------
+        | 2. Calculate Event Outstanding
+        |--------------------------------------------------------------------------
+        */
+
+        $totalOrderAmount = (float) $model->orders()
+            ->sum('payable_amount');
+
+        // Total completed payments
+        $completedStatusId = (clone $this->status)
+            ->where('model', 'Payment')
+            ->where('name', 'Completed')
+            ->value('id');
+
+        $totalPaid = (float) $model->payments()
+            ->where('payments.status_id', $completedStatusId)
+            ->sum('payments.amount');
+
+        // Total previously applied invoice discounts
+        $totalInvoiceDiscount = (float) $model->invoices()
+            ->sum('discount');
+
+        $outstandingAmount = round(max(
+            0,
+            $totalOrderAmount - $totalPaid - $totalInvoiceDiscount
+        ), 2);
+
+        /*
+        |--------------------------------------------------------------------------
+        | 3. Validate Payment and Discount
+        |--------------------------------------------------------------------------
+        */
+
+        $submittedAmount = round($amount + $discount, 2);
+
+        if ($submittedAmount > $outstandingAmount) {
+            throw ValidationException::withMessages([
+                'amount' => 'Payment and discount cannot exceed the outstanding amount.',
+            ]);
+        }
+
+        if ($submittedAmount <= 0) {
+            throw ValidationException::withMessages([
+                'amount' => 'Payment or discount must be greater than zero.',
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 4. Calculate Remaining Outstanding
+        |--------------------------------------------------------------------------
+        */
+
+        $remainingOutstanding = round(max(
+            0,
+            $outstandingAmount - $submittedAmount
+        ), 2);
+
+        /*
+        |--------------------------------------------------------------------------
+        | 5. Create Invoice
+        |--------------------------------------------------------------------------
+        */
+
+        $invoice = new Invoice();
+
+        $invoice->event_id = $model->id;
+        $invoice->issued_at = today();
+        $invoice->due_at = today();
+
+        // Invoice amount before discount
+        $invoice->outstanding_amount = $submittedAmount;
+
+        $invoice->discount = $discount;
+        $invoice->payable_amount = $amount;
+
+        // Remaining event outstanding
+        $invoice->outstanding_amount = $remainingOutstanding;
+
+        $invoice->save();
+
+        /*
+        |--------------------------------------------------------------------------
+        | 6. Record Payment
+        |--------------------------------------------------------------------------
+        */
+
+        if ($amount > 0) {
+
+            $payment = new Payment();
+
+            $payment->status_id = $completedStatusId;
+            $payment->invoice_id = $invoice->id;
+            $payment->payment_method_id = $payload['payment_method_id'];
+            $payment->amount = $amount;
+            $payment->paid_at = $payload['paid_at'] ?? now();
+            $payment->note = $payload['payment_note'] ?? null;
+
+            $payment->save();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 7. Update Invoice Status
+        |--------------------------------------------------------------------------
+        */
+
+        $paidStatusId = (clone $this->status)
+            ->where('model', 'Invoice')
+            ->where('name', 'Paid')
+            ->value('id');
+
+        $invoice->status_id = $paidStatusId;
+        $invoice->save();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update Orders Payable Amount
+        |--------------------------------------------------------------------------
+        */
+        if ($remainingOutstanding <= 0) {
+            $model->orders()->update([
+                'payable_amount' => 0,
+            ]);
+        }
+
+        return $model->refresh();
     }
 }

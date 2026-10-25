@@ -16,6 +16,7 @@ return new class extends Migration
             $table->ulid('ulid')->unique();
             $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
+            $table->foreignId('order_id')->nullable()->constrained('orders')->nullOnDelete();
             $table->foreignId('event_id')->nullable()->constrained('events')->nullOnDelete();
             $table->string('invoice_number', 20)->nullable()->unique();
 

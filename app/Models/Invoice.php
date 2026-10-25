@@ -16,7 +16,7 @@ class Invoice extends Model
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
     protected $fillable = [
-        'invoice_number', 'status_id', 'event_id' ,
+        'invoice_number', 'status_id', 'order_id', 'event_id' ,
         'outstanding_amount', 'discount', 'payable_amount', 'issued_at', 'due_at', 'note'
     ];
 

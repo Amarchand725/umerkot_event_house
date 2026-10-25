@@ -299,7 +299,7 @@
             <div class="row g-3">
 
                 {{-- Event Category --}}
-                <div class="col-12">
+                <div class="col-6">
 
                     <label
                         for="event_category_id"
@@ -330,6 +330,50 @@
                                 )
                             >
                                 {{ $category->name }}
+                            </option>
+
+                        @endforeach
+
+                    </select>
+
+                    <span class="text-danger error">
+                        {{ $errors->first('event.event_category_id') }}
+                    </span>
+
+                </div>
+
+                 {{-- Event Status --}}
+                <div class="col-6">
+
+                    <label
+                        for="event_category_id"
+                        class="form-label fw-semibold"
+                    >
+                        Status <span class="text-danger">*</span>
+                    </label>
+
+                    <select
+                        id="status_id"
+                        name="status_id"
+                        class="form-select form-select-lg"
+                    >
+
+                        <option value="">
+                            Select Status
+                        </option>
+
+                        @foreach($statuses as $status)
+
+                            <option
+                                value="{{ $status->ulid }}"
+                                @selected(
+                                    old(
+                                        'status_id',
+                                        $model?->lastStatusLog?->status_id
+                                    ) == $status->id
+                                )
+                            >
+                                {{ $status->name }}
                             </option>
 
                         @endforeach

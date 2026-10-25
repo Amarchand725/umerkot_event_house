@@ -19,8 +19,6 @@ return new class extends Migration
             $table->unsignedBigInteger('model_id')->nullable()->comment('ID of the model');
             $table->string('model_type', 256)->nullable()->comment('Type of the model');
             $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
-            $table->foreignId('assignee_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->bigInteger('amount')->nullable()->comment('lead amount if lead and finalization is different');
             $table->text('description')->nullable();
 
             $table->timestamps();

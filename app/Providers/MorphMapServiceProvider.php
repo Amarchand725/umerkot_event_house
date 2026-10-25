@@ -6,6 +6,7 @@ use App\Models\{
     Attachment, Country, EntityRelationship, LogEntityStatus,
     OtpToken, Permission, Role, State, Status, User,
 };
+use App\Modules\Event\Models\Event;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
@@ -36,6 +37,7 @@ class MorphMapServiceProvider extends ServiceProvider
             'User' => User::class,
             "LogEntityStatus"  => LogEntityStatus::class,
             "EntityRelationship"  => EntityRelationship::class,
+            'Event' => Event::class
         ]);
     }
 }

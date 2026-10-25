@@ -181,6 +181,8 @@ class PermissionSeeder extends Seeder
             'event-edit',
             'event-delete',
             'event-status',
+            'event-payment',
+            'event-order',
 
             /*
             Payment Method Management

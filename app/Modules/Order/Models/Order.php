@@ -2,6 +2,7 @@
 
 namespace App\Modules\Order\Models;
 
+use App\Models\Invoice;
 use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\ModelTrait;
@@ -64,5 +65,17 @@ class Order extends Model
 
     public function orderItem(){
         return $this->hasOne(OrderItem::class, 'order_id');
+    }
+
+    public function invoice(){
+        return $this->hasOne(Invoice::class, 'order_id');
+    }
+
+    public function paidInvoice()
+    {
+        return $this->hasOne(Invoice::class, 'order_id')
+            ->whereHas('status', function ($query) {
+                $query->where('name', 'Paid');
+            });
     }
 }

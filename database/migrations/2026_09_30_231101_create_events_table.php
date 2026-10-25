@@ -16,11 +16,6 @@ return new class extends Migration {
                 ->constrained('users')
                 ->nullOnDelete();
 
-            $table->foreignId('status_id')
-                ->nullable()
-                ->constrained('statuses')
-                ->nullOnDelete();
-
             $table->foreignId('customer_id')
                 ->nullable()
                 ->constrained('customers')

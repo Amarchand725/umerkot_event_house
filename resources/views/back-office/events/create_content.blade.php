@@ -340,7 +340,6 @@
 
                 </div>
 
-
                 {{-- Start Date --}}
                 <div class="col-12 col-md-6">
 
@@ -1203,7 +1202,7 @@
                                     @foreach($inventoryServices as $service)
 
                                         <option
-                                            value="{{ $service->id }}"
+                                            value="{{ $service->ulid }}"
                                             data-unit-price="{{ $service->price }}"
                                         >
                                             {{ $service->name }}

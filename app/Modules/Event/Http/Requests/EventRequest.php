@@ -31,9 +31,9 @@ class EventRequest extends FormRequest
 
             //package
             'package_id' => ['nullable', 'exists:packages,id'],
+            'status_id' => ['nullable', 'exists:statuses,id'],
 
             // Event Information
-            'event.status_id' => ['nullable', 'exists:statuses,id'],
             'event.event_category_id' => ['required', 'exists:event_categories,id'],
             'event.start_date' => ['required', 'date'],
             'event.end_date' => ['required', 'date', 'after:event.start_date'],

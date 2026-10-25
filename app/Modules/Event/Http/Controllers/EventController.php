@@ -3,14 +3,16 @@
 namespace App\Modules\Event\Http\Controllers;
 
 use App\Http\Controllers\BackOffice\BaseModuleController;
+use App\Http\Requests\OrderPaymentRequest;
 use App\Modules\Event\Repositories\Contracts\EventContract;
 use App\Modules\Event\Http\Requests\EventRequest;
 use App\Modules\Event\Models\Event;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
-use App\Models\Status;
+use Illuminate\Validation\ValidationException;
 
+use App\Models\Status;
 use App\Modules\InventoryItem\Models\InventoryItem;
 use App\Modules\EventCategory\Models\EventCategory;
 use App\Modules\InventoryCategory\Models\InventoryCategory;
@@ -76,7 +78,7 @@ class EventController extends BaseModuleController
     public function formatRow($row)
     {
         $extraActions = [];
-        $status = $row->status?->name ?? '-';
+        $status = $row?->lastStatusLog?->status?->name ?? '-';
         $row->event_status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                     . strtoupper($status) .
                     '</span>';
@@ -139,7 +141,7 @@ class EventController extends BaseModuleController
     public function store(EventRequest $request)
     {
         $payload = $request->validated();
-
+        
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {
@@ -324,7 +326,40 @@ class EventController extends BaseModuleController
     public function payment(Event $event)
     {
         $formData = $this->getFormData();
+
         $model = $this->eventRepo->showModel($event);
+
+        $orders = $model->orders()
+            ->with(['invoice.payment'])
+            ->get();
+
+        $totalOrderAmount = $orders->sum('grand_total');
+        $totalDiscount = $orders->sum('discount');
+        $totalPayable = $totalOrderAmount-$totalDiscount;
+
+        // Successful invoice payments belonging to this event
+        $invoicePayments = $orders
+            ->pluck('invoice')
+            ->filter()
+            ->flatMap(fn ($invoice) => $invoice->payment)
+            ->filter(fn ($payment) => $payment->status === 'paid');
+
+        // Direct event payments, if your schema supports them
+        $eventPayments = $model->payments()->get();
+
+        // Exclude duplicate records if payments can have both event_id and invoice_id
+        $payments = $invoicePayments
+            ->concat($eventPayments)
+            ->unique('id')
+            ->sortByDesc('paid_at')
+            ->values();
+
+        $totalPaid = $payments->sum('amount');
+
+        $totalOutstanding = max(
+            0,
+            $totalPayable - $totalPaid
+        );
 
         return (string) view(
             $this->pathInitialize . '.partials.payment_content',
@@ -332,26 +367,27 @@ class EventController extends BaseModuleController
         );
     }
 
-    public function storePayment(Request $request, Event $event)
+    public function storePayment(OrderPaymentRequest $request, Event $event)
     {
-        $payload = $request->validate([
-            'payment_method_id' => 'required|exists:payment_methods,id',
-            'amount' => 'required|numeric|min:0',
-            'transaction_id' => 'nullable|string|max:255',
-            'payment_date' => 'required|date',
-        ]);
-
+        $payload = $request->validated();
+        
         try {
-            $response = null;
-            DB::transaction(function () use (&$response, $payload, $event) {
-                $response = $this->eventRepo->storePayment($event, $payload);
+            $response = DB::transaction(function () use ($event, $payload) {
+                return $this->eventRepo->storePayment($event, $payload);
             });
-            return successResponse($response, module_message('payment_stored', $this->singularLabel));
+
+            return successResponse(
+                $response,
+                module_message('payment_stored', $this->singularLabel)
+            );
+
         } catch (Exception $e) {
+            report($e);
+
             return response()->json([
                 'status' => false,
-                'error' => $e->getMessage()
-            ]);
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 

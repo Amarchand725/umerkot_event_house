@@ -14,9 +14,6 @@ class LogEntityStatus extends Model
         'status_id',
         'model_type', 
         'model_id',
-        'assignee_id',
-        'meeting_id',
-        'amount',
         'description',
     ];
 

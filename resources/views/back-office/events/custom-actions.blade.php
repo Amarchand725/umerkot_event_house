@@ -45,3 +45,18 @@
         ]"
     />
 @endif
+@can($permissionPrefix.'-return-order')
+    <x-action-button
+        type="button"
+        id="edit-btn"
+        btn-class="dropdown-item edit-btn"
+        title="Return Order"
+        label="Return Order"
+        data-bs-toggle="modal"
+        data-bs-target="#create-pop-up-modal-x-large-for-file"
+        :data-attributes="[
+            'data-url' => route($routeInitialize.'.store-return-order', $model->ulid),
+            'data-edit-url' => route($routeInitialize.'.action.return-order', ['event' => $model->ulid])
+        ]"
+    />
+@endif

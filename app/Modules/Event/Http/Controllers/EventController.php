@@ -451,4 +451,38 @@ class EventController extends BaseModuleController
             ]);
         }
     }
+
+    public function returnOrder(Event $event){
+        $formData = $this->getFormData();
+        $model = $this->eventRepo->showModel($event);
+        $statuses = $this->status->where('model', 'OrderReturn')->get();
+
+        return (string) view(
+            $this->pathInitialize . '.partials.return_order_form_content',
+            array_merge($formData, get_defined_vars())
+        );
+    }
+
+    public function storeReturnOrder(OrderReturnRequest $request, Event $event){
+        $payload = $request->validated();
+        dd($payload);
+        try {
+            $response = DB::transaction(function () use ($event, $payload) {
+                return $this->eventRepo->storeReturnOrder($event, $payload);
+            });
+
+            return successResponse(
+                $response,
+                module_message('payment_stored', $this->singularLabel)
+            );
+
+        } catch (Exception $e) {
+            report($e);
+
+            return response()->json([
+                'status' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

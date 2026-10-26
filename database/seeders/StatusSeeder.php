@@ -86,6 +86,12 @@ class StatusSeeder extends Seeder
             ['model' => 'Order', 'name' => 'Completed'],
             ['model' => 'Order', 'name' => 'Cancelled'],
 
+            //Order Return
+            ['model' => 'OrderReturn', 'name' => 'Pending'],
+            ['model' => 'OrderReturn', 'name' => 'Inspecting'],
+            ['model' => 'OrderReturn', 'name' => 'Finalized'],
+            ['model' => 'OrderReturn', 'name' => 'Completed'],
+
             //Payment
             ['model' => 'Payment', 'name' => 'Pending'],
             ['model' => 'Payment', 'name' => 'Completed'],

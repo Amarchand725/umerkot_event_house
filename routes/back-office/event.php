@@ -21,6 +21,9 @@ Route::group([
 
         Route::get('action/edit/{event}/order', 'order')->name('action.order');
         Route::post('{event}/store-order', 'storeOrder')->name('store-order');
+
+        Route::get('action/edit/{event}/return-order', 'returnOrder')->name('action.return-order');
+        Route::post('{event}/store-return-order', 'storeReturnOrder')->name('store-return-order');
     });
 
     // 🧱 Resource CRUD

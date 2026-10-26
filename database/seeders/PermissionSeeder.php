@@ -183,6 +183,7 @@ class PermissionSeeder extends Seeder
             'event-status',
             'event-payment',
             'event-order',
+            'event-return-order',
 
             /*
             Payment Method Management

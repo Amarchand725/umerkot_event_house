@@ -586,4 +586,9 @@ class EventRepository extends BaseRepository implements EventContract
 
         return $model->refresh();
     }
+
+    public function storeReturnOrder(Model $model, array $payload): Model
+    {
+
+    }
 }

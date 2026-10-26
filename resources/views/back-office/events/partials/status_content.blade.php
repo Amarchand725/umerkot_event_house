@@ -1,4 +1,3 @@
-@method('PUT')
 <div class="row g-3 mb-4">
     <div class="col-12 col-md-12">
         <label for="status_id" class="form-label fw-semibold">
@@ -7,23 +6,23 @@
         <select id="status_id" name="status_id" class="form-select">
             <option value="">Select status</option>
             @foreach ($statuses as $status)
-                <option value="{{ $status->ulid }}" {{ $model->status_id==$status->id?'selected':'' }}>{{ ucfirst($status->name) }}</option>
+                <option value="{{ $status->ulid }}" {{ $model?->lastStatusLog?->status_id==$status->id?'selected':'' }}>{{ ucfirst($status->name) }}</option>
             @endforeach
         </select>
         <span id="status_id_error" class="text-danger error">{{ $errors->first('status_id') }}</span>
     </div>
     <div class="col-12 col-md-12">
         <label for="note" class="form-label fw-semibold">
-            Note 
+            Note
         </label>
-        <textarea 
-            id="note" 
-            name="note" 
+        <textarea
+            id="note"
+            name="description"
             class="form-control"
-            rows="3" 
+            rows="3"
             placeholder="Enter note"
-        >{{ old('note', '') }}</textarea>
-        <span id="note_error" class="text-danger error">{{ $errors->first('note') }}</span>
+        >{{ old('description', '') }}</textarea>
+        <span id="description_error" class="text-danger error">{{ $errors->first('description') }}</span>
     </div>
 </div>
 

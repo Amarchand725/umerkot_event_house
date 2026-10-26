@@ -1,7 +1,7 @@
 @can($permissionPrefix.'-status')
     <x-action-button
         type="button"
-        id="assign-btn"
+        id="edit-btn"
         btn-class="dropdown-item edit-btn"
         title="{{ module_label('status', $singularLabel) }}"
         label="{{ module_label('status', $singularLabel) }}"

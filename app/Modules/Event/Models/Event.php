@@ -69,7 +69,7 @@ class Event extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id');
-    }   
+    }
 
     public function eventCategory()
     {
@@ -114,5 +114,13 @@ class Event extends Model
             'id',         // Primary key in events table
             'id'          // Primary key in invoices table
         );
-    } 
+    }
+
+    public function paidInvoice()
+    {
+        return $this->hasOne(Invoice::class, 'event_id')
+            ->whereHas('status', function ($query) {
+                $query->where('name', 'Paid');
+            });
+    }
 }

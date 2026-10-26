@@ -67,15 +67,8 @@ class Order extends Model
         return $this->hasOne(OrderItem::class, 'order_id');
     }
 
-    public function invoice(){
-        return $this->hasOne(Invoice::class, 'order_id');
-    }
-
-    public function paidInvoice()
+    public function invoice()
     {
-        return $this->hasOne(Invoice::class, 'order_id')
-            ->whereHas('status', function ($query) {
-                $query->where('name', 'Paid');
-            });
+        return $this->hasOne(Invoice::class, 'order_id', 'id');
     }
 }

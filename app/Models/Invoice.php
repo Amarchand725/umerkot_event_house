@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Invoice extends Model
 {
@@ -57,7 +58,8 @@ class Invoice extends Model
         return $this->belongsTo(User::class, 'author_id');
     }
 
-    public function payment(){
-        return $this->hasOne(Payment::class, 'invoice_id', 'id');
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'invoice_id', 'id');
     }
 }

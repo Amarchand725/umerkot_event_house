@@ -4,6 +4,7 @@ namespace App\Modules\Event\Http\Controllers;
 
 use App\Http\Controllers\BackOffice\BaseModuleController;
 use App\Http\Requests\OrderPaymentRequest;
+use App\Http\Requests\EventStatusRequest;
 use App\Modules\Event\Repositories\Contracts\EventContract;
 use App\Modules\Event\Http\Requests\EventRequest;
 use App\Modules\Event\Models\Event;
@@ -141,7 +142,7 @@ class EventController extends BaseModuleController
     public function store(EventRequest $request)
     {
         $payload = $request->validated();
-        
+
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {
@@ -323,6 +324,26 @@ class EventController extends BaseModuleController
         );
     }
 
+    public function updateStatus(EventStatusRequest $request, Event $event)
+    {
+        $payload = $request->validated();
+
+        try {
+            $response = null;
+            DB::transaction(function () use (&$response, $payload, $event) {
+                $response = $this->eventRepo->updateStatus($event, $payload);
+            });
+            $response['route'] = route($this->routePrefix . '.index');
+
+            return successResponse($response, module_message('status_changed', $this->singularLabel));
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500); // optional HTTP 500
+        }
+    }
+
     public function payment(Event $event)
     {
         $formData = $this->getFormData();
@@ -330,31 +351,37 @@ class EventController extends BaseModuleController
         $model = $this->eventRepo->showModel($event);
 
         $orders = $model->orders()
-            ->with(['invoice.payment'])
+            ->with([
+                'invoice.status',
+                'invoice.payments.status',
+                'invoice.payments.paymentMethod',
+            ])
             ->get();
 
         $totalOrderAmount = $orders->sum('grand_total');
-        $totalDiscount = $orders->sum('discount');
-        $totalPayable = $totalOrderAmount-$totalDiscount;
+        $totalOrderDiscount = $orders->sum('discount');
 
-        // Successful invoice payments belonging to this event
-        $invoicePayments = $orders
-            ->pluck('invoice')
-            ->filter()
-            ->flatMap(fn ($invoice) => $invoice->payment)
-            ->filter(fn ($payment) => $payment->status === 'paid');
+        // Additional discounts recorded on event invoices.
+        $totalInvoiceDiscount = $model->invoices()
+            ->sum('discount');
 
-        // Direct event payments, if your schema supports them
-        $eventPayments = $model->payments()->get();
+        $totalDiscount = $totalOrderDiscount + $totalInvoiceDiscount;
 
-        // Exclude duplicate records if payments can have both event_id and invoice_id
-        $payments = $invoicePayments
-            ->concat($eventPayments)
-            ->unique('id')
+        $payments = $model->payments()
+            ->with(['status', 'paymentMethod'])
+            ->get()
+            ->filter(fn ($payment) =>
+                $payment->status?->name === 'Completed'
+            )
             ->sortByDesc('paid_at')
             ->values();
 
         $totalPaid = $payments->sum('amount');
+
+        $totalPayable = max(
+            0,
+            $totalOrderAmount - $totalDiscount
+        );
 
         $totalOutstanding = max(
             0,
@@ -370,7 +397,7 @@ class EventController extends BaseModuleController
     public function storePayment(OrderPaymentRequest $request, Event $event)
     {
         $payload = $request->validated();
-        
+
         try {
             $response = DB::transaction(function () use ($event, $payload) {
                 return $this->eventRepo->storePayment($event, $payload);
@@ -424,25 +451,4 @@ class EventController extends BaseModuleController
             ]);
         }
     }
-
-
-    // public function updateStatus(LeadStatusRequest $request, Lead $lead)
-    // {
-    //     $payload = $request->validated();
-        
-    //     try {
-    //         $response = null;
-    //         DB::transaction(function () use (&$response, $payload, $lead) {        
-    //             $response = $this->leadRepo->statusModel($lead, $payload);
-    //         });
-    //         $response['route'] = route($this->routePrefix . '.index');
-            
-    //         return successResponse($response, module_message('status_changed', $this->singularLabel));
-    //     } catch (Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => $e->getMessage()
-    //         ], 500); // optional HTTP 500
-    //     }
-    // }
 }

@@ -59,8 +59,9 @@ class InventoryItemSeeder extends Seeder
         foreach ($items as $item) {
             InventoryItem::updateOrCreate([
                 ...$item,
-                'damage_charge' => fake()->numberBetween(100, 300),
-                'replacement_charge' => fake()->numberBetween(200, 500),
+                'price_per_unit' => fake()->numberBetween(10, 500),
+                'damage_charge' => fake()->numberBetween(500, 1000),
+                'replacement_charge' => fake()->numberBetween(500, 1000),
                 'inventory_category_id' => $inventoryCategoryId,
                 'status_id' => $statusId,
                 'unit_id' => $pieceId,

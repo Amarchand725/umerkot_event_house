@@ -20,6 +20,8 @@ return new class extends Migration {
             $table->string('sku')->unique();
             $table->integer('total_quantity')->nullable();
             $table->integer('minimum_quantity')->default(50);
+            $table->decimal('damage_charge', 12, 2)->default(0);
+            $table->decimal('replacement_charge', 12, 2)->default(0);
             $table->softDeletes();
             $table->timestamps();
         });

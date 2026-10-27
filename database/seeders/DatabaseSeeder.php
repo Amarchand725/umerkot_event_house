@@ -18,19 +18,19 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             StatusSeeder::class,
+            UnitSeeder::class,
             CurrencySeeder::class,
             BusinessSettingSeeder::class,
             RoleSeeder::class,
             PermissionSeeder::class,
             RolePermissionSeeder::class,
             UserSeeder::class,
-            InventoryCategorySeeder::class,
-            InventoryItemSeeder::class,
             EventCategorySeeder::class,
-            UnitSeeder::class,
             PaymentMethodSeeder::class,
             PackageSeeder::class,
             ServiceSeeder::class,
+            InventoryCategorySeeder::class,
+            InventoryItemSeeder::class,
         ]);
     }
 }

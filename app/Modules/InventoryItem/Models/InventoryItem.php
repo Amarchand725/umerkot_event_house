@@ -17,7 +17,7 @@ class InventoryItem extends Model
 {
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
-    protected $fillable = ['name', 'price_per_unit', 'inventory_category_id', 'unit_id', 'sku', 'total_quantity', 'minimum_quantity', 'status_id'];
+    protected $fillable = ['name', 'price_per_unit', 'damage_charge', 'replacement_charge', 'inventory_category_id', 'unit_id', 'sku', 'total_quantity', 'minimum_quantity', 'status_id'];
 
     protected static function booted()
     {

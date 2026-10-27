@@ -20,6 +20,8 @@ return new class extends Migration
             $table->foreignId('package_id')->nullable()->constrained('packages')->nullOnDelete();
             $table->integer('quantity')->default(1);
             $table->decimal('unit_price', 12, 2)->default(0);
+            $table->decimal('damage_charge', 12, 2)->default(0);
+            $table->decimal('replacement_charge', 12, 2)->default(0);
             $table->decimal('subtotal', 12, 2)->default(0);
             $table->timestamps();
         });

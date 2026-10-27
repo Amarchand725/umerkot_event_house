@@ -102,22 +102,24 @@
 
                                     <td>
                                         <input type="number"
-                                               name="items[{{ $orderItem->id }}][good_quantity]"
-                                               class="form-control quantity-input good-quantity"
-                                               min="0"
-                                               max="{{ (int) $orderItem->quantity }}"
-                                               value="0"
-                                               required>
+                                            name="items[{{ $orderItem->id }}][good_quantity]"
+                                            class="form-control quantity-input good-quantity"
+                                            min="0"
+                                            max="{{ (int) $orderItem->quantity }}"
+                                            step="1"
+                                            value="{{ (int) $orderItem->quantity }}"
+                                            required>
                                     </td>
 
                                     <td>
                                         <input type="number"
-                                               name="items[{{ $orderItem->id }}][damaged_quantity]"
-                                               class="form-control quantity-input damaged-quantity"
-                                               min="0"
-                                               max="{{ (int) $orderItem->quantity }}"
-                                               value="0"
-                                               required>
+                                            name="items[{{ $orderItem->id }}][damaged_quantity]"
+                                            class="form-control quantity-input damaged-quantity"
+                                            min="0"
+                                            max="{{ (int) $orderItem->quantity }}"
+                                            step="1"
+                                            value="0"
+                                            required>
                                     </td>
 
                                     <td>
@@ -126,8 +128,8 @@
                                             class="form-control quantity-input missing-quantity"
                                             min="0"
                                             max="{{ (int) $orderItem->quantity }}"
-                                            value="{{ (int) $orderItem->quantity }}"
-                                            readonly
+                                            value="0"
+                                            step="1"
                                             required>
                                     </td>
 
@@ -174,8 +176,7 @@
                            class="form-control"
                            value="0.00"
                            min="0"
-                           step="0.01"
-                           readonly>
+                           step="0.01">
                 </div>
 
                 <div class="col-md-4 mb-3">
@@ -237,7 +238,7 @@
 
         <div class="card-body">
             <div class="row">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-12 mb-3">
                     <label for="status_id" class="form-label">Inspection Status</label>
                     <select id="status_id" name="status_id" class="form-select">
                         <option value="">Select status</option>
@@ -248,11 +249,11 @@
                     <span id="status_id_error" class="text-danger error">{{ $errors->first('status_id') }}</span>
                 </div>
 
-                <div class="col-md-8 mb-3">
+                <div class="col-md-12 mb-3">
                     <label class="form-label">General Notes</label>
                     <textarea name="notes"
                               class="form-control"
-                              rows="2"
+                              rows="3"
                               placeholder="Enter return or inspection notes"></textarea>
                 </div>
             </div>
@@ -270,90 +271,53 @@
 <script>
 
 (function () {
-    const container = document;
-    const rows = container.querySelectorAll('.return-item-row');
-    const status = container.getElementById('status_id');
-    const warning = container.getElementById('return-validation-message');
+    document.querySelectorAll('.return-item-row').forEach(function (row) {
+        const issued = Number(row.dataset.issued || 0);
 
-    function calculateReturnSummary() {
-        let hasMismatch = false;
+        const goodInput = row.querySelector('.good-quantity');
+        const damagedInput = row.querySelector('.damaged-quantity');
+        const missingInput = row.querySelector('.missing-quantity');
 
-        rows.forEach(function (row) {
-            const issued = Number(row.dataset.issued || 0);
+        function calculate(changedField) {
+            let good = Math.max(0, Math.floor(Number(goodInput.value) || 0));
+            let damaged = Math.max(0, Math.floor(Number(damagedInput.value) || 0));
+            let missing = Math.max(0, Math.floor(Number(missingInput.value) || 0));
 
-            const goodInput = row.querySelector('.good-quantity');
-            const damagedInput = row.querySelector('.damaged-quantity');
-            const missingInput = row.querySelector('.missing-quantity');
+            if (changedField === 'good') {
+                good = Math.min(good, issued);
 
-            let good = Math.max(0, Number(goodInput.value) || 0);
-            let damaged = Math.max(0, Number(damagedInput.value) || 0);
+                // Keep damage unchanged where possible.
+                damaged = Math.min(damaged, issued - good);
 
-            // Prevent entered quantities from exceeding issued quantity.
-            if (good + damaged > issued) {
-                if (document.activeElement === goodInput) {
-                    good = Math.max(0, issued - damaged);
-                    goodInput.value = good;
-                } else {
-                    damaged = Math.max(0, issued - good);
-                    damagedInput.value = damaged;
-                }
+                // Calculate the remaining missing quantity.
+                missing = issued - good - damaged;
+            } else if (changedField === 'damaged') {
+                damaged = Math.min(damaged, issued);
+
+                // Keep missing unchanged where possible.
+                missing = Math.min(missing, issued - damaged);
+
+                // Recalculate good.
+                good = issued - damaged - missing;
+            } else if (changedField === 'missing') {
+                missing = Math.min(missing, issued);
+
+                // Keep damage unchanged where possible.
+                damaged = Math.min(damaged, issued - missing);
+
+                // Recalculate good automatically.
+                good = issued - damaged - missing;
             }
 
-            // Missing quantity is automatically calculated.
-            const missing = issued - good - damaged;
+            goodInput.value = good;
+            damagedInput.value = damaged;
             missingInput.value = missing;
-
-            // Unaccounted quantity = issued - good - damaged - missing.
-            const unaccounted = issued - good - damaged - missing;
-            const output = row.querySelector('.unaccounted-quantity');
-
-            output.textContent = unaccounted;
-            output.classList.toggle('text-danger', unaccounted !== 0);
-            output.classList.toggle('text-success', unaccounted === 0);
-
-            if (
-                goodInput.value === '' ||
-                damagedInput.value === '' ||
-                good + damaged > issued ||
-                unaccounted !== 0
-            ) {
-                hasMismatch = true;
-            }
-        });
-
-        if (warning) {
-            warning.classList.toggle('d-none', !hasMismatch);
         }
 
-        // Keep the existing status options populated from your database.
-        if (status) {
-            const completedOption = Array.from(status.options).find(
-                option => option.text.trim().toLowerCase() === 'completed'
-            );
-
-            if (completedOption) {
-                completedOption.disabled = hasMismatch;
-            }
-
-            if (hasMismatch && completedOption &&
-                status.value === completedOption.value) {
-                status.value = '';
-            }
-        }
-    }
-
-    rows.forEach(function (row) {
-        row.querySelectorAll('.good-quantity, .damaged-quantity')
-            .forEach(function (input) {
-                input.addEventListener('input', calculateReturnSummary);
-            });
+        goodInput.addEventListener('input', () => calculate('good'));
+        damagedInput.addEventListener('input', () => calculate('damaged'));
+        missingInput.addEventListener('input', () => calculate('missing'));
     });
-
-    if (status) {
-        status.addEventListener('change', calculateReturnSummary);
-    }
-
-    calculateReturnSummary();
 })();
 
 </script>

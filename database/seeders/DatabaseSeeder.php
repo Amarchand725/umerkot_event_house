@@ -27,10 +27,10 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             EventCategorySeeder::class,
             PaymentMethodSeeder::class,
-            PackageSeeder::class,
-            ServiceSeeder::class,
             InventoryCategorySeeder::class,
             InventoryItemSeeder::class,
+            PackageSeeder::class,
+            ServiceSeeder::class,
         ]);
     }
 }

@@ -106,7 +106,7 @@ class EventRepository extends BaseRepository implements EventContract
             $grandTotal += $lineTotal;
         }
 
-        if($payload['package_id']) {
+        if(isset($payload['package_id']) && !empty($payload['package_id'])) {
             $package = Package::where('id', $payload['package_id'])->first();
             $lineTotal = $package->price; // Assuming the package has a price attribute
 
@@ -166,25 +166,25 @@ class EventRepository extends BaseRepository implements EventContract
         |--------------------------------------------------------------------------
         */
 
-        $invoice = new Invoice();
-
-        $invoice->order_id = $order->id;
-        $invoice->event_id = $event->id;
-        $invoice->issued_at = today();
-        $invoice->due_at = today();
-        $invoice->outstanding_amount = $payable;
-        $invoice->discount = 0;
-        $invoice->payable_amount = $advanceAmount;
-        $invoice->save();
-        $invoice->refresh();
-
-        /*
-        |--------------------------------------------------------------------------
-        | 7. Record Payment
-        |--------------------------------------------------------------------------
-        */
-
         if ($advanceAmount > 0) {
+            $invoice = new Invoice();
+
+            $invoice->order_id = $order->id;
+            $invoice->event_id = $event->id;
+            $invoice->issued_at = today();
+            $invoice->due_at = today();
+            $invoice->outstanding_amount = $payable;
+            $invoice->discount = 0;
+            $invoice->payable_amount = $advanceAmount;
+            $invoice->save();
+            $invoice->refresh();
+
+            /*
+            |--------------------------------------------------------------------------
+            | 7. Record Payment
+            |--------------------------------------------------------------------------
+            */
+
             $payment = new Payment();
             $payment->invoice_id = $invoice->id;
             $payment->payment_method_id = $payload['payment']['payment_method_id'];
@@ -503,29 +503,30 @@ class EventRepository extends BaseRepository implements EventContract
                 ]);
             }
 
-            $invoice = $order->invoice;
-
-            if (!$invoice) {
-                $invoice = new Invoice();
-                $invoice->event_id = $event->id;
-                $invoice->order_id = $order->id;
-                $invoice->issued_at = today();
-                $invoice->due_at = today();
-                $invoice->discount = 0;
-                $invoice->payable_amount = 0;
-                $invoice->outstanding_amount = 0;
-                $invoice->save();
-            }
-
-            // 7. Record the additional invoice discount.
-            // Do not silently overwrite existing discounts.
-            $invoice->discount = round(
-                (float) $invoice->discount + $discount,
-                2
-            );
-
-            // 8. Record the actual payment.
             if ($amount > 0) {
+                $invoice = $order->invoice;
+
+                if (!$invoice) {
+                    $invoice = new Invoice();
+                    $invoice->event_id = $event->id;
+                    $invoice->order_id = $order->id;
+                    $invoice->issued_at = today();
+                    $invoice->due_at = today();
+                    $invoice->discount = 0;
+                    $invoice->payable_amount = 0;
+                    $invoice->outstanding_amount = 0;
+                    $invoice->save();
+                }
+
+                // 7. Record the additional invoice discount.
+                // Do not silently overwrite existing discounts.
+                $invoice->discount = round(
+                    (float) $invoice->discount + $discount,
+                    2
+                );
+
+                // 8. Record the actual payment.
+
                 $payment = new Payment();
                 $payment->status_id = $completedStatusId;
                 $payment->invoice_id = $invoice->id;
@@ -534,45 +535,45 @@ class EventRepository extends BaseRepository implements EventContract
                 $payment->paid_at = $payload['paid_at'] ?? now();
                 $payment->note = $payload['payment_note'] ?? null;
                 $payment->save();
+
+                // 9. Recalculate this invoice's balances.
+                $invoicePaid = (float) $invoice->payments()
+                    ->where('payments.status_id', $completedStatusId)
+                    ->sum('payments.amount');
+
+                $invoiceGross = (float) $order->grand_total;
+                $invoiceOrderDiscount = (float) $order->discount;
+
+                $invoicePayable = round(
+                    $invoiceGross
+                    - $invoiceOrderDiscount
+                    - (float) $invoice->discount,
+                    2
+                );
+
+                $invoiceOutstanding = round(
+                    max(0, $invoicePayable - $invoicePaid),
+                    2
+                );
+
+                $invoice->payable_amount = $invoicePayable;
+                $invoice->outstanding_amount = $invoiceOutstanding;
+
+                $invoiceStatusName = $invoiceOutstanding <= 0
+                    ? 'Paid'
+                    : ($invoicePaid > 0 ? 'Partial' : 'Pending');
+
+                $invoice->status_id = (clone $this->status)
+                    ->where('model', 'Invoice')
+                    ->where('name', $invoiceStatusName)
+                    ->value('id');
+
+                $invoice->save();
+
+                // 10. Update order payable amount.
+                $order->payable_amount = $invoiceOutstanding;
+                $order->save();
             }
-
-            // 9. Recalculate this invoice's balances.
-            $invoicePaid = (float) $invoice->payments()
-                ->where('payments.status_id', $completedStatusId)
-                ->sum('payments.amount');
-
-            $invoiceGross = (float) $order->grand_total;
-            $invoiceOrderDiscount = (float) $order->discount;
-
-            $invoicePayable = round(
-                $invoiceGross
-                - $invoiceOrderDiscount
-                - (float) $invoice->discount,
-                2
-            );
-
-            $invoiceOutstanding = round(
-                max(0, $invoicePayable - $invoicePaid),
-                2
-            );
-
-            $invoice->payable_amount = $invoicePayable;
-            $invoice->outstanding_amount = $invoiceOutstanding;
-
-            $invoiceStatusName = $invoiceOutstanding <= 0
-                ? 'Paid'
-                : ($invoicePaid > 0 ? 'Partial' : 'Pending');
-
-            $invoice->status_id = (clone $this->status)
-                ->where('model', 'Invoice')
-                ->where('name', $invoiceStatusName)
-                ->value('id');
-
-            $invoice->save();
-
-            // 10. Update order payable amount.
-            $order->payable_amount = $invoiceOutstanding;
-            $order->save();
 
             return $event->refresh();
         }, 3);
@@ -585,6 +586,274 @@ class EventRepository extends BaseRepository implements EventContract
         $log->save();
 
         return $model->refresh();
+    }
+
+    public function storeOrder(Model $model, array $payload): Model
+    {
+        return DB::transaction(function () use ($model, $payload) {
+            $event = $model;
+
+            /*
+            |--------------------------------------------------------------------------
+            | 1. Prepare inventory and service rows
+            |--------------------------------------------------------------------------
+            */
+
+            $items = collect($payload['items'] ?? [])
+                ->filter(fn ($item) => filled($item['inventory_item_id'] ?? null))
+                ->values();
+
+            $services = collect($payload['services'] ?? [])
+                ->filter(fn ($service) => filled($service['service_id'] ?? null))
+                ->values();
+
+            $packageId = $payload['package_id'] ?? null;
+
+            if (blank($packageId) && $items->isEmpty() && $services->isEmpty()) {
+                throw ValidationException::withMessages([
+                    'order' => 'Please select a package, an inventory item, or a service.',
+                ]);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | 2. Build order lines and calculate total
+            |--------------------------------------------------------------------------
+            */
+
+            $lines = [];
+            $grandTotal = 0;
+
+            foreach ($items as $index => $item) {
+                if (
+                    !isset($item['quantity'], $item['unit_price']) ||
+                    !is_numeric($item['quantity']) ||
+                    !is_numeric($item['unit_price']) ||
+                    (float) $item['quantity'] <= 0 ||
+                    (float) $item['unit_price'] < 0
+                ) {
+                    throw ValidationException::withMessages([
+                        "items.$index" => 'Inventory quantity and unit price must be valid.',
+                    ]);
+                }
+
+                $quantity = (float) $item['quantity'];
+                $unitPrice = (float) $item['unit_price'];
+                $lineTotal = round($quantity * $unitPrice, 2);
+
+                $lines[] = [
+                    'inventory_item_id' => $item['inventory_item_id'],
+                    'service_id' => null,
+                    'package_id' => null,
+                    'quantity' => $quantity,
+                    'unit_price' => $unitPrice,
+                    'subtotal' => $lineTotal,
+                ];
+
+                $grandTotal += $lineTotal;
+            }
+
+            foreach ($services as $index => $service) {
+                if (
+                    !isset($service['quantity'], $service['unit_price']) ||
+                    !is_numeric($service['quantity']) ||
+                    !is_numeric($service['unit_price']) ||
+                    (float) $service['quantity'] <= 0 ||
+                    (float) $service['unit_price'] < 0
+                ) {
+                    throw ValidationException::withMessages([
+                        "services.$index" => 'Service quantity and unit price must be valid.',
+                    ]);
+                }
+
+                $quantity = (float) $service['quantity'];
+                $unitPrice = (float) $service['unit_price'];
+                $lineTotal = round($quantity * $unitPrice, 2);
+
+                $lines[] = [
+                    'inventory_item_id' => null,
+                    'service_id' => $service['service_id'],
+                    'package_id' => null,
+                    'quantity' => $quantity,
+                    'unit_price' => $unitPrice,
+                    'subtotal' => $lineTotal,
+                ];
+
+                $grandTotal += $lineTotal;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | 3. Add package if selected
+            |--------------------------------------------------------------------------
+            */
+
+            if (filled($packageId)) {
+                $package = Package::query()->find($packageId);
+
+                if (!$package) {
+                    throw ValidationException::withMessages([
+                        'package_id' => 'The selected package does not exist.',
+                    ]);
+                }
+
+                $packagePrice = round((float) $package->price, 2);
+
+                $lines[] = [
+                    'inventory_item_id' => null,
+                    'service_id' => null,
+                    'package_id' => $package->id,
+                    'quantity' => 1,
+                    'unit_price' => $packagePrice,
+                    'subtotal' => $packagePrice,
+                ];
+
+                $grandTotal += $packagePrice;
+            }
+
+            $grandTotal = round($grandTotal, 2);
+
+            /*
+            |--------------------------------------------------------------------------
+            | 4. Calculate discount, deposit and advance
+            |--------------------------------------------------------------------------
+            */
+
+            $paymentData = $payload['payment'] ?? [];
+
+            $discount = round((float) ($paymentData['discount'] ?? 0), 2);
+            $securityDeposit = round(
+                (float) ($paymentData['security_deposit'] ?? 0),
+                2
+            );
+            $advanceAmount = round(
+                (float) ($paymentData['advance_amount'] ?? 0),
+                2
+            );
+
+            if ($discount < 0 || $securityDeposit < 0 || $advanceAmount < 0) {
+                throw ValidationException::withMessages([
+                    'payment' => 'Discount, security deposit and advance cannot be negative.',
+                ]);
+            }
+
+            $discount = min($discount, $grandTotal);
+            $payable = round($grandTotal - $discount, 2);
+
+            if ($advanceAmount > $payable) {
+                throw ValidationException::withMessages([
+                    'payment.advance_amount' => 'Advance cannot exceed the order payable amount.',
+                ]);
+            }
+
+            if (
+                $advanceAmount > 0 &&
+                empty($paymentData['payment_method_id'])
+            ) {
+                throw ValidationException::withMessages([
+                    'payment.payment_method_id' => 'Please select a payment method.',
+                ]);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | 5. Create order
+            |--------------------------------------------------------------------------
+            */
+
+            $confirmedStatusId = (clone $this->status)
+                ->where('model', 'Order')
+                ->where('name', 'Confirmed')
+                ->value('id');
+
+            if (!$confirmedStatusId) {
+                throw new \RuntimeException('Confirmed order status was not found.');
+            }
+
+            $order = new Order();
+
+            $order->event_id = $event->id;
+            $order->grand_total = $grandTotal;
+            $order->discount = $discount;
+            $order->payable_amount = round($payable - $advanceAmount, 2);
+            $order->security_deposit = $securityDeposit;
+            $order->status_id = $confirmedStatusId;
+
+            // Keep any other required order fields from your existing code,
+            // such as order_number, note or package_id, if applicable.
+
+            $order->save();
+
+            /*
+            |--------------------------------------------------------------------------
+            | 6. Save order lines
+            |--------------------------------------------------------------------------
+            */
+
+            foreach ($lines as $line) {
+                $line['order_id'] = $order->id;
+
+                OrderItem::create($line);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | 7. Create invoice and record advance payment
+            |--------------------------------------------------------------------------
+            */
+
+            if ($advanceAmount > 0) {
+                $invoice = new Invoice();
+
+                $invoice->order_id = $order->id;
+                $invoice->event_id = $event->id;
+                $invoice->issued_at = today();
+                $invoice->due_at = today();
+
+                // Invoice represents the complete discounted order.
+                $invoice->discount = $discount;
+                $invoice->payable_amount = $payable;
+                $invoice->outstanding_amount = round(
+                    $payable - $advanceAmount,
+                    2
+                );
+
+                $paymentStatusId = (clone $this->status)
+                    ->where('model', 'Payment')
+                    ->where('name', 'Completed')
+                    ->value('id');
+
+                $invoiceStatusId = (clone $this->status)
+                    ->where('model', 'Invoice')
+                    ->where('name', 'Paid')
+                    ->value('id');
+
+                if (!$paymentStatusId || !$invoiceStatusId) {
+                    throw new \RuntimeException(
+                        'Required payment or invoice status was not found.'
+                    );
+                }
+
+                if ($invoice->outstanding_amount <= 0) {
+                    $invoice->status_id = $invoiceStatusId;
+                }
+
+                $invoice->save();
+
+                $payment = new Payment();
+
+                $payment->invoice_id = $invoice->id;
+                $payment->payment_method_id = $paymentData['payment_method_id'];
+                $payment->amount = $advanceAmount;
+                $payment->paid_at = now();
+                $payment->note = $payload['event']['note'] ?? null;
+                $payment->status_id = $paymentStatusId;
+
+                $payment->save();
+            }
+
+            return $event;
+        });
     }
 
     public function storeReturnOrder(Model $model, array $payload): Model

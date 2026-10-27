@@ -290,80 +290,236 @@ function prepareFormDataBeforeSubmit(formElement) {
     });
 }
 
-//Open modal for adding
+// Open modal for adding
 $('#add-btn, .add-btn').on('click', function () {
     var targeted_modal = $(this).attr('data-bs-target');
     var store_url = $(this).attr('data-url');
     var modal_label = $(this).attr('data-title');
     var content_url = $(this).attr('data-create-url');
-    loadForm(targeted_modal, store_url, modal_label, content_url);
+
+    loadForm(targeted_modal, store_url, modal_label, content_url, 'create');
 });
 
-//Open modal for editing
+// Open modal for editing
 $(document).on('click', '.edit-btn', function () {
     var targeted_modal = $(this).attr('data-bs-target');
     var store_url = $(this).attr('data-url');
     var modal_label = $(this).attr('data-title');
     var content_url = $(this).attr('data-edit-url');
-    loadForm(targeted_modal, store_url, modal_label, content_url);
+
+    loadForm(targeted_modal, store_url, modal_label, content_url, 'edit');
 });
 
-function loadForm(targeted_modal, store_url, modal_label, content_url){
-    $(targeted_modal).find('#modal-label').html(modal_label);
-    $(targeted_modal).find("#create-form").attr("action", store_url);
-    $(targeted_modal).find("#create-form").attr("method", 'POST');
+function loadForm(
+    targeted_modal,
+    store_url,
+    modal_label,
+    content_url,
+    form_mode = 'create'
+) {
+    const modal = $(targeted_modal);
+    const form = modal.find('#create-form');
 
-    $.ajax({
+    // Cancel any previous request for this modal
+    const previousRequest = modal.data('form-request');
+
+    if (previousRequest && previousRequest.readyState !== 4) {
+        previousRequest.abort();
+    }
+
+    // Reset the old form and its UI state
+    form[0]?.reset();
+
+    modal.find('#modal-label').text(modal_label);
+
+    form.attr('action', store_url);
+    form.attr('method', 'POST');
+
+    // Store which mode is being opened
+    modal.data('form-mode', form_mode);
+
+    // Clear stale content immediately
+    modal.find('#edit-content').html(
+        '<div class="text-center py-4">' +
+            '<i class="fas fa-spinner fa-spin fa-2x"></i>' +
+            '<div class="mt-2">Loading...</div>' +
+        '</div>'
+    );
+
+    // Show a clean modal shell
+    modal.find('.is-invalid').removeClass('is-invalid');
+    modal.find('.invalid-feedback, .text-danger.error').empty();
+
+    const request = $.ajax({
         url: content_url,
         method: 'GET',
-        beforeSend: function () {
-            // Show a loading spinner or text before the response is loaded
-            $(targeted_modal).find('#edit-content').html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i> Loading...</div>');
-        },
-        success: function (response) {
-            const modal = $(targeted_modal);
 
-            if (typeof response.flag !== 'undefined') {
-                // For THIS module only (create = false, edit = true)
+        success: function (response) {
+            // Ignore a response if another request has since replaced it
+            if (modal.data('form-request') !== request) {
+                return;
+            }
+
+            if (
+                typeof response.flag !== 'undefined'
+            ) {
                 modal.find('#edit-content').html(response.html);
             } else {
-                // All other modules
                 modal.find('#edit-content').html(response);
             }
 
-            // ----- Initialize Select2 for all selects inside fields-wrapper -----
-            $('#fields-wrapper select').each(function () {
-                $(this).select2({
-                    dropdownParent: $(this).closest('.field-item'),
-                    width: '100%',
+            // Initialize Select2 only inside the current modal
+            modal.find('#fields-wrapper select').each(function () {
+                const select = $(this);
+
+                if (select.hasClass('select2-hidden-accessible')) {
+                    select.select2('destroy');
+                }
+
+                select.select2({
+                    dropdownParent: select.closest('.field-item').length
+                        ? select.closest('.field-item')
+                        : modal,
+                    width: '100%'
                 });
             });
 
-            // ---------- Lead Capture form initialization ----------
-           if (
+            // Lead Capture form initialization
+            if (
                 modal.find('#fields-wrapper').length &&
-                (typeof response.flag !== 'undefined' && response.flag === true)
+                typeof response.flag !== 'undefined' &&
+                response.flag === true
             ) {
-                // Reset wrapper and index
                 fieldIndex = 0;
-                $('#fields-wrapper').html('');
+                modal.find('#fields-wrapper').empty();
 
-                // Check if existingFields variable is passed from controller
-                if (typeof existingFields !== 'undefined' && Array.isArray(existingFields)) {
-                    existingFields.forEach((field, i) => renderField(field, i));
+                if (
+                    typeof existingFields !== 'undefined' &&
+                    Array.isArray(existingFields)
+                ) {
+                    existingFields.forEach(function (field, index) {
+                        renderField(field, index);
+                    });
+
                     fieldIndex = existingFields.length;
                 }
             }
-            // ------------------------------------------------------
+
+            // Reset wizard to the first step after fresh HTML is loaded
+            modal.find('.wizard-step').addClass('d-none');
+            modal.find('[data-step-content="1"]').removeClass('d-none');
+
+            modal.find('[data-step]').removeClass('active');
+            modal.find('[data-step="1"]').addClass('active');
+
+            // Initialize form-specific calculations, if available
+            if (typeof window.initializeEventForm === 'function') {
+                window.initializeEventForm(modal, form_mode);
+            }
         },
-        error: function (xhr) {
+
+        error: function (xhr, status) {
+            if (status === 'abort') {
+                return;
+            }
+
             if (xhr.status === 403) {
-                // Handle permission error
-                $(targeted_modal).find('#edit-content').html('<div class="alert alert-danger text-center">You do not have permission to access this resource.</div>');
+                modal.find('#edit-content').html(
+                    '<div class="alert alert-danger text-center">' +
+                    'You do not have permission to access this resource.' +
+                    '</div>'
+                );
             } else {
-                // Handle other errors
-                $(targeted_modal).find('#edit-content').html('<div class="alert alert-danger text-center">An error occurred. Please try again later.</div>');
+                modal.find('#edit-content').html(
+                    '<div class="alert alert-danger text-center">' +
+                    'An error occurred. Please try again later.' +
+                    '</div>'
+                );
+            }
+        },
+
+        complete: function () {
+            if (modal.data('form-request') === request) {
+                modal.removeData('form-request');
             }
         }
     });
+
+    modal.data('form-request', request);
 }
+
+// Clear temporary state when a modal is closed
+$(document).on('hidden.bs.modal', '.modal', function () {
+    const modal = $(this);
+    const request = modal.data('form-request');
+
+    if (request && request.readyState !== 4) {
+        request.abort();
+    }
+
+    modal.removeData('form-request');
+    modal.removeData('form-mode');
+
+    // Remove dynamically loaded content so it cannot leak into the next opening
+    modal.find('#edit-content').empty();
+});
+
+// function loadForm(targeted_modal, store_url, modal_label, content_url){
+//     $(targeted_modal).find('#modal-label').html(modal_label);
+//     $(targeted_modal).find("#create-form").attr("action", store_url);
+//     $(targeted_modal).find("#create-form").attr("method", 'POST');
+
+//     $.ajax({
+//         url: content_url,
+//         method: 'GET',
+//         beforeSend: function () {
+//             // Show a loading spinner or text before the response is loaded
+//             $(targeted_modal).find('#edit-content').html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i> Loading...</div>');
+//         },
+//         success: function (response) {
+//             const modal = $(targeted_modal);
+
+//             if (typeof response.flag !== 'undefined') {
+//                 // For THIS module only (create = false, edit = true)
+//                 modal.find('#edit-content').html(response.html);
+//             } else {
+//                 // All other modules
+//                 modal.find('#edit-content').html(response);
+//             }
+
+//             // ----- Initialize Select2 for all selects inside fields-wrapper -----
+//             $('#fields-wrapper select').each(function () {
+//                 $(this).select2({
+//                     dropdownParent: $(this).closest('.field-item'),
+//                     width: '100%',
+//                 });
+//             });
+
+//             // ---------- Lead Capture form initialization ----------
+//            if (
+//                 modal.find('#fields-wrapper').length &&
+//                 (typeof response.flag !== 'undefined' && response.flag === true)
+//             ) {
+//                 // Reset wrapper and index
+//                 fieldIndex = 0;
+//                 $('#fields-wrapper').html('');
+
+//                 // Check if existingFields variable is passed from controller
+//                 if (typeof existingFields !== 'undefined' && Array.isArray(existingFields)) {
+//                     existingFields.forEach((field, i) => renderField(field, i));
+//                     fieldIndex = existingFields.length;
+//                 }
+//             }
+//             // ------------------------------------------------------
+//         },
+//         error: function (xhr) {
+//             if (xhr.status === 403) {
+//                 // Handle permission error
+//                 $(targeted_modal).find('#edit-content').html('<div class="alert alert-danger text-center">You do not have permission to access this resource.</div>');
+//             } else {
+//                 // Handle other errors
+//                 $(targeted_modal).find('#edit-content').html('<div class="alert alert-danger text-center">An error occurred. Please try again later.</div>');
+//             }
+//         }
+//     });
+// }

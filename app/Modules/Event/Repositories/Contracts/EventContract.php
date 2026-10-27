@@ -11,4 +11,5 @@ interface EventContract extends BaseContract
     public function storePayment(Model $model, array $payload): Model;
     public function storeReturnOrder(Model $model, array $payload): Model;
     public function updateStatus(Model $model, array $payload);
+    public function storeOrder(Model $model, array $payload): Model;
 }

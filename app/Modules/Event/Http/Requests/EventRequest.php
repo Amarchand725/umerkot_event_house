@@ -29,10 +29,6 @@ class EventRequest extends FormRequest
             'customer.alter_phone' => ['nullable', 'string', 'max:20'],
             'customer.address' => ['required', 'string', 'max:255'],
 
-            //package
-            'package_id' => ['nullable', 'exists:packages,id'],
-            'status_id' => ['nullable', 'exists:statuses,id'],
-
             // Event Information
             'event.event_category_id' => ['required', 'exists:event_categories,id'],
             'event.start_date' => ['required', 'date'],
@@ -40,21 +36,25 @@ class EventRequest extends FormRequest
             'event.venue' => ['required', 'string', 'max:255'],
             'event.note' => ['nullable'],
 
+            //package
+            'package_id' => ['nullable', 'exists:packages,id'],
+            'status_id' => ['nullable', 'exists:statuses,id'],
+
             // Inventory Items
             'items' => ['nullable', 'array'],
             'items.*.inventory_category_id' => ['nullable', 'exists:inventory_categories,id'],
-            'items.*.inventory_item_id' => ['required', 'exists:inventory_items,id'],
-            'items.*.quantity' => ['required', 'numeric', 'gt:0'],
-            'items.*.unit_price' => ['required', 'numeric', 'min:0'],
+            'items.*.inventory_item_id' => ['nullable', 'exists:inventory_items,id'],
+            'items.*.quantity' => ['nullable', 'numeric', 'gt:0'],
+            'items.*.unit_price' => ['nullable', 'numeric', 'min:0'],
 
             // Services
             'services' => ['nullable', 'array'],
-            'services.*.service_id' => ['required', 'exists:services,id'],
-            'services.*.quantity' => ['required', 'numeric', 'gt:0'],
-            'services.*.unit_price' => ['required', 'numeric', 'min:0'],
+            'services.*.service_id' => ['nullable', 'exists:services,id'],
+            'services.*.quantity' => ['nullable', 'numeric', 'gt:0'],
+            'services.*.unit_price' => ['nullable', 'numeric', 'min:0'],
 
             // Payment Information
-            'payment.payment_method_id' => ['required', 'exists:payment_methods,id'],
+            'payment.payment_method_id' => ['nullable', 'exists:payment_methods,id'],
             'payment.subtotal' => ['nullable', 'numeric', 'min:0'],
             'payment.discount' => ['nullable', 'numeric', 'min:0'],
             'payment.security_deposit' => ['nullable', 'numeric', 'min:0'],

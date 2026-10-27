@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use App\Http\Requests\EventOrderRequest;
 
 use App\Models\Status;
 use App\Modules\InventoryItem\Models\InventoryItem;
@@ -429,19 +430,14 @@ class EventController extends BaseModuleController
         );
     }
 
-    public function storeOrder(Request $request, Event $event)
+    public function storeOrder(EventOrderRequest $request, Event $event)
     {
-        $payload = $request->validate([
-            'payment_method_id' => 'required|exists:payment_methods,id',
-            'amount' => 'required|numeric|min:0',
-            'transaction_id' => 'nullable|string|max:255',
-            'payment_date' => 'required|date',
-        ]);
+        $payload = $request->validated();
 
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload, $event) {
-                $response = $this->eventRepo->storePayment($event, $payload);
+                $response = $this->eventRepo->storeOrder($event, $payload);
             });
             return successResponse($response, module_message('payment_stored', $this->singularLabel));
         } catch (Exception $e) {

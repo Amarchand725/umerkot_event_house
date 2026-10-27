@@ -1,5 +1,7 @@
 {{-- ============================================================
-    EVENT CREATE / EDIT WIZARD
+    ORDER CREATE / EDIT WIZARD
+    This page manages one Order belonging to an existing Event.
+    Keep request keys compatible with the existing Order controller.
 ============================================================= --}}
 
 <div class="card">
@@ -123,8 +125,8 @@
                                 @selected(
                                     old(
                                         'package_id',
-                                        $model->package_id ?? ''
-                                    ) == $package->id
+                                        $model->package->ulid ?? ''
+                                    ) == $package->ulid
                                 )
                             >
                                 {{ $package->name }}
@@ -396,7 +398,7 @@
                                             <option
                                                 value="{{ $category->ulid }}"
                                                 @selected(
-                                                    $eventItem->inventory_item->inventory_category_id == $category->id
+                                                    ($eventItem->inventory_item->category->ulid ?? '') == $category->ulid
                                                 )
                                             >
                                                 {{ $category->name }}
@@ -435,7 +437,7 @@
                                             )
 
                                                 <option
-                                                    value="{{ $item->id }}"
+                                                    value="{{ $item->ulid }}"
                                                     data-unit-price="{{ $item->price_per_unit }}"
                                                     @selected(
                                                         $eventItem->inventory_item_id == $item->id
@@ -547,7 +549,7 @@
 
                                         @foreach($inventoryCategories as $category)
 
-                                            <option value="{{ $category->id }}">
+                                            <option value="{{ $category->ulid }}">
                                                 {{ $category->name }}
                                             </option>
 
@@ -801,7 +803,7 @@
                                     @foreach($inventoryServices as $service)
 
                                         <option
-                                            value="{{ $service->id }}"
+                                            value="{{ $service->ulid }}"
                                             data-unit-price="{{ $service->price }}"
                                         >
                                             {{ $service->name }}
@@ -991,8 +993,8 @@
                                 @selected(
                                     old(
                                         'payment.payment_method_id',
-                                        $model->payment_method_id ?? ''
-                                    ) == $paymentMethod->id
+                                        $model->paymentMethod->ulid ?? ''
+                                    ) == $paymentMethod->ulid
                                 )
                             >
                                 {{ $paymentMethod->name }}

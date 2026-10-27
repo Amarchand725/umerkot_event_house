@@ -1,6 +1,12 @@
 {{-- ============================================================
     EVENT CREATE / EDIT WIZARD
+    Creates/updates shared customer + event data and the initial order.
+    Additional orders are managed through the separate Order wizard.
 ============================================================= --}}
+
+@php
+    $orderModel = isset($model) ? ($model->orders->first() ?? null) : null;
+@endphp
 
 <div class="card">
 
@@ -31,7 +37,7 @@
             <li class="nav-item">
                 <button type="button" class="nav-link" data-step="3">
                     <i class="ti ti-box me-1"></i>
-                    3. Package
+                    3. Initial Order: Package
                 </button>
             </li>
 
@@ -39,7 +45,7 @@
             <li class="nav-item">
                 <button type="button" class="nav-link" data-step="4">
                     <i class="ti ti-package me-1"></i>
-                    4. Inventory
+                    4. Initial Order: Inventory
                 </button>
             </li>
 
@@ -47,7 +53,7 @@
             <li class="nav-item">
                 <button type="button" class="nav-link" data-step="5">
                     <i class="ti ti-tool me-1"></i>
-                    5. Services
+                    5. Initial Order: Services
                 </button>
             </li>
 
@@ -55,7 +61,7 @@
             <li class="nav-item">
                 <button type="button" class="nav-link" data-step="6">
                     <i class="ti ti-credit-card me-1"></i>
-                    6. Payment
+                    6. Initial Order: Payment
                 </button>
             </li>
 
@@ -323,8 +329,8 @@
                                 @selected(
                                     old(
                                         'event.event_category_id',
-                                        $model->event_category_id ?? ''
-                                    ) == $category->id
+                                        $model->eventCategory->ulid ?? ''
+                                    ) == $category->ulid
                                 )
                             >
                                 {{ $category->name }}
@@ -771,7 +777,7 @@
                         data-items-url="{{ route('back-office.inventory-items.get-category-inventory-items') }}"
                     >
 
-                        @forelse($model->eventItems ?? [] as $index => $eventItem)
+                        @forelse($orderModel->eventItems ?? [] as $index => $eventItem)
 
                             <div class="inventory-row row g-3 align-items-end mb-3">
 
@@ -797,7 +803,7 @@
                                             <option
                                                 value="{{ $category->ulid }}"
                                                 @selected(
-                                                    $eventItem->inventory_item->inventory_category_id == $category->id
+                                                    ($eventItem->inventory_item->category->ulid ?? '') == $category->ulid
                                                 )
                                             >
                                                 {{ $category->name }}
@@ -1091,12 +1097,11 @@
 
                             </div>
 
-
                             <input
                                 type="hidden"
-                                name="subtotal"
+                                name="payment[subtotal]"
                                 id="subtotal"
-                                value="{{ old('subtotal', $model->subtotal ?? 0) }}"
+                                value="{{ old('subtotal', $orderModel->subtotal ?? 0) }}"
                             />
 
                         </div>
@@ -1391,9 +1396,9 @@
                                 value="{{ $paymentMethod->ulid }}"
                                 @selected(
                                     old(
-                                        'payment.payment_method_id',
-                                        $model->payment_method_id ?? ''
-                                    ) == $paymentMethod->id
+                                        'orders.0.payment.payment_method_id',
+                                        $orderModel->paymentMethod->ulid ?? ''
+                                    ) == $paymentMethod->ulid
                                 )
                             >
                                 {{ $paymentMethod->name }}
@@ -1407,7 +1412,7 @@
                         id="payment_method_id_error"
                         class="text-danger error"
                     >
-                        {{ $errors->first('payment.payment_method_id') }}
+                        {{ $errors->first('orders.0.payment.payment_method_id') }}
                     </span>
 
                 </div>
@@ -1430,11 +1435,11 @@
                         class="form-control form-control-lg"
                         min="0"
                         step="0.01"
-                        value="{{ old('payment.discount', $model->discount ?? 0) }}"
+                        value="{{ old('orders.0.payment.discount', $orderModel->discount ?? 0) }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('payment.discount') }}
+                        {{ $errors->first('orders.0.payment.discount') }}
                     </span>
 
                 </div>
@@ -1457,11 +1462,11 @@
                         class="form-control form-control-lg"
                         min="0"
                         step="0.01"
-                        value="{{ old('payment.security_deposit', $model->security_deposit ?? 0) }}"
+                        value="{{ old('orders.0.payment.security_deposit', $orderModel->security_deposit ?? 0) }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('payment.security_deposit') }}
+                        {{ $errors->first('orders.0.payment.security_deposit') }}
                     </span>
 
                 </div>
@@ -1484,11 +1489,11 @@
                         class="form-control form-control-lg"
                         min="0"
                         step="0.01"
-                        value="{{ old('payment.advance_amount', $model->advance_amount ?? 0) }}"
+                        value="{{ old('orders.0.payment.advance_amount', $orderModel->advance_amount ?? 0) }}"
                     />
 
                     <span class="text-danger error">
-                        {{ $errors->first('payment.advance_amount') }}
+                        {{ $errors->first('orders.0.payment.advance_amount') }}
                     </span>
 
                 </div>
@@ -2266,7 +2271,6 @@
                                 </strong>
 
                             </div>
-
 
                             {{-- Security Deposit --}}
                             <div class="d-flex justify-content-between mb-2">

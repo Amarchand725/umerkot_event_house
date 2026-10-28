@@ -26,7 +26,7 @@ class OrderItem extends Model
     {
         return $this->hasMany(InventoryItem::class, 'id', 'inventory_item_id');
     }
-    
+
     public function item(){
         return $this->belongsTo(InventoryItem::class, 'inventory_item_id');
     }

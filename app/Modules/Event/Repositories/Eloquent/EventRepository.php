@@ -75,7 +75,7 @@ class EventRepository extends BaseRepository implements EventContract
         $grandTotal = 0;
 
         foreach ($payload['items'] ?? [] as $item) {
-            $quantity = (float) $item['quantity'];
+            $quantity = $item['quantity'];
             $unitPrice = (float) $item['unit_price'];
             $lineTotal = $quantity * $unitPrice;
 

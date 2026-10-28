@@ -108,13 +108,6 @@ class EventRequest extends FormRequest
                         $item['inventory_item_id']
                     )->value('id');
                 }
-
-                if (!empty($item['inventory_category_id'])) {
-                    $items[$key]['inventory_category_id'] = InventoryCategory::where(
-                            'ulid',
-                            $item['inventory_category_id']
-                        )->value('id') ?? $item['inventory_category_id'];
-                }
             }
 
             $this->merge([

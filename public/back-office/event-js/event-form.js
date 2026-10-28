@@ -288,7 +288,7 @@
 
                 let html = '<option value="">Select Inventory Item</option>';
                 items.forEach(function (item) {
-                    const id = item.id || item.ulid || '';
+                    const id = item.ulid || '';
                     const label = item.name || item.title || '';
                     const price = item.price_per_unit != null ? item.price_per_unit : (item.price != null ? item.price : 0);
                     html += '<option value="' + safe(id) + '" data-unit-price="' + safe(price) + '">' + safe(label) + '</option>';

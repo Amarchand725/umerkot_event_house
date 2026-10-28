@@ -1,18 +1,12 @@
-@can($permissionPrefix.'-invoice')
+@can($permissionPrefix . '-invoice')
     <x-action-button
-        type="button"
-        id="edit-btn"
-        btn-class="dropdown-item edit-btn"
-        title="{{ module_label('Invoice', $singularLabel) }}"
-        label="{{ module_label('Invoice', $singularLabel) }}"
-        data-bs-toggle="modal"
-        data-bs-target="#create-pop-up-modal-for-file"
-        :data-attributes="[
-            'data-url' => route($routeInitialize.'.invoice', $model->ulid),
-            'data-edit-url' => route($routeInitialize.'.action.invoice', ['event' => $model->ulid])
-        ]"
+        type="link"
+        btn-class="dropdown-item"
+        title="Download Invoice PDF"
+        label="Invoice"
+        :href="route($routeInitialize.'.action.invoice', ['event' => $model->ulid])"
     />
-@endif
+@endcan
 
 @can($permissionPrefix.'-status')
     <x-action-button

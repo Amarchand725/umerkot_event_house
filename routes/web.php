@@ -18,6 +18,7 @@ Route::controller(DeveloperController::class)->group(function () {
     Route::get('/match-user-names', 'matchUserName')->name('match-user-names');
     Route::get('/user-credentials', 'userCredentials')->name('user-credentials');
     Route::get('/send-test-email', 'sendTestEmail')->name('send-test-email');
+    Route::get('/invoice', 'invoice')->name('invoice');
 });
 
 Route::impersonate();

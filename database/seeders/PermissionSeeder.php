@@ -184,6 +184,7 @@ class PermissionSeeder extends Seeder
             'event-payment',
             'event-order',
             'event-return-order',
+            'event-invoice',
 
             /*
             Payment Method Management

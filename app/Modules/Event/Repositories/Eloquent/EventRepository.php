@@ -858,6 +858,151 @@ class EventRepository extends BaseRepository implements EventContract
 
     public function storeReturnOrder(Model $model, array $payload): Model
     {
+        if (! $model instanceof Event) {
+            throw new \InvalidArgumentException(
+                'Expected an Event model.'
+            );
+        }
 
+        return DB::transaction(function () use ($model, $payload) {
+            $event = Event::query()
+                ->whereKey($model->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $orders = $event->orders()
+                ->with('orderItems.item')
+                ->lockForUpdate()
+                ->get();
+
+            $submittedItems = collect($payload['items'] ?? []);
+
+            if ($submittedItems->isEmpty()) {
+                throw ValidationException::withMessages([
+                    'items' => 'At least one item must be inspected.',
+                ]);
+            }
+
+            $orderIds = $orders->modelKeys();
+
+            $actualItems = $orders->flatMap(
+                fn ($order) => $order->orderItems
+            )->keyBy(fn ($item) => (string) $item->getKey());
+
+            $goodTotal = 0;
+            $damageTotal = 0;
+            $missingTotal = 0;
+            $preparedItems = [];
+
+            foreach ($submittedItems as $submitted) {
+                $orderItemId = (string) ($submitted['order_item_id'] ?? '');
+                $orderId = $submitted['order_id'] ?? null;
+
+                $orderItem = $actualItems->get($orderItemId);
+
+                if (
+                    ! $orderItem ||
+                    (string) $orderItem->order_id !== (string) $orderId ||
+                    ! in_array($orderItem->order_id, $orderIds)
+                ) {
+                    throw ValidationException::withMessages([
+                        'items' => 'An order item does not belong to this event.',
+                    ]);
+                }
+
+                if (isset($preparedItems[$orderItemId])) {
+                    throw ValidationException::withMessages([
+                        'items' => 'Duplicate order items are not allowed.',
+                    ]);
+                }
+
+                $issued = (int) $orderItem->quantity;
+                $good = (int) ($submitted['good_quantity'] ?? 0);
+                $damaged = (int) ($submitted['damaged_quantity'] ?? 0);
+                $missing = (int) ($submitted['missing_quantity'] ?? 0);
+
+                if (
+                    min($good, $damaged, $missing) < 0 ||
+                    ($good + $damaged + $missing) !== $issued
+                ) {
+                    throw ValidationException::withMessages([
+                        "items.{$orderItemId}" =>
+                            "Good, damaged, and missing quantities must total {$issued}.",
+                    ]);
+                }
+
+                $item = $orderItem->item;
+
+                $damageRate = (float) ($item?->damage_charge ?? 0);
+                $replacementRate = (float) ($item?->replacement_charge ?? 0);
+
+                $damageAmount = round($damaged * $damageRate, 2);
+                $missingAmount = round($missing * $replacementRate, 2);
+
+                $damageTotal += $damageAmount;
+                $missingTotal += $missingAmount;
+
+                $preparedItems[$orderItemId] = [
+                    'order_id' => $orderItem->order_id,
+                    'order_item_id' => $orderItem->getKey(),
+                    'issued_quantity' => $issued,
+                    'good_quantity' => $good,
+                    'damaged_quantity' => $damaged,
+                    'missing_quantity' => $missing,
+                    'damage_charge' => $damageRate,
+                    'replacement_charge' => $replacementRate,
+                    'deduction_amount' => round(
+                        $damageAmount + $missingAmount,
+                        2
+                    ),
+                    'inspection_notes' =>
+                        $submitted['inspection_notes'] ?? null,
+                ];
+            }
+
+            // Require every order item to be inspected.
+            if (count($preparedItems) !== $actualItems->count()) {
+                throw ValidationException::withMessages([
+                    'items' => 'Please inspect every item from every order.',
+                ]);
+            }
+
+            $securityDeposit = round(
+                (float) $orders->sum('security_deposit'),
+                2
+            );
+
+            $totalDamage = round($damageTotal, 2);
+            $totalMissing = round($missingTotal, 2);
+            $totalDeduction = round($totalDamage + $totalMissing, 2);
+
+            $refundableDeposit = round(
+                max(0, $securityDeposit - $totalDeduction),
+                2
+            );
+
+            $additionalAmountDue = round(
+                max(0, $totalDeduction - $securityDeposit),
+                2
+            );
+
+            $return = OrderReturn::create([
+                'event_id' => $event->getKey(),
+                'inspected_by' => auth()->id(),
+                'returned_at' => now(),
+                'notes' => $payload['notes'] ?? null,
+
+                // Replace with your actual document number generator.
+                'return_number' => app(
+                    \App\Services\DocumentNumberService::class
+                )->generate('order_return'),
+            ]);
+
+            foreach ($preparedItems as $itemData) {
+                $return->items()->create($itemData);
+            }
+
+            return $return->load('items');
+        });
     }
 }

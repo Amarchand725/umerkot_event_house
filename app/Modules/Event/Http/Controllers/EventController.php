@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\EventOrderRequest;
+use App\Http\Requests\OrderReturnRequest;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\Status;
 use App\Modules\InventoryItem\Models\InventoryItem;
@@ -461,7 +463,7 @@ class EventController extends BaseModuleController
 
     public function storeReturnOrder(OrderReturnRequest $request, Event $event){
         $payload = $request->validated();
-        dd($payload);
+
         try {
             $response = DB::transaction(function () use ($event, $payload) {
                 return $this->eventRepo->storeReturnOrder($event, $payload);
@@ -480,5 +482,25 @@ class EventController extends BaseModuleController
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function invoice(Event $event)
+    {
+        $event->load([
+            'orders',
+            // Add customer, return inspection, and settlement
+            // relationships here when confirmed.
+        ]);
+
+        $pdf = Pdf::loadView(
+            $this->pathInitialize . '.partials.invoice-pdf',
+            [
+                'event' => $event,
+            ]
+        )->setPaper('a4', 'portrait');
+
+        return $pdf->download(
+            'invoice-' . $event->id . '.pdf'
+        );
     }
 }

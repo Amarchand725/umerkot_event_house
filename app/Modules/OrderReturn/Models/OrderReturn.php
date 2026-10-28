@@ -10,6 +10,9 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Status;
 use App\Models\User;
+use App\Modules\Event\Models\Event;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class OrderReturn extends Model
 {
@@ -49,5 +52,18 @@ class OrderReturn extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(
+            \App\Models\OrderReturnItem::class,
+            'order_return_id'
+        );
     }
 }

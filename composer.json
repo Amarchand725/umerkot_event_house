@@ -7,6 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "barryvdh/laravel-dompdf": "^3.1",
         "giggsey/libphonenumber-for-php": "^9.0",
         "imagine/imagine": "^1.5",
         "lab404/laravel-impersonate": "^1.7",

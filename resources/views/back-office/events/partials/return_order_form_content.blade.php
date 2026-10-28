@@ -112,6 +112,11 @@
                                     </td>
 
                                     <td>
+                                        <small class="text-muted d-block damage-calculation">
+                                            {{ number_format((float) ($orderItem?->item?->damage_charge ?? 0), 2) }}
+                                            × 0 = 0.00
+                                        </small>
+
                                         <input type="number"
                                             name="items[{{ $orderItem->id }}][damaged_quantity]"
                                             class="form-control quantity-input damaged-quantity"
@@ -119,19 +124,52 @@
                                             max="{{ (int) $orderItem->quantity }}"
                                             step="1"
                                             value="0"
+                                            data-damage-price="{{ $orderItem?->item?->damage_charge ?? 0 }}"
                                             required>
                                     </td>
 
                                     <td>
+                                        <small class="text-muted d-block missing-calculation">
+                                            {{ number_format((float) ($orderItem?->item?->replacement_charge ?? 0), 2) }}
+                                            × 0 = 0.00
+                                        </small>
+
+                                        <input type="number"
+                                            name="items[{{ $orderItem->id }}][missing_quantity]"
+                                            class="form-control quantity-input missing-quantity"
+                                            min="0"
+                                            max="{{ (int) $orderItem->quantity }}"
+                                            step="1"
+                                            value="0"
+                                            data-missing-price="{{ $orderItem?->item?->replacement_charge ?? 0 }}"
+                                            required>
+                                    </td>
+
+                                    {{-- <td>
+                                        <small>{{ $orderItem?->item?->damage_charge ?? 0 }}x{{ (int) $orderItem->quantity }}</small>
+                                        <input type="number"
+                                            name="items[{{ $orderItem->id }}][damaged_quantity]"
+                                            class="form-control quantity-input damaged-quantity"
+                                            min="0"
+                                            max="{{ (int) $orderItem->quantity }}"
+                                            step="1"
+                                            value="0"
+                                            data-damage-price="{{ $orderItem?->item?->damage_charge ?? 0 }}"
+                                            required>
+                                    </td>
+
+                                    <td>
+                                        <small>{{ $orderItem?->item?->replacement_charge ?? 0 }}x{{ (int) $orderItem->quantity }}</small>
                                         <input type="number"
                                             name="items[{{ $orderItem->id }}][missing_quantity]"
                                             class="form-control quantity-input missing-quantity"
                                             min="0"
                                             max="{{ (int) $orderItem->quantity }}"
                                             value="0"
+                                            data-missing-price="{{ $orderItem?->item?->replacement_charge ?? 0 }}"
                                             step="1"
                                             required>
-                                    </td>
+                                    </td> --}}
 
                                     <td>
                                         <textarea name="items[{{ $orderItem->id }}][inspection_notes]"
@@ -150,6 +188,97 @@
 
     {{-- Security Deposit Settlement --}}
     <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Security Deposit Settlement</h5>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Security Deposit Received (Rs.)</label>
+                    <input type="number"
+                        name="security_deposit_received"
+                        id="security_deposit_received"
+                        class="form-control"
+                        value="{{ number_format($securityDeposit, 2, '.', '') }}"
+                        min="0"
+                        step="0.01"
+                        readonly>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Damage Deduction (Rs.)</label>
+                    <input type="number"
+                        name="damage_deduction"
+                        id="damage_deduction"
+                        class="form-control"
+                        value="0.00"
+                        min="0"
+                        step="0.01"
+                        readonly>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Missing Item Deduction (Rs.)</label>
+                    <input type="number"
+                        name="missing_deduction"
+                        id="missing_deduction"
+                        class="form-control"
+                        value="0.00"
+                        min="0"
+                        step="0.01"
+                        readonly>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Total Deduction (Rs.)</label>
+                    <input type="number"
+                        name="total_deduction"
+                        id="total_deduction"
+                        class="form-control"
+                        value="0.00"
+                        min="0"
+                        step="0.01"
+                        readonly>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Refundable Deposit (Rs.)</label>
+                    <input type="number"
+                        name="refundable_deposit"
+                        id="refundable_deposit"
+                        class="form-control"
+                        value="{{ number_format($securityDeposit, 2, '.', '') }}"
+                        min="0"
+                        step="0.01"
+                        readonly>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Additional Amount Due (Rs.)</label>
+                    <input type="number"
+                        name="additional_amount_due"
+                        id="additional_amount_due"
+                        class="form-control"
+                        value="0.00"
+                        min="0"
+                        step="0.01"
+                        readonly>
+                </div>
+
+            </div>
+
+            <div class="alert alert-info mb-0">
+                Damage and missing deductions are calculated automatically
+                from the inspected quantities and applicable item charges.
+                Any amount exceeding the security deposit is shown as
+                Additional Amount Due. Final values must be verified by Laravel.
+            </div>
+        </div>
+    </div>
+
+    {{-- <div class="card mb-4">
         <div class="card-header">
             <h5 class="mb-0">Security Deposit Settlement</h5>
         </div>
@@ -228,7 +357,7 @@
                 Browser-calculated values are only previews.
             </div>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Return Status --}}
     <div class="card mb-4">
@@ -270,54 +399,101 @@
 
 <script>
 
+
 (function () {
-    document.querySelectorAll('.return-item-row').forEach(function (row) {
-        const issued = Number(row.dataset.issued || 0);
+    const rows = document.querySelectorAll('.return-item-row');
 
-        const goodInput = row.querySelector('.good-quantity');
-        const damagedInput = row.querySelector('.damaged-quantity');
-        const missingInput = row.querySelector('.missing-quantity');
+    const damageInput = document.getElementById('damage_deduction');
+    const missingInput = document.getElementById('missing_deduction');
+    const totalInput = document.getElementById('total_deduction');
+    const depositInput = document.getElementById('security_deposit_received');
+    const refundableInput = document.getElementById('refundable_deposit');
+    const additionalInput = document.getElementById('additional_amount_due');
 
-        function calculate(changedField) {
+    const money = value => (Number(value) || 0).toFixed(2);
+
+    function calculate(changedRow = null, changedField = null) {
+        let damageTotal = 0;
+        let missingTotal = 0;
+
+        rows.forEach(row => {
+            const issued = Number(row.dataset.issued) || 0;
+
+            const goodInput = row.querySelector('.good-quantity');
+            const damagedInput = row.querySelector('.damaged-quantity');
+            const missingQtyInput = row.querySelector('.missing-quantity');
+
             let good = Math.max(0, Math.floor(Number(goodInput.value) || 0));
             let damaged = Math.max(0, Math.floor(Number(damagedInput.value) || 0));
-            let missing = Math.max(0, Math.floor(Number(missingInput.value) || 0));
+            let missing = Math.max(0, Math.floor(Number(missingQtyInput.value) || 0));
 
-            if (changedField === 'good') {
+            // Recalculate the remaining quantity without exceeding issued qty.
+            if (row === changedRow && changedField === 'good') {
                 good = Math.min(good, issued);
-
-                // Keep damage unchanged where possible.
                 damaged = Math.min(damaged, issued - good);
-
-                // Calculate the remaining missing quantity.
                 missing = issued - good - damaged;
-            } else if (changedField === 'damaged') {
+            } else if (row === changedRow && changedField === 'damaged') {
                 damaged = Math.min(damaged, issued);
-
-                // Keep missing unchanged where possible.
                 missing = Math.min(missing, issued - damaged);
-
-                // Recalculate good.
                 good = issued - damaged - missing;
-            } else if (changedField === 'missing') {
+            } else if (row === changedRow && changedField === 'missing') {
                 missing = Math.min(missing, issued);
-
-                // Keep damage unchanged where possible.
                 damaged = Math.min(damaged, issued - missing);
-
-                // Recalculate good automatically.
+                good = issued - damaged - missing;
+            } else {
+                good = Math.min(good, issued);
+                damaged = Math.min(damaged, issued - good);
+                missing = Math.min(missing, issued - good - damaged);
                 good = issued - damaged - missing;
             }
 
             goodInput.value = good;
             damagedInput.value = damaged;
-            missingInput.value = missing;
-        }
+            missingQtyInput.value = missing;
 
-        goodInput.addEventListener('input', () => calculate('good'));
-        damagedInput.addEventListener('input', () => calculate('damaged'));
-        missingInput.addEventListener('input', () => calculate('missing'));
+            const damageRate = Number(damagedInput.dataset.damagePrice) || 0;
+            const replacementRate = Number(missingQtyInput.dataset.missingPrice) || 0;
+
+            const damageAmount = damaged * damageRate;
+            const missingAmount = missing * replacementRate;
+
+            row.querySelector('.damage-calculation').textContent =
+                `${money(damageRate)} × ${damaged} = ${money(damageAmount)}`;
+
+            row.querySelector('.missing-calculation').textContent =
+                `${money(replacementRate)} × ${missing} = ${money(missingAmount)}`;
+
+            damageTotal += damageAmount;
+            missingTotal += missingAmount;
+        });
+
+        // All items across all event orders.
+        damageInput.value = money(damageTotal);
+        missingInput.value = money(missingTotal);
+
+        const totalDeduction = damageTotal + missingTotal;
+        const deposit = Math.max(0, Number(depositInput.value) || 0);
+
+        totalInput.value = money(totalDeduction);
+        refundableInput.value = money(Math.max(0, deposit - totalDeduction));
+        additionalInput.value = money(Math.max(0, totalDeduction - deposit));
+    }
+
+    rows.forEach(row => {
+        row.querySelector('.good-quantity').addEventListener('input', function () {
+            calculate(row, 'good');
+        });
+
+        row.querySelector('.damaged-quantity').addEventListener('input', function () {
+            calculate(row, 'damaged');
+        });
+
+        row.querySelector('.missing-quantity').addEventListener('input', function () {
+            calculate(row, 'missing');
+        });
     });
+
+    calculate();
 })();
 
 </script>

@@ -1,5 +1,5 @@
 <?php
-namespace App\Core\Traits;
+namespace App\Traits;
 
 use Spatie\Activitylog\LogOptions;
 

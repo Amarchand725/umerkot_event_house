@@ -8,32 +8,38 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PermissionActionsMiddleware
 {
+    
     /**
      * Universal action-to-permission suffix map
-     * Used by all modules (categories, products.)
+     * Used by all modules
      */
     protected array $map = [
         // Standard REST actions
         'index' => 'list',
         'store' => 'create',
         'show' => 'view',
-        'edit' => 'edit',
+        'update' => 'edit',
         'destroy' => 'delete',
 
         // Common extended CRUD actions
         'bulkDelete' => 'bulk-delete',
-        'permanentDelete' => 'permanent-delete',
+        'permanentlyDestroy' => 'permanent-delete',
         'restore' => 'restore',
+        'exportCsv' => 'export',
+        'export' => 'export',
+        'download' => 'download',
 
         // User-specific
         'directPermission' => 'direct-permission',
-        'status' => 'status',
+        'statusUpdate' => 'status',
+
+        // Team-specific
+        'assignUsers' => 'assign-user',
+        'removeUser' => 'remove-user',
     ];
 
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next, string $prefix): Response
     {
@@ -51,8 +57,11 @@ class PermissionActionsMiddleware
         if ($suffix) {
             $permission = "{$prefix}-{$suffix}";
             if (!$user->can($permission)) {
-                return redirect()->route('back-office.auth.dashboard') // you can create a named route
-                ->with('error', "You do not have required authorization");
+                return response()->json([
+                    'success' => false,
+                    "status_code" => 403,
+                    'message' => "You do not have required authorization: {$permission}.",
+                ], 403);
             }
         }
 

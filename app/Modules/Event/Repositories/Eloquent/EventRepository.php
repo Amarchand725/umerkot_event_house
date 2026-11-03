@@ -10,6 +10,7 @@ use App\Repositories\Eloquent\BaseRepository;
 use App\Modules\Event\Repositories\Contracts\EventContract;
 use App\Modules\Event\Models\Event;
 use App\Modules\Order\Models\Order;
+use App\Modules\OrderReturn\Models\OrderReturn;
 use App\Modules\Package\Models\Package;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\ValidationException;
@@ -993,9 +994,9 @@ class EventRepository extends BaseRepository implements EventContract
                 'notes' => $payload['notes'] ?? null,
 
                 // Replace with your actual document number generator.
-                'return_number' => app(
-                    \App\Services\DocumentNumberService::class
-                )->generate('order_return'),
+                // 'return_number' => app(
+                //     \App\Services\DocumentNumberService::class
+                // )->generate('order_return'),
             ]);
 
             foreach ($preparedItems as $itemData) {

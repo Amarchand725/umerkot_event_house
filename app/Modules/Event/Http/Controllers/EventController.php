@@ -11,15 +11,14 @@ use App\Modules\Event\Models\Event;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use App\Http\Requests\EventOrderRequest;
-use App\Http\Requests\OrderReturnRequest;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\Status;
 use App\Modules\InventoryItem\Models\InventoryItem;
 use App\Modules\EventCategory\Models\EventCategory;
 use App\Modules\InventoryCategory\Models\InventoryCategory;
+use App\Modules\OrderReturn\Http\Requests\OrderReturnRequest;
 use App\Modules\Package\Models\Package;
 use App\Modules\PaymentMethod\Models\PaymentMethod;
 use App\Modules\Service\Models\Service;
@@ -463,7 +462,7 @@ class EventController extends BaseModuleController
 
     public function storeReturnOrder(OrderReturnRequest $request, Event $event){
         $payload = $request->validated();
-
+        
         try {
             $response = DB::transaction(function () use ($event, $payload) {
                 return $this->eventRepo->storeReturnOrder($event, $payload);

@@ -13,10 +13,19 @@
             </div>
 
             <div class="d-flex gap-2 mt-3 mt-md-0">
-                <a href="{{ route('back-office.orders.create') }}"
-                   class="btn btn-primary">
-                    <i class="ti ti-plus me-1"></i> New Order
-                </a>
+                <x-action-button
+                    type="button"
+                    id="add-btn"
+                    btn-class="btn btn-primary add-btn mb-3 mb-md-0 mx-2"
+                    title="New Order"
+                    label="New Order"
+                    data-bs-toggle="modal"
+                    data-bs-target="#create-pop-up-modal-for-file"
+                    :data-attributes="[
+                        'data-url' => route('back-office.events.store'),
+                        'data-create-url' => route('back-office.events.create')
+                    ]"
+                />
             </div>
         </div>
 

@@ -28,7 +28,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // return redirect()->intended(route('back-office.auth.dashboard', absolute: false));
         return response()->json([
             'status' => 'success',
             'message' => 'Login successful',

@@ -18,7 +18,7 @@ class Payment extends Model
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
     protected $fillable = [
-        'payment_number', 'status_id', 'invoice_id ', 'payment_method_id', 
+        'payment_number', 'status_id', 'invoice_id', 'payment_method_id',
         'amount', 'paid_at', 'note'
     ];
 
@@ -62,5 +62,13 @@ class Payment extends Model
     public function paymentMethod()
     {
         return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
+    }
+
+    public function invoice()
+    {
+        return $this->belongsTo(
+            \App\Models\Invoice::class,
+            'invoice_id'
+        );
     }
 }

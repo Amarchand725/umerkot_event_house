@@ -71,4 +71,12 @@ class Order extends Model
     {
         return $this->hasOne(Invoice::class, 'order_id', 'id');
     }
+
+    public function event()
+    {
+        return $this->belongsTo(
+            \App\Modules\Event\Models\Event::class,
+            'event_id'
+        );
+    }
 }

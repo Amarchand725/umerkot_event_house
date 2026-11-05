@@ -245,7 +245,7 @@
                 </div>
             </a>
         </li>
-        @endcan  
+        @endcan
 
         <li class="menu-header small text-uppercase">
             <span class="menu-header-text">SYSTEM</span>

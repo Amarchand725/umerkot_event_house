@@ -105,7 +105,7 @@ class UserController extends BaseModuleController
         $payload['phone'] = $parsed['e164'];
         $payload['numeric_code'] = $parsed['numeric_code'];
         $payload['iso_code'] = $parsed['iso_code'];
-        
+
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {
@@ -247,7 +247,7 @@ class UserController extends BaseModuleController
         $request->validate([
             'password' => 'required|min:8',
         ]);
-        
+
         try {
             $this->userRepo->updateModel($user, ['password' => $request->password]);
             return successResponse([], module_message('changed_password', $this->singularLabel));

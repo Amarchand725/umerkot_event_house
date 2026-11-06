@@ -245,6 +245,18 @@ class PermissionSeeder extends Seeder
             'order-view',
             'order-edit',
             'order-delete',
+
+            /*
+            Reports Management
+            |--------------------------------------------------------------------------
+            */
+            'report-list',
+            'report-events',
+            'report-orders',
+            'report-payments',
+            'report-settlements',
+            'report-inventory',
+            'report-customers',
         ];
     }
 

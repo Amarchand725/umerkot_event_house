@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\BackOffice\BaseModuleController;
 use Illuminate\Http\Request;
+use App\Modules\Event\Models\Event;
+use App\Modules\Order\Models\Order;
+use App\Modules\Customer\Models\Customer;
+use App\Modules\InventoryItem\Models\InventoryItem;
 
 class ReportController extends BaseModuleController
 {
@@ -30,9 +35,10 @@ class ReportController extends BaseModuleController
     public function index()
     {
         $stats = [
-            'events' => $this->eventModel->count(),
-            'orders' => $this->orderModel->count(),
-            'customers' => $this->customerModel->count(),
+            'total_events' => $this->eventModel->count(),
+            'total_orders' => $this->orderModel->count(),
+            'total_customers' => $this->customerModel->count(),
+            'total_payments' => $this->customerModel->count(),
         ];
 
         return view(strtolower($this->pathInitialize.'.index'), $this->viewWithVars(get_defined_vars()));
@@ -43,6 +49,7 @@ class ReportController extends BaseModuleController
      */
     public function events(Request $request)
     {
+        $title = "Event";
         $query = $this->eventModel->with(['customer', 'orders']);
 
         $this->applyDateFilter($query, $request, 'event_date');
@@ -66,7 +73,7 @@ class ReportController extends BaseModuleController
             ->paginate(15)
             ->withQueryString();
 
-        return view($this->pathInitialize . '.events', compact('events'));
+        return view($this->pathInitialize . '.events', $this->viewWithVars(get_defined_vars()));
     }
 
     /**
@@ -74,6 +81,7 @@ class ReportController extends BaseModuleController
      */
     public function orders(Request $request)
     {
+        $title = "Order";
         $query = $this->orderModel->with(['event.customer']);
 
         $this->applyDateFilter($query, $request, 'created_at');
@@ -101,7 +109,7 @@ class ReportController extends BaseModuleController
             ->paginate(15)
             ->withQueryString();
 
-        return view($this->pathInitialize . '.orders', compact('orders'));
+        return view($this->pathInitialize . '.orders', $this->viewWithVars(get_defined_vars()));
     }
 
     /**
@@ -109,6 +117,7 @@ class ReportController extends BaseModuleController
      */
     public function payments(Request $request)
     {
+        $title = "Payment";
         // Reuse the existing event-wise payment calculation.
         $query = $this->eventModel->with([
             'orders',
@@ -130,7 +139,7 @@ class ReportController extends BaseModuleController
             ->paginate(15)
             ->withQueryString();
 
-        return view($this->pathInitialize . '.payments', compact('events'));
+        return view($this->pathInitialize . '.payments', $this->viewWithVars(get_defined_vars()));
     }
 
     /**
@@ -138,6 +147,7 @@ class ReportController extends BaseModuleController
      */
     public function settlements(Request $request)
     {
+        $title = "Settlement";
         $query = $this->eventModel->with([
             'orders',
             // Add return inspection relationships here.
@@ -157,7 +167,7 @@ class ReportController extends BaseModuleController
             ->paginate(15)
             ->withQueryString();
 
-        return view($this->pathInitialize . '.settlements', compact('events'));
+        return view($this->pathInitialize . '.settlements', $this->viewWithVars(get_defined_vars()));
     }
 
     /**
@@ -165,6 +175,7 @@ class ReportController extends BaseModuleController
      */
     public function inventory(Request $request)
     {
+        $title = "Inventry";
         $query = $this->inventoryItemModel->query();
 
         if ($request->filled('search')) {
@@ -177,7 +188,7 @@ class ReportController extends BaseModuleController
             ->paginate(15)
             ->withQueryString();
 
-        return view($this->pathInitialize . '.inventory', compact('items'));
+        return view($this->pathInitialize . '.inventory', $this->viewWithVars(get_defined_vars()));
     }
 
     /**
@@ -185,6 +196,7 @@ class ReportController extends BaseModuleController
      */
     public function customers(Request $request)
     {
+        $title = "Customer";
         $query = $this->customerModel->with(['events']);
 
         if ($request->filled('search')) {
@@ -200,7 +212,7 @@ class ReportController extends BaseModuleController
             ->paginate(15)
             ->withQueryString();
 
-        return view($this->pathInitialize . '.customers', compact('customers'));
+        return view($this->pathInitialize . '.customers', $this->viewWithVars(get_defined_vars()));
     }
 
     /**

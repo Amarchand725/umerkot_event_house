@@ -1,23 +1,23 @@
 <x-app-layout>
     @section('title', ($title ?? '').' - '. config('app.name', '100 KEYS UAE'))
-    
+
     <div class="content-wrapper">
         <div class="container-xxl flex-grow-1 container-p-y">
             <div class="card mb-4">
                 <div class="row">
                     <div class="col-md-8">
                         <div class="card-header">
-                            <h4 class="fw-bold mb-0"><span class="text-muted fw-light">Home /</span> {{ $title }} 
+                            <h4 class="fw-bold mb-0"><span class="text-muted fw-light">Home /</span> {{ $title }}
                                 <span class="badge rounded-pill px-3 py-2 bg-primary text-white">
                                     {{ $total_count }} {{ module_label('module_title', $pluralLabel) }}
-                                </span> 
+                                </span>
                             </h4>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="dt-buttons btn-group flex-wrap float-end mt-4">
                             <button id="refresh-record" class="btn btn-success mx-2" title="{{ module_label('tooltip_refresh', $pluralLabel) }}"><i class="ti ti-refresh me-0 ti-xs"></i></button>
-                        
+
                             @can($permissionPrefix.'-create')
                                 <x-action-button
                                     type="button"

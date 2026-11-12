@@ -18,7 +18,7 @@
                     value="{{ $event->ulid }}"
                     {{ old('event_id') == $event->ulid ? 'selected' : '' }}
                 >
-                    {{ $event->name }}
+                    {{ $event?->eventCategory?->name }}
                 </option>
             @endforeach
         </select>

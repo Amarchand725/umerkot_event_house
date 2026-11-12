@@ -3,6 +3,10 @@
 namespace App\Modules\Expense\Http\Requests;
 
 use App\Models\Status;
+use App\Models\Attachment;
+use App\Modules\Event\Models\Event;
+use App\Modules\ExpenseCategory\Models\ExpenseCategory;
+use App\Modules\PaymentMethod\Models\PaymentMethod;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ExpenseRequest extends FormRequest

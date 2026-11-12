@@ -239,9 +239,9 @@
                                     <li class="nav-item">
                                         <button class="nav-link active"
                                             data-bs-toggle="tab"
-                                            data-bs-target="#{{ $orderTabId }}-summary"
+                                            data-bs-target="#{{ $orderTabId }}-inventory"
                                             type="button">
-                                            Summary
+                                            Inventory
                                         </button>
                                     </li>
 
@@ -253,80 +253,74 @@
                                             Packages
                                         </button>
                                     </li>
-
-                                    <li class="nav-item">
-                                        <button class="nav-link"
-                                            data-bs-toggle="tab"
-                                            data-bs-target="#{{ $orderTabId }}-inventory"
-                                            type="button">
-                                            Inventory
-                                        </button>
-                                    </li>
-
-                                    <li class="nav-item">
-                                        <button class="nav-link"
-                                            data-bs-toggle="tab"
-                                            data-bs-target="#{{ $orderTabId }}-invoices"
-                                            type="button">
-                                            Invoices
-                                        </button>
-                                    </li>
                                 </ul>
 
                                 <div class="tab-content">
 
-                                    {{-- SUMMARY --}}
+                                    {{-- INVENTORY --}}
                                     <div class="tab-pane fade show active"
-                                        id="{{ $orderTabId }}-summary">
-
-                                        <div class="row g-3">
-
-                                            <div class="col-md-3 col-6">
-                                                <small class="text-muted d-block">
-                                                    Items
-                                                </small>
-                                                <h6>{{ $orderItems->count() }}</h6>
-                                            </div>
-
-                                            <div class="col-md-3 col-6">
-                                                <small class="text-muted d-block">
-                                                    Grand Total
-                                                </small>
-                                                <h6>
-                                                    Rs. {{ number_format((float) $order->grand_total, 2) }}
-                                                </h6>
-                                            </div>
-
-                                            <div class="col-md-3 col-6">
-                                                <small class="text-muted d-block">
-                                                    Discount
-                                                </small>
-                                                <h6 class="text-danger">
-                                                    Rs. {{ number_format((float) $order->discount, 2) }}
-                                                </h6>
-                                            </div>
-
-                                            <div class="col-md-3 col-6">
-                                                <small class="text-muted d-block">
-                                                    Security Deposit
-                                                </small>
-                                                <h6>
-                                                    Rs. {{ number_format((float) $order->security_deposit, 2) }}
-                                                </h6>
-                                            </div>
-
+                                        id="{{ $orderTabId }}-inventory">
+                                        @if($orderItems->isNotEmpty())
                                             <div class="col-12">
-                                                <div class="p-3 bg-light rounded">
-                                                    <small class="text-muted d-block">
-                                                        Payable Amount
-                                                    </small>
-                                                    <h4 class="mb-0 text-primary">
-                                                        Rs. {{ number_format((float) $order->payable_amount, 2) }}
-                                                    </h4>
+                                                <div class="card border shadow-none mb-4">
+                                                    <div class="card-header">
+                                                        <h5 class="mb-0">
+                                                            <i class="ti ti-package me-1"></i>
+                                                            Inventory Items
+                                                            <span class="badge bg-label-secondary ms-2">
+                                                                {{ $orderItems->count() }}
+                                                            </span>
+                                                        </h5>
+                                                    </div>
+
+                                                    <div class="card-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-bordered mb-0">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Category</th>
+                                                                        <th>Item</th>
+                                                                        <th class="text-end">Qty</th>
+                                                                        <th class="text-end">Unit Price</th>
+                                                                        <th class="text-end">Subtotal</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach($orderItems as $orderItem)
+                                                                        @php
+                                                                            $quantity = ($orderItem->quantity ?? 0);
+                                                                            $unitPrice = (float) ($orderItem->pivot?->unit_price ?? $orderItem->unit_price ?? 0);
+                                                                            $subtotal = (float) ($orderItem->pivot?->subtotal ?? $orderItem->subtotal ?? ($quantity * $unitPrice));
+                                                                            $categoryName = '-';
+                                                                            $itemName = '-';
+                                                                            if($orderItem->inventory_item_id != null) {
+                                                                                $categoryName = 'Inventory';
+                                                                                $itemName = $orderItem->item?->name ?? '-';
+                                                                            } elseif ($orderItem->service_id != null) {
+                                                                                $categoryName = 'Service';
+                                                                                $itemName = $orderItem->service?->name ?? '-';
+                                                                            }else{
+                                                                                $categoryName = 'Package';
+                                                                                $itemName = $orderItem->package?->name ?? '-';
+                                                                            }
+                                                                        @endphp
+
+                                                                        <tr>
+                                                                            <td>{{ $categoryName }}</td>
+                                                                            <td>{{ $itemName }}</td>
+                                                                            <td class="text-end">{{ $quantity }}</td>
+                                                                            <td class="text-end">Rs. {{ number_format($unitPrice, 2) }}</td>
+                                                                            <td class="text-end">Rs. {{ number_format($subtotal, 2) }}</td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
+                                        @endif
 
-                                        </div>
                                     </div>
 
                                     {{-- PACKAGES --}}
@@ -464,209 +458,6 @@
 
                                     </div>
 
-                                    {{-- INVENTORY --}}
-                                    <div class="tab-pane fade"
-                                        id="{{ $orderTabId }}-inventory">
-                                        @if($orderItems->isNotEmpty())
-                                            <div class="col-12">
-                                                <div class="card border shadow-none mb-4">
-                                                    <div class="card-header">
-                                                        <h5 class="mb-0">
-                                                            <i class="ti ti-package me-1"></i>
-                                                            Inventory Items
-                                                            <span class="badge bg-label-secondary ms-2">
-                                                                {{ $orderItems->count() }}
-                                                            </span>
-                                                        </h5>
-                                                    </div>
-
-                                                    <div class="card-body">
-                                                        <div class="table-responsive">
-                                                            <table class="table table-bordered mb-0">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Category</th>
-                                                                        <th>Item</th>
-                                                                        <th class="text-end">Qty</th>
-                                                                        <th class="text-end">Unit Price</th>
-                                                                        <th class="text-end">Subtotal</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @foreach($orderItems as $orderItem)
-                                                                        @php
-                                                                            $quantity = ($orderItem->quantity ?? 0);
-                                                                            $unitPrice = (float) ($orderItem->pivot?->unit_price ?? $orderItem->unit_price ?? 0);
-                                                                            $subtotal = (float) ($orderItem->pivot?->subtotal ?? $orderItem->subtotal ?? ($quantity * $unitPrice));
-                                                                            $categoryName = '-';
-                                                                            $itemName = '-';
-                                                                            if($orderItem->inventory_item_id != null) {
-                                                                                $categoryName = 'Inventory';
-                                                                                $itemName = $orderItem->item?->name ?? '-';
-                                                                            } elseif ($orderItem->service_id != null) {
-                                                                                $categoryName = 'Service';
-                                                                                $itemName = $orderItem->service?->name ?? '-';
-                                                                            }else{
-                                                                                $categoryName = 'Package';
-                                                                                $itemName = $orderItem->package?->name ?? '-';
-                                                                            }
-                                                                        @endphp
-
-                                                                        <tr>
-                                                                            <td>{{ $categoryName }}</td>
-                                                                            <td>{{ $itemName }}</td>
-                                                                            <td class="text-end">{{ $quantity }}</td>
-                                                                            <td class="text-end">Rs. {{ number_format($unitPrice, 2) }}</td>
-                                                                            <td class="text-end">Rs. {{ number_format($subtotal, 2) }}</td>
-                                                                        </tr>
-                                                                    @endforeach
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
-
-                                    </div>
-
-                                    {{-- INVOICES --}}
-                                    <div class="tab-pane fade"
-                                        id="{{ $orderTabId }}-invoices">
-                                        <div class="card-body border-top">
-                                            <h6 class="mb-3">Invoice Summary</h6>
-
-                                            @forelse ($model->invoices ?? [] as $invoice)
-                                                <div class="border rounded p-3 mb-3">
-                                                    <div class="row g-3">
-                                                        <div class="col-12 col-md-4">
-                                                            <small class="text-muted d-block">Invoice Number</small>
-                                                            <div class="fw-semibold">
-                                                                {{ $invoice->invoice_number ?? '-' }}
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-12 col-md-4">
-                                                            <small class="text-muted d-block">Invoice Created</small>
-                                                            <div class="fw-semibold">
-                                                                {{ $invoice->created_at?->format('d M Y, h:i A') ?? '-' }}
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-12 col-md-4">
-                                                            <small class="text-muted d-block">Issue Date</small>
-                                                            <div class="fw-semibold">
-                                                                {{ $invoice->issued_at ?? '-' }}
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-12 col-md-4">
-                                                            <small class="text-muted d-block">Due Date</small>
-                                                            <div class="fw-semibold">
-                                                                {{ $invoice->due_at ?? '-' }}
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-12 col-md-4">
-                                                            <small class="text-muted d-block">Discount</small>
-                                                            <div class="fw-semibold text-danger">
-                                                                {{ number_format((float) ($invoice->discount ?? 0), 2) }}
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-12 col-md-4">
-                                                            <small class="text-muted d-block">Payable Amount</small>
-                                                            <div class="fw-semibold text-primary">
-                                                                {{ number_format((float) ($invoice->payable_amount ?? 0), 2) }}
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-12 col-md-4">
-                                                            <small class="text-muted d-block">Payment Paid</small>
-                                                            <div class="fw-semibold text-success">
-                                                                {{ number_format((float) ($invoice->payment->amount ?? 0), 2) }}
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-12 col-md-4">
-                                                            <small class="text-muted d-block">Outstanding Amount</small>
-                                                            <div class="fw-semibold text-danger">
-                                                                {{ number_format(max(0, (float) ($invoice->payable_amount ?? 0) - (float) ($invoice->payment->amount ?? 0)), 2) }}
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-12 col-md-4">
-                                                            <small class="text-muted d-block">Status</small>
-                                                            <div class="fw-semibold">
-                                                                {{ $invoice->status?->name ?? '-' }}
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-12">
-                                                            <small class="text-muted d-block">Invoice Note</small>
-                                                            <div class="fw-semibold">
-                                                                {{ $invoice->note ?: '-' }}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {{-- Payment Details --}}
-                                                    <div class="border-top mt-3 pt-3">
-                                                        <h6 class="mb-3">Payment Details</h6>
-                                                        @if($invoice->payment)
-                                                            @php
-                                                                $payment = $invoice->payment;
-                                                            @endphp
-                                                            <div class="bg-light rounded p-3 mb-2">
-                                                                <div class="row g-3">
-                                                                    <div class="col-12 col-md-4">
-                                                                        <small class="text-muted d-block">Payment Number</small>
-                                                                        <div class="fw-semibold">
-                                                                            {{ $payment->payment_number ?? '-' }}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-12 col-md-4">
-                                                                        <small class="text-muted d-block">Amount</small>
-                                                                        <div class="fw-semibold text-success">
-                                                                            {{ number_format((float) ($payment->amount ?? 0), 2) }}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-12 col-md-4">
-                                                                        <small class="text-muted d-block">Payment Method</small>
-                                                                        <div class="fw-semibold">
-                                                                            {{ $payment->paymentMethod?->name ?? '-' }}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-12 col-md-4">
-                                                                        <small class="text-muted d-block">Paid At</small>
-                                                                        <div class="fw-semibold">
-                                                                            {{ $payment->paid_at ?? '-' }}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-12">
-                                                                        <small class="text-muted d-block">Payment Note</small>
-                                                                        <div class="fw-semibold">
-                                                                            {{ $payment->note ?: '-' }}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @else
-                                                            <p class="text-muted mb-0">No payment recorded for this invoice.</p>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            @empty
-                                                <p class="text-muted mb-0">No invoices created for this order.</p>
-                                            @endforelse
-                                        </div>
-
-                                    </div>
-
                                 </div>
                             </div>
                         </div>
@@ -682,122 +473,319 @@
                 </div>
 
                 {{-- PAYMENTS TAB --}}
-                <div class="tab-pane fade"
-                    id="payments-tab" role="tabpanel">
+                <div class="tab-pane fade" id="payments-tab" role="tabpanel">
 
                     @php
-                        $orders = $model->orders;
+                        $money = fn ($amount) => number_format((float) $amount, 2);
 
-                        $grandTotal = (float) $orders->sum('grand_total');
-                        $totalDiscount = (float) $orders->sum('discount');
-                        $totalPaid = (float) $orders->sum('paid_amount');
+                        $orders = $event->orders;
 
-                        $totalOutstanding = (float) $orders->sum(
-                            fn ($order) => max(
-                                0,
-                                (float) $order->payable_amount
-                                - (float) $order->paid_amount
-                            )
-                        );
+                        $totalOrderAmount = 0;
+                        $totalDiscount = 0;
+                        $totalPayable = 0;
+                        $totalPaid = 0;
+                        $totalOutstanding = 0;
 
                         $totalSecurityDeposit = (float) $orders->sum('security_deposit');
+
+                        $paymentHistory = collect();
+
+                        foreach ($orders as $order) {
+                            $orderGrandTotal = (float) ($order->grand_total ?? 0);
+
+                            $orderDiscount = (float) ($order->discount ?? 0);
+                            $invoiceDiscount = (float) ($order->invoice?->discount ?? 0);
+
+                            $combinedDiscount = $orderDiscount + $invoiceDiscount;
+
+                            $payableAmount = max(0, $orderGrandTotal - $combinedDiscount);
+
+                            $payments = $order->invoice?->payments ?? collect();
+
+                            $orderPaid = $payments
+                                ->filter(fn ($payment) =>
+                                    $payment->status?->name === 'Completed'
+                                )
+                                ->sum('amount');
+
+                            $orderOutstanding = max(0, $payableAmount - $orderPaid);
+
+                            $totalOrderAmount += $orderGrandTotal;
+                            $totalDiscount += $combinedDiscount;
+                            $totalPayable += $payableAmount;
+                            $totalPaid += $orderPaid;
+                            $totalOutstanding += $orderOutstanding;
+
+                            foreach ($payments as $payment) {
+                                $paymentHistory->push([
+                                    'date' => $payment->created_at,
+                                    'order' => $order->order_number ?? $order->id,
+                                    'amount' => (float) $payment->amount,
+                                    'discount' => (float) ($payment->discount ?? 0),
+                                    'method' => $payment?->paymentMethod?->name ?? '-',
+                                    'status' => $payment->status?->name ?? 'Pending',
+                                ]);
+                            }
+                        }
+
+                        $paymentHistory = $paymentHistory
+                            ->sortByDesc('date')
+                            ->values();
 
                         $paymentStatus = $totalOutstanding <= 0.01
                             ? 'Paid'
                             : 'Outstanding';
-
-                        $money = fn ($amount) => number_format((float) $amount, 2);
                     @endphp
 
                     <div class="card border shadow-none mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
-                                <i class="ti ti-wallet me-1"></i>
-                                Event Payment Summary
-                            </h5>
 
-                            <span class="badge rounded-pill px-3 py-2
-                                {{ $paymentStatus === 'Paid'
-                                    ? 'bg-success'
-                                    : 'bg-warning text-dark' }}">
-                                {{ $paymentStatus }}
-                            </span>
+                        {{-- Sub Tabs --}}
+                        <div class="card-header pb-0">
+                            <ul class="nav nav-tabs" role="tablist">
+
+                                <li class="nav-item">
+                                    <button
+                                        class="nav-link active"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#payment-summary"
+                                        type="button"
+                                        role="tab">
+                                        <i class="ti ti-wallet me-1"></i>
+                                        Payment Summary
+                                    </button>
+                                </li>
+
+                                <li class="nav-item">
+                                    <button
+                                        class="nav-link"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#payment-history"
+                                        type="button"
+                                        role="tab">
+                                        <i class="ti ti-history me-1"></i>
+                                        Payment History
+
+                                        <span class="badge bg-label-primary ms-1">
+                                            {{ $paymentHistory->count() }}
+                                        </span>
+                                    </button>
+                                </li>
+
+                            </ul>
                         </div>
 
-                        <div class="card-body">
-                            <div class="row g-3">
+                        <div class="card-body mt-4">
 
-                                <div class="col-12 col-md-4">
-                                    <div class="border rounded p-3 h-100">
-                                        <small class="text-muted d-block mb-2">
-                                            Grand Total
-                                        </small>
+                            <div class="tab-content p-0">
+
+                                {{-- PAYMENT SUMMARY --}}
+                                <div
+                                    class="tab-pane fade show active"
+                                    id="payment-summary"
+                                    role="tabpanel">
+
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h5 class="mb-0">
-                                            Rs. {{ $money($grandTotal) }}
+                                            Event Payment Summary
                                         </h5>
-                                    </div>
-                                </div>
 
-                                <div class="col-12 col-md-4">
-                                    <div class="border rounded p-3 h-100">
-                                        <small class="text-muted d-block mb-2">
-                                            Total Discount
-                                        </small>
-                                        <h5 class="text-danger mb-0">
-                                            Rs. {{ $money($totalDiscount) }}
-                                        </h5>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 col-md-4">
-                                    <div class="border rounded p-3 h-100">
-                                        <small class="text-muted d-block mb-2">
-                                            Total Paid
-                                        </small>
-                                        <h5 class="text-success mb-0">
-                                            Rs. {{ $money($totalPaid) }}
-                                        </h5>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 col-md-4">
-                                    <div class="border rounded p-3 h-100">
-                                        <small class="text-muted d-block mb-2">
-                                            Total Outstanding
-                                        </small>
-                                        <h5 class="text-danger mb-0">
-                                            Rs. {{ $money($totalOutstanding) }}
-                                        </h5>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 col-md-4">
-                                    <div class="border rounded p-3 h-100">
-                                        <small class="text-muted d-block mb-2">
-                                            Security Deposit
-                                        </small>
-                                        <h5 class="text-primary mb-0">
-                                            Rs. {{ $money($totalSecurityDeposit) }}
-                                        </h5>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 col-md-4">
-                                    <div class="border rounded p-3 h-100">
-                                        <small class="text-muted d-block mb-2">
-                                            Payment Status
-                                        </small>
-                                        <h5 class="mb-0 {{ $paymentStatus === 'Paid'
-                                            ? 'text-success'
-                                            : 'text-warning' }}">
+                                        <span class="badge rounded-pill px-3 py-2
+                                            {{ $paymentStatus === 'Paid'
+                                                ? 'bg-success'
+                                                : 'bg-warning text-dark' }}">
                                             {{ $paymentStatus }}
-                                        </h5>
+                                        </span>
                                     </div>
+
+                                    <div class="row g-3">
+
+                                        <div class="col-12 col-md-4">
+                                            <div class="border rounded p-3 h-100">
+                                                <small class="text-muted d-block mb-2">
+                                                    Grand Total
+                                                </small>
+                                                <h5 class="mb-0">
+                                                    Rs. {{ $money($totalOrderAmount) }}
+                                                </h5>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-md-4">
+                                            <div class="border rounded p-3 h-100">
+                                                <small class="text-muted d-block mb-2">
+                                                    Total Discount
+                                                </small>
+                                                <h5 class="text-danger mb-0">
+                                                    Rs. {{ $money($totalDiscount) }}
+                                                </h5>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-md-4">
+                                            <div class="border rounded p-3 h-100">
+                                                <small class="text-muted d-block mb-2">
+                                                    Total Payable
+                                                </small>
+                                                <h5 class="mb-0">
+                                                    Rs. {{ $money($totalPayable) }}
+                                                </h5>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-md-4">
+                                            <div class="border rounded p-3 h-100">
+                                                <small class="text-muted d-block mb-2">
+                                                    Total Paid
+                                                </small>
+                                                <h5 class="text-success mb-0">
+                                                    Rs. {{ $money($totalPaid) }}
+                                                </h5>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-md-4">
+                                            <div class="border rounded p-3 h-100">
+                                                <small class="text-muted d-block mb-2">
+                                                    Total Outstanding
+                                                </small>
+                                                <h5 class="text-danger mb-0">
+                                                    Rs. {{ $money($totalOutstanding) }}
+                                                </h5>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-md-4">
+                                            <div class="border rounded p-3 h-100">
+                                                <small class="text-muted d-block mb-2">
+                                                    Security Deposit
+                                                </small>
+                                                <h5 class="text-primary mb-0">
+                                                    Rs. {{ $money($totalSecurityDeposit) }}
+                                                </h5>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                {{-- PAYMENT HISTORY --}}
+                                <div
+                                    class="tab-pane fade"
+                                    id="payment-history"
+                                    role="tabpanel">
+
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h5 class="mb-1">Payment History</h5>
+                                            <small class="text-muted">
+                                                Complete payment transactions for this event.
+                                            </small>
+                                        </div>
+
+                                        <span class="badge bg-label-primary">
+                                            {{ $paymentHistory->count() }} Transactions
+                                        </span>
+                                    </div>
+
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Date</th>
+                                                    <th>Order</th>
+                                                    <th>Paid Amount</th>
+                                                    <th>Discount</th>
+                                                    <th>Payment Method</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                @forelse ($paymentHistory as $index => $payment)
+                                                    <tr>
+                                                        <td>{{ $index + 1 }}</td>
+
+                                                        <td>
+                                                            {{ $payment['date']?->format('d M Y') ?? '-' }}
+                                                            <small class="d-block text-muted">
+                                                                {{ $payment['date']?->format('h:i A') ?? '' }}
+                                                            </small>
+                                                        </td>
+
+                                                        <td>
+                                                            <span class="fw-medium">
+                                                                {{ $payment['order'] }}
+                                                            </span>
+                                                        </td>
+
+                                                        <td class="text-success fw-semibold">
+                                                            Rs. {{ $money($payment['amount']) }}
+                                                        </td>
+
+                                                        <td class="text-danger fw-semibold">
+                                                            Rs. {{ $money($payment['discount']) }}
+                                                        </td>
+
+                                                        <td>
+                                                            {{ $payment['method'] }}
+                                                        </td>
+
+                                                        <td>
+                                                            <span class="badge
+                                                                {{ $payment['status'] === 'Completed'
+                                                                    ? 'bg-success'
+                                                                    : ($payment['status'] === 'Pending'
+                                                                        ? 'bg-warning text-dark'
+                                                                        : 'bg-secondary') }}">
+                                                                {{ $payment['status'] }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                @empty
+                                                    <tr>
+                                                        <td colspan="7" class="text-center py-4">
+                                                            <i class="ti ti-receipt-off fs-2 d-block text-muted mb-2"></i>
+                                                            <span class="text-muted">
+                                                                No payment transactions found.
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                @endforelse
+                                            </tbody>
+
+                                            @if ($paymentHistory->isNotEmpty())
+                                                <tfoot>
+                                                    <tr class="border-top">
+                                                        <th colspan="3" class="text-end">
+                                                            Total
+                                                        </th>
+
+                                                        <th class="text-success">
+                                                            Rs. {{ $money($paymentHistory
+                                                                ->where('status', 'Completed')
+                                                                ->sum('amount')) }}
+                                                        </th>
+
+                                                        <th class="text-danger">
+                                                            Rs. {{ $money($paymentHistory
+                                                                ->sum('discount')) }}
+                                                        </th>
+
+                                                        <th colspan="2"></th>
+                                                    </tr>
+                                                </tfoot>
+                                            @endif
+
+                                        </table>
+                                    </div>
+
                                 </div>
 
                             </div>
                         </div>
                     </div>
+
                 </div>
 
                 {{-- RECORD TAB --}}

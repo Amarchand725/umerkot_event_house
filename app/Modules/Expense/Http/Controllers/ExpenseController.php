@@ -10,15 +10,25 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Status;
+use App\Modules\Event\Models\Event;
+use App\Modules\ExpenseCategory\Models\ExpenseCategory;
+use App\Modules\PaymentMethod\Models\PaymentMethod;
 
 class ExpenseController extends BaseModuleController
 {
     protected $status;
+    protected $paymentMethod;
+    protected $expenseCategories;
+    protected $event;
 
     public function __construct(
         protected ExpenseContract $expenseRepo
     ){
         $this->status = new Status();
+        $this->paymentMethod = new PaymentMethod();
+        $this->expenseCategories = new ExpenseCategory();
+        $this->event = new Event();
+
         // Initialize common module variables automatically
         $this->autoInit();
     }
@@ -77,7 +87,12 @@ class ExpenseController extends BaseModuleController
 
     public function create()
     {
-        return (string) view($this->pathInitialize.'.create_content', get_defined_vars());
+        $formData = $this->getFormData();
+
+        return (string) view(
+            $this->pathInitialize.'.create_content',
+            array_merge($formData, get_defined_vars())
+        );
     }
 
     public function store(ExpenseRequest $request)
@@ -99,9 +114,14 @@ class ExpenseController extends BaseModuleController
 
     public function edit(Expense $expense)
     {
+        $formData = $this->getFormData();
         $statuses = $this->status->where('model', 'Expense')->get();
         $model = $this->expenseRepo->showModel($expense);
-        return (string) view($this->pathInitialize.'.edit_content', get_defined_vars());
+
+        return (string) view(
+            $this->pathInitialize.'.edit_content',
+            array_merge($formData, get_defined_vars())
+        );
     }
 
     public function update(ExpenseRequest $request, Expense $expense)
@@ -205,5 +225,20 @@ class ExpenseController extends BaseModuleController
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
+    }
+
+    private function getFormData(): array
+    {
+        $events = $this->event::get();
+        $expenseCategoryStatusActiveId = $this->status::where('name', 'active')->where('model', 'ExpenseCategory')->value('id');
+        $expenseCategories = $this->expenseCategories::where('status_id', $expenseCategoryStatusActiveId)->get();
+        $paymentMethodStatusActiveId = $this->status::where('name', 'active')->where('model', 'PaymentMethod')->value('id');
+        $paymentMethods = $this->paymentMethod::where('status_id', $paymentMethodStatusActiveId)->get();
+
+        return [
+            'events' => $events,
+            'expenseCategories' => $expenseCategories,
+            'paymentMethods' => $paymentMethods,
+        ];
     }
 }

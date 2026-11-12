@@ -462,7 +462,7 @@ class EventController extends BaseModuleController
 
     public function storeReturnOrder(OrderReturnRequest $request, Event $event){
         $payload = $request->validated();
-        
+
         try {
             $response = DB::transaction(function () use ($event, $payload) {
                 return $this->eventRepo->storeReturnOrder($event, $payload);

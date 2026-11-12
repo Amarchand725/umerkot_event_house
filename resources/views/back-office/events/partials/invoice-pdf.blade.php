@@ -327,7 +327,7 @@
                     <td>{{ $order->order_number ?? 'N/A' }}</td>
                     <td>{{ data_get($order, 'status.name', 'N/A') }}</td>
                     <td class="text-right">{{ $money($order->grand_total) }}</td>
-                    <td class="text-right">{{ $money($order->discount) }}</td>
+                    <td class="text-right">{{ $money($combinedDiscount) }}</td>
                     <td class="text-right">{{ $money($orderPaid) }}</td>
                     <td class="text-right">{{ $money($orderOutstanding) }}</td>
                 </tr>

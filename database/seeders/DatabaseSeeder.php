@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             StatusSeeder::class,
+            ExpenseCategorySeeder::class,
             UnitSeeder::class,
             CurrencySeeder::class,
             BusinessSettingSeeder::class,

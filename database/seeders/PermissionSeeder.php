@@ -237,6 +237,16 @@ class PermissionSeeder extends Seeder
             'expense_category-delete',
 
             /*
+            Expense Management
+            |--------------------------------------------------------------------------
+            */
+            'expense-list',
+            'expense-create',
+            'expense-view',
+            'expense-edit',
+            'expense-delete',
+
+            /*
             Order Management
             |--------------------------------------------------------------------------
             */

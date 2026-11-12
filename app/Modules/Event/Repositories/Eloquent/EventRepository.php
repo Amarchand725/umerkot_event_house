@@ -189,6 +189,7 @@ class EventRepository extends BaseRepository implements EventContract
             $payment = new Payment();
             $payment->invoice_id = $invoice->id;
             $payment->payment_method_id = $payload['payment']['payment_method_id'];
+            $payment->discount = $discount;
             $payment->amount = $advanceAmount;
             $payment->paid_at = now();
             $payment->note = $payload['event']['note'] ?? null;
@@ -383,6 +384,7 @@ class EventRepository extends BaseRepository implements EventContract
             $payment->payment_method_id =
                 $payload['payment']['payment_method_id'];
 
+            $payment->discount = $discount;
             $payment->amount = min($advanceAmount, $payable);
             $payment->paid_at = $payment->paid_at ?? now();
             $payment->note = $payload['event']['note'] ?? null;
@@ -532,6 +534,7 @@ class EventRepository extends BaseRepository implements EventContract
                 $payment->status_id = $completedStatusId;
                 $payment->invoice_id = $invoice->id;
                 $payment->payment_method_id = $payload['payment_method_id'];
+                $payment->discount = $discount;
                 $payment->amount = $amount;
                 $payment->paid_at = $payload['paid_at'] ?? now();
                 $payment->note = $payload['payment_note'] ?? null;

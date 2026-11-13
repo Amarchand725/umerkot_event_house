@@ -16,7 +16,7 @@
                     value="{{ $event->ulid }}"
                     {{ old('event_id', $model->event?->ulid) == $event->ulid ? 'selected' : '' }}
                 >
-                    {{ $event->name }}
+                    {{ $event?->customer?->name }} - {{ $event?->eventCategory?->name }} - {{ $event->start_date }}
                 </option>
             @endforeach
         </select>
@@ -43,7 +43,7 @@
             @foreach ($expenseCategories as $category)
                 <option
                     value="{{ $category->ulid }}"
-                    {{ old('expense_category_id', $model->expense_category?->ulid) == $category->ulid ? 'selected' : '' }}
+                    {{ old('expense_category_id', $model->expense_category_id) == $category->id ? 'selected' : '' }}
                 >
                     {{ $category->name }}
                 </option>
@@ -72,7 +72,7 @@
             @foreach ($paymentMethods as $paymentMethod)
                 <option
                     value="{{ $paymentMethod->ulid }}"
-                    {{ old('payment_method_id', $model->payment_method?->ulid) == $paymentMethod->ulid ? 'selected' : '' }}
+                    {{ old('payment_method_id', $model->payment_method_id) == $paymentMethod->id ? 'selected' : '' }}
                 >
                     {{ $paymentMethod->name }}
                 </option>
@@ -83,7 +83,6 @@
             {{ $errors->first('payment_method_id') }}
         </span>
     </div>
-
 
     {{-- Amount --}}
     <div class="col-12 col-md-6">
@@ -140,7 +139,7 @@
             id="expense_date"
             name="expense_date"
             class="form-control form-control-lg"
-            value="{{ old('expense_date', $model->expense_date?->format('Y-m-d')) }}"
+            value="{{ old('expense_date', $model->expense_date) }}"
         />
 
         <span id="expense_date_error" class="text-danger error">
@@ -165,31 +164,6 @@
 
         <span id="description_error" class="text-danger error">
             {{ $errors->first('description') }}
-        </span>
-    </div>
-
-
-    {{-- Status --}}
-    <div class="col-12">
-        <label for="status_id" class="form-label fw-semibold">
-            Status
-        </label>
-
-        <select id="status_id" name="status_id" class="form-select">
-            <option value="">Select status</option>
-
-            @foreach ($statuses as $status)
-                <option
-                    value="{{ $status->ulid }}"
-                    {{ old('status_id', $model->status_id) == $status->id ? 'selected' : '' }}
-                >
-                    {{ ucfirst($status->name) }}
-                </option>
-            @endforeach
-        </select>
-
-        <span id="status_id_error" class="text-danger error">
-            {{ $errors->first('status_id') }}
         </span>
     </div>
 

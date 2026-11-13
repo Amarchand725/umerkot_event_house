@@ -10,6 +10,9 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Status;
 use App\Models\User;
+use App\Modules\ExpenseCategory\Models\ExpenseCategory;
+use App\Modules\Event\Models\Event;
+use App\Modules\PaymentMethod\Models\PaymentMethod;
 
 class Expense extends Model
 {
@@ -50,5 +53,17 @@ class Expense extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function expenseCategory(){
+        return $this->belongsTo(ExpenseCategory::class, 'expense_category_id');
+    }
+
+    public function event(){
+        return $this->belongsTo(Event::class, 'event_id');
+    }
+
+    public function paymentMethod(){
+        return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
     }
 }

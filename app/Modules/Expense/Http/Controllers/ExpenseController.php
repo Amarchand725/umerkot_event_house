@@ -38,12 +38,9 @@ class ExpenseController extends BaseModuleController
         $columns = [
             'event_id'      => ['label' => 'Event', 'html' => true, 'searchable' => false],
             'expense_category_id'      => ['label' => 'Category', 'html' => true, 'searchable' => false],
-            'amount'     => ['label' => 'Amount', 'html' => false, 'searchable' => true],
-            'payment_method_id'     => ['label' => 'Payment Method', 'html' => true, 'searchable' => false],
+            'amount'     => ['label' => 'Amount', 'html' => true, 'searchable' => true],
             'reference'     => ['label' => 'Reference', 'html' => false, 'searchable' => true],
             'expense_date'     => ['label' => 'Expense Date', 'html' => false, 'searchable' => true],
-            'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
-            'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
             'action'     => ['label' => 'Action', 'html' => true, 'searchable' => false],
         ];
@@ -66,14 +63,9 @@ class ExpenseController extends BaseModuleController
 
     public function formatRow($row)
     {
-        $status = $row->status?->name ?? 'de-active';
-        $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
-                    . strtoupper($status) .
-                    '</span>';
-
-        $row->author_id = $row->author
-                ? view('back-office.partials.avatar', ['user' => $row->author])->render()
-                : '-';
+        $row->event_id = $row?->event?->event_number ?? '-';
+        $row->expense_category_id = $row?->expenseCategory?->name ?? '-';
+        $row->amount = $row?->amount ?? 0;
 
         $row->action = view('back-office.partials.actions', [
             'model'            => $row,
@@ -98,6 +90,7 @@ class ExpenseController extends BaseModuleController
     public function store(ExpenseRequest $request)
     {
         $payload = $request->validated();
+
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {

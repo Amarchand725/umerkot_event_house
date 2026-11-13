@@ -139,7 +139,9 @@ function badgeClass(string $status): string
         'partial'          => 'bg-info text-white',
         'paid'           => 'bg-success text-white',
         'completed'           => 'bg-success text-white',
+        'active'           => 'bg-success text-white',
         'pending'          => 'bg-danger text-white',
+        'de-active'          => 'bg-danger text-white',
         'confirmed'                => 'bg-info text-white',
     ];
 

@@ -1,7 +1,9 @@
 <table class="table table-flush-spacing">
     <tr>
         <td class="text-nowrap fw-semibold">Event</td>
-        <td>{{ $model?->event?->name ?? '-' }}</td>
+        <td>
+            {{ $model?->event?->customer?->name }} - ({{ $model?->event?->event_number }}) - {{ date('d M Y, h:i A', strtotime($model?->event?->start_date)) }}
+        </td>
     </tr>
 
     <tr>
@@ -16,7 +18,11 @@
 
     <tr>
         <td class="text-nowrap fw-semibold">Amount</td>
-        <td>{{ number_format($model?->amount ?? 0, 2) }}</td>
+        <td>
+            <span class="badge rounded-pill px-3 py-2 '. {{badgeClass('paid')}} .'">
+                Rs.{{ $model?->amount ?? 0 }}
+            </span>
+        </td>
     </tr>
 
     <tr>
@@ -26,29 +32,14 @@
 
     <tr>
         <td class="text-nowrap fw-semibold">Expense Date</td>
-        <td>{{ $model?->expense_date?->format('d M Y') ?? '-' }}</td>
+        <td>
+            <div class="fw-semibold">{{ $model?->expense_date ? date('d M Y', strtotime($model->expense_date)) : '-' }}</div>
+        </td>
     </tr>
 
     <tr>
         <td class="text-nowrap fw-semibold">Description</td>
         <td>{{ $model?->description ?? '-' }}</td>
-    </tr>
-
-    <tr>
-        <td class="text-nowrap fw-semibold">Status</td>
-        <td>
-            @php
-                $status = $model?->status;
-            @endphp
-
-            @if ($status)
-                <span class="badge rounded-pill px-3 py-2 {{ badgeClass(strtolower($status->name)) ?? 'bg-light text-dark' }}">
-                    {{ strtoupper($status->name) }}
-                </span>
-            @else
-                -
-            @endif
-        </td>
     </tr>
 
     @if($author = $model->author)
@@ -72,6 +63,8 @@
     @endif
     <tr>
         <td class="text-nowrap fw-semibold">Created At</td>
-        <td>{{ $model->created_at ? $model->created_at->format('d, M Y | h:i A') : '-' }}</td>
+        <td>
+            <div class="fw-semibold">{{ $model?->created_at ? date('d M Y, h:i A', strtotime($model->created_at)) : '-' }}</div>
+        </td>
     </tr>
 </table>

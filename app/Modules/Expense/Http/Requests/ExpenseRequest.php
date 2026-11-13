@@ -19,7 +19,6 @@ class ExpenseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status_id' => ['nullable', 'exists:statuses,id'],
             'event_id' => ['nullable', 'exists:events,id'],
             'expense_category_id' => ['nullable', 'exists:expense_categories,id'],
             'payment_method_id' => ['nullable', 'exists:payment_methods,id'],

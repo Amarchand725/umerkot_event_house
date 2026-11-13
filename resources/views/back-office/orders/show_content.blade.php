@@ -1,18 +1,47 @@
 <table class="table table-flush-spacing">
     <tr>
-        <td class="text-nowrap fw-semibold">Name</td>
-        <td>{{ ucfirst($model?->name ?? '-') }}</td>
+        <td class="text-nowrap fw-semibold">Order Number</td>
+        <td>{{ ucfirst($model?->order_number ?? '-') }}</td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Payable Amount</td>
+        <td>
+            <span class="badge rounded-pill px-3 py-2 '. {{badgeClass('confirmed')}} .'">Rs.
+                {{ $model?->payable_amount ?? 0 }}
+            </span>
+        </td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Paid</td>
+        <td>
+            <span class="badge rounded-pill px-3 py-2 '. {{badgeClass('paid')}} .'">Rs.
+                {{ $model?->invoice?->payments->sum('amount') ?? 0 }}
+            </span>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="text-nowrap fw-semibold">Security Deposit</td>
+        <td>
+            <span class="badge rounded-pill px-3 py-2 '. {{badgeClass('inspecting')}} .'">Rs.
+                {{ $model?->security_deposit ?? 0 }}
+            </span>
+        </td>
     </tr>
     <tr>
         <td class="text-nowrap fw-semibold">Status</td>
         <td>
-            @php 
+            @php
                 $status = $model?->status;
-            @endphp 
+            @endphp
             <span class="badge rounded-pill px-3 py-2 {{ badgeClass(strtolower($status->name)) ?? 'bg-light text-dark' }}">
                 {{ strtoupper($status->name) }}
             </span>
         </td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Important Note</td>
+        <td>{{ $model->note ?? '-' }}</td>
     </tr>
     @if($author = $model->author)
     <tr>

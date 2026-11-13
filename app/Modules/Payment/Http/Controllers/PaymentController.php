@@ -49,8 +49,10 @@ class PaymentController extends BaseModuleController
     public function index(Request $request)
     {
         $columns = [
-            'name'      => ['label' => 'name', 'searchable' => 'name'],
+            'event_number'      => ['label' => 'Event No', 'html' => true, 'searchable' => false],
+            'amount'      => ['label' => 'Amount', 'html' => true, 'searchable' => false],
             'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
+            'payment_method_id'      => ['label' => 'Payment Method', 'html' => true, 'searchable' => false],
             'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
             'action'     => ['label' => 'Action', 'html' => true, 'searchable' => false],
@@ -78,6 +80,13 @@ class PaymentController extends BaseModuleController
         $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                     . strtoupper($status) .
                     '</span>';
+
+        $row->amount = '<span class="badge rounded-pill px-3 py-2 '. badgeClass('paid') .'">'
+                    . $row->amount .
+                    '</span>';
+
+        $row->payment_method_id = $row?->paymentMethod?->name ?? '-';
+        $row->event_number = $row?->invoice?->event?->event_number ?? '-';
 
         $row->author_id = $row->author
                 ? view('back-office.partials.avatar', ['user' => $row->author])->render()
@@ -129,6 +138,18 @@ class PaymentController extends BaseModuleController
     {
         $statuses = $this->status->where('model', 'Payment')->get();
         $model = $this->paymentRepo->showModel($payment);
+
+        $events = $this->eventModel::query()
+            ->whereHas('invoice', function ($query) use($model) {
+                $query->where('outstanding_amount', '>', 0);
+                $query->orWhere('id', $model->invoice_id);
+            })
+            ->with([
+                'customer',
+                'invoice',
+            ])
+            ->get();
+
         return (string) view($this->pathInitialize.'.edit_content', get_defined_vars());
     }
 

@@ -26,8 +26,10 @@ class OrderController extends BaseModuleController
     public function index(Request $request)
     {
         $columns = [
-            'name'      => ['label' => 'name', 'searchable' => 'name'],
+            'order_number'      => ['label' => 'Order No', 'searchable' => 'order_number'],
+            'payable_amount'      => ['label' => 'Payable Amount', 'html' => true, 'searchable' => 'payable_amount'],
             'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
+            'paid'      => ['label' => 'Paid', 'html' => true, 'searchable' => false],
             'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
             'action'     => ['label' => 'Action', 'html' => true, 'searchable' => false],
@@ -51,9 +53,17 @@ class OrderController extends BaseModuleController
 
     public function formatRow($row)
     {
-        $status = $row->status?->name ?? 'de-active';
-        $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
-                    . strtoupper($status) .
+        $statusName = $row?->status?->name ?? 'de-active';
+        $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($statusName) .'">'
+                    . strtoupper($statusName) .
+                    '</span>';
+
+        $row->payable_amount = '<span class="badge rounded-pill px-3 py-2 '. badgeClass('confirmed') .'">Rs.'
+                    . $row->payable_amount ?? 0 .
+                    '</span>';
+
+        $row->paid = '<span class="badge rounded-pill px-3 py-2 '. badgeClass('paid') .'">Rs.'
+                    . $row->invoice?->payments->sum('amount') ?? 0 .
                     '</span>';
 
         $row->author_id = $row->author

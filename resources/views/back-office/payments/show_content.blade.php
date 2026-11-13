@@ -1,14 +1,26 @@
 <table class="table table-flush-spacing">
     <tr>
-        <td class="text-nowrap fw-semibold">Name</td>
-        <td>{{ ucfirst($model?->name ?? '-') }}</td>
+        <td class="text-nowrap fw-semibold">Event Number</td>
+        <td>{{ $model?->invoice?->event?->event_number ?? '-' }}</td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Amount</td>
+        <td>
+            <span class="badge rounded-pill px-3 py-2 '. {{badgeClass('paid')}} .'">
+                Rs.{{ $model?->amount ?? 0 }}
+            </span>
+        </td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Payment Method</td>
+        <td>{{ $model?->paymentMethod?->name ?? '-' }}</td>
     </tr>
     <tr>
         <td class="text-nowrap fw-semibold">Status</td>
         <td>
-            @php 
+            @php
                 $status = $model?->status;
-            @endphp 
+            @endphp
             <span class="badge rounded-pill px-3 py-2 {{ badgeClass(strtolower($status->name)) ?? 'bg-light text-dark' }}">
                 {{ strtoupper($status->name) }}
             </span>

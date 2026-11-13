@@ -253,8 +253,8 @@ class PermissionSeeder extends Seeder
             'order-list',
             'order-create',
             'order-view',
-            'order-edit',
-            'order-delete',
+            // 'order-edit',
+            // 'order-delete',
 
             /*
             Reports Management

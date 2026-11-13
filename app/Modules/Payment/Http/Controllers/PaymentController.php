@@ -10,15 +10,38 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Status;
+use App\Modules\Event\Models\Event;
+use App\Modules\EventCategory\Models\EventCategory;
+use App\Modules\InventoryCategory\Models\InventoryCategory;
+use App\Modules\InventoryItem\Models\InventoryItem;
+use App\Modules\Package\Models\Package;
+use App\Modules\PaymentMethod\Models\PaymentMethod;
+use App\Modules\Service\Models\Service;
 
 class PaymentController extends BaseModuleController
 {
     protected $status;
+    protected $eventModel;
+
+    protected $eventCategoryModel;
+    protected $inventoryCategoryModel;
+    protected $inventoryItemModel;
+    protected $paymentMethodModel;
+    protected $serviceModel;
+    protected $packageModel;
     
     public function __construct(
         protected PaymentContract $paymentRepo
     ){
         $this->status = new Status();
+        $this->eventModel = new Event();
+        $this->eventCategoryModel = new EventCategory();
+        $this->inventoryCategoryModel = new InventoryCategory();
+        $this->inventoryItemModel = new InventoryItem();
+        $this->paymentMethodModel = new PaymentMethod();
+        $this->serviceModel = new Service();
+        $this->packageModel = new Package();
+
         // Initialize common module variables automatically
         $this->autoInit();
     }
@@ -72,6 +95,15 @@ class PaymentController extends BaseModuleController
 
     public function create()
     {
+        $events = $this->eventModel::query()
+                ->whereHas('invoice', function ($query) {
+                    $query->where('outstanding_amount', '>', 0);
+                })
+                ->with([
+                    'customer',
+                    'invoice',
+                ])
+                ->get();
         return (string) view($this->pathInitialize.'.create_content', get_defined_vars());
     }
 
@@ -200,5 +232,68 @@ class PaymentController extends BaseModuleController
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
+    }
+
+    
+
+    public function paymentContent(Request $request, Event $event)
+    {
+        $formData = $this->getFormData();
+
+        $model = $event->where('ulid', $request->event_id)->first();
+        
+        $orders = $model->orders()
+            ->with([
+                'invoice.status',
+                'invoice.payments.status',
+                'invoice.payments.paymentMethod',
+            ])
+            ->get();
+
+        $totalOrderAmount = $orders->sum('grand_total');
+        $totalOrderDiscount = $orders->sum('discount');
+
+        // Additional discounts recorded on event invoices.
+        $totalInvoiceDiscount = $model->invoices()
+            ->sum('discount');
+
+        $totalDiscount = $totalOrderDiscount + $totalInvoiceDiscount;
+
+        $payments = $model->payments()
+            ->with(['status', 'paymentMethod'])
+            ->get()
+            ->filter(fn ($payment) =>
+                $payment->status?->name === 'Completed'
+            )
+            ->sortByDesc('paid_at')
+            ->values();
+
+        $totalPaid = $payments->sum('amount');
+
+        $totalPayable = max(
+            0,
+            $totalOrderAmount - $totalDiscount
+        );
+
+        $totalOutstanding = max(
+            0,
+            $totalPayable - $totalPaid
+        );
+
+        return (string) view(
+            $this->pathInitialize . '.partials.payment_content',
+            array_merge($formData, get_defined_vars())
+        );
+    }
+
+    private function getFormData(): array
+    {
+        $activePaymentMethodStatusId = $this->status->where('model', 'PaymentMethod')
+            ->where('name', 'active')
+            ->value('id');
+
+        return [
+            'paymentMethods' => $this->paymentMethodModel->where('status_id', $activePaymentMethodStatusId)->get(),
+        ];
     }
 }

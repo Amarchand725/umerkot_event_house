@@ -12,6 +12,8 @@ Route::group([
         Route::post('bulk-restore', 'bulkRestore')->name('bulkRestore');
         Route::post('{payment}/restore', 'restore')->name('restore');
         Route::delete('{payment}/force-delete', 'forceDelete')->name('forceDelete');
+
+        Route::get('payment-content', 'paymentContent')->name('payment-content');
     });
 
     // 🧱 Resource CRUD

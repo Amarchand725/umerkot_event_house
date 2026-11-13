@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Traits\ModelTrait;
+use App\Modules\Event\Models\Event;
 use App\Modules\Payment\Models\Payment;
 use App\Services\DocumentNumberService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -61,5 +62,9 @@ class Invoice extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class, 'invoice_id', 'id');
+    }
+
+    public function event(){
+        return $this->belongsTo(Event::class, 'event_id');
     }
 }

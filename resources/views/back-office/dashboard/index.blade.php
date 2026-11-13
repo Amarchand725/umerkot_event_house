@@ -214,12 +214,12 @@
                                     <tr>
                                         <td>
                                             <span class="fw-medium">
-                                                {{ $event->customer_name ?? '-' }}
+                                                {{ $event?->customer?->name ?? '-' }}
                                             </span>
                                         </td>
                                         <td>
-                                            {{ $event->start_at
-                                                ? \Carbon\Carbon::parse($event->start_at)->format('d M Y')
+                                            {{ $event->start_date
+                                                ? \Carbon\Carbon::parse($event->start_date)->format('d M Y')
                                                 : '-' }}
                                         </td>
                                         <td>{{ $event->venue ?? '-' }}</td>
@@ -255,21 +255,50 @@
                             <thead>
                                 <tr>
                                     <th>Order No.</th>
-                                    <th>Grand Total</th>
                                     <th>Payable</th>
+                                    <th>Paid</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($recentOrders as $order)
+                                    @php($orderPaidAmount = $order?->invoice?->payments->sum('amount'))
                                     <tr>
                                         <td class="fw-medium">
                                             {{ $order->order_number }}
                                         </td>
-                                        <td>
-                                            Rs. {{ number_format($order->grand_total, 2) }}
-                                        </td>
                                         <td class="fw-semibold">
                                             Rs. {{ number_format($order->payable_amount, 2) }}
+                                        </td>
+                                        <td class="fw-semibold">
+                                            @if($orderPaidAmount <= 0)
+                                                <span class="badge rounded-pill px-3 py-2 '. {{ badgeClass('unpaid') }} .'">
+                                                    Rs. {{ number_format($orderPaidAmount, 2) }}
+                                                </span>
+                                            @elseif($orderPaidAmount < $order->payable_amount)
+                                                <span class="badge rounded-pill px-3 py-2 '. {{ badgeClass('partial') }} .'">
+                                                    Rs. {{ number_format($orderPaidAmount, 2) }}
+                                                </span>
+                                            @else
+                                                <span class="badge rounded-pill px-3 py-2 '. {{ badgeClass('paid') }} .'">
+                                                    Rs. {{ number_format($orderPaidAmount, 2) }}
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="fw-semibold">
+                                            @if($orderPaidAmount <= 0)
+                                                <span class="badge rounded-pill px-3 py-2 '. {{ badgeClass('unpaid') }} .'">
+                                                    Unpaid
+                                                </span>
+                                            @elseif($orderPaidAmount < $order->payable_amount)
+                                                <span class="badge rounded-pill px-3 py-2 '. {{ badgeClass('partial') }} .'">
+                                                    Partial
+                                                </span>
+                                            @else
+                                                <span class="badge rounded-pill px-3 py-2 '. {{ badgeClass('paid') }} .'">
+                                                    Paid
+                                                </span>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
@@ -303,7 +332,7 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
-                            <th>Payment No.</th>
+                            <th>Order No.</th>
                             <th>Date</th>
                             <th>Method</th>
                             <th class="text-end">Amount</th>
@@ -313,7 +342,7 @@
                     <tbody>
                         @forelse($recentPayments as $payment)
                             <tr>
-                                <td>{{ $payment->payment_number }}</td>
+                                <td>{{ $payment?->invoice?->event?->event_number ?? '-' }}</td>
                                 <td>
                                     {{ $payment->paid_at
                                         ? \Carbon\Carbon::parse($payment->paid_at)->format('d M Y')

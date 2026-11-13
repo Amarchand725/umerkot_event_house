@@ -86,7 +86,7 @@ class DashboardController extends Controller
 
         $upcomingEvents = $this->eventModel->whereDate('start_date', '>=', $today)
             ->orderBy('start_date')
-            ->limit(6)
+            ->limit(5)
             ->get();
 
         /*
@@ -96,7 +96,7 @@ class DashboardController extends Controller
         */
 
         $recentOrders = $this->orderModel->latest()
-            ->limit(8)
+            ->limit(5)
             ->get();
 
         /*

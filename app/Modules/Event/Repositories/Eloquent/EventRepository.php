@@ -147,7 +147,7 @@ class EventRepository extends BaseRepository implements EventContract
 
         $order->event_id = $event->id;
         $order->grand_total = $grandTotal;
-        $order->discount = $discount;
+        // $order->discount = $discount;
         $order->payable_amount = $payable;
         $order->status_id = (clone $this->status)
                             ->where('model', 'Order')
@@ -167,19 +167,19 @@ class EventRepository extends BaseRepository implements EventContract
         |--------------------------------------------------------------------------
         */
 
+        $invoice = new Invoice();
+
+        $invoice->order_id = $order->id;
+        $invoice->event_id = $event->id;
+        $invoice->issued_at = today();
+        $invoice->due_at = today();
+        $invoice->outstanding_amount = $payable;
+        $invoice->discount = $discount;
+        $invoice->payable_amount = $advanceAmount;
+        $invoice->save();
+        $invoice->refresh();
+
         if ($advanceAmount > 0) {
-            $invoice = new Invoice();
-
-            $invoice->order_id = $order->id;
-            $invoice->event_id = $event->id;
-            $invoice->issued_at = today();
-            $invoice->due_at = today();
-            $invoice->outstanding_amount = $payable;
-            $invoice->discount = 0;
-            $invoice->payable_amount = $advanceAmount;
-            $invoice->save();
-            $invoice->refresh();
-
             /*
             |--------------------------------------------------------------------------
             | 7. Record Payment
@@ -208,11 +208,6 @@ class EventRepository extends BaseRepository implements EventContract
 
                 $invoice->status_id = $statusId;
                 $invoice->save();
-
-                $outstandingAmount = $order->payable_amount - $invoice->payable_amount;
-
-                $order->payable_amount = $outstandingAmount;
-                $order->save();
             }
         }
 
@@ -325,7 +320,8 @@ class EventRepository extends BaseRepository implements EventContract
 
         $order->event_id = $event->id;
         $order->grand_total = $grandTotal;
-        $order->discount = $discount;
+        // $order->discount = $discount;
+        $order->payable_amount = $payable;
         $order->security_deposit = $securityDeposit;
 
         $order->status_id = (clone $this->status)
@@ -368,7 +364,7 @@ class EventRepository extends BaseRepository implements EventContract
         $invoice->issued_at = $invoice->issued_at ?? today();
         $invoice->due_at = $invoice->due_at ?? today();
         $invoice->outstanding_amount = $payable;
-        $invoice->discount = 0;
+        $invoice->discount = $discount;
         $invoice->payable_amount = $advanceAmount;
 
         // 7. Update Payment
@@ -410,9 +406,9 @@ class EventRepository extends BaseRepository implements EventContract
                                 ->value('id');
         $invoice->save();
 
-        $outstanding = max(0, $payable - $advanceAmount);
-        $order->payable_amount = $outstanding;
-        $order->save();
+        // $outstanding = max(0, $payable - $advanceAmount);
+        // $order->payable_amount = $outstanding;
+        // $order->save();
 
         return $event->refresh();
     }
@@ -515,7 +511,7 @@ class EventRepository extends BaseRepository implements EventContract
                     $invoice->order_id = $order->id;
                     $invoice->issued_at = today();
                     $invoice->due_at = today();
-                    $invoice->discount = 0;
+                    $invoice->discount = $invoice->discount+$discount;
                     $invoice->payable_amount = 0;
                     $invoice->outstanding_amount = 0;
                     $invoice->save();
@@ -575,7 +571,25 @@ class EventRepository extends BaseRepository implements EventContract
                 $invoice->save();
 
                 // 10. Update order payable amount.
-                $order->payable_amount = $invoiceOutstanding;
+                $order->payable_amount = $order->payable_amount+$discount;
+                if($invoiceStatusName=='Paid'){
+                    $order->status_id = (clone $this->status)
+                        ->where('model', 'Order')
+                        ->where('name', 'Completed')
+                        ->value('id');
+
+                    $logStatus['status_id'] = (clone $this->status)
+                                    ->where('model', 'Event')
+                                    ->where('name', 'Completed')
+                                    ->value('id');
+
+                    $logStatus['model_id'] = $event->id;
+                    $logStatus['model_type'] = $event->getMorphClass();
+
+                    $log = $event->statusLogs()->firstOrNew();
+                    $log->toFill($logStatus);
+                    $log->save();
+                }
                 $order->save();
             }
 

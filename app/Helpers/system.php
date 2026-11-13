@@ -130,21 +130,20 @@ function subPermissionFields(){
 function badgeClass(string $status): string
 {
     $statusColors = [
-        'created'             => 'bg-primary text-white',
-        'assigned'            => 'bg-info text-white',
-        'no contact'        => 'bg-secondary text-white',
-        'contact established' => 'bg-warning text-white',
-        'junk'                => 'bg-danger text-white',
-        'potential'           => 'bg-success text-white',
-        'follow up'           => 'bg-info text-white',
-        'hot client'          => 'bg-danger text-white',
-        'sales closed'        => 'bg-success text-white',
-        'pool'                => 'bg-info text-white',
-        'active'              => 'badge bg-success',
-        'de-active'           => 'badge bg-danger',
+        'inspecting'             => 'bg-primary text-white',
+        'finalized'        => 'bg-secondary text-white',
+        'draft'        => 'bg-secondary text-white',
+        'in_progress' => 'bg-warning text-white',
+        'cancelled'                => 'bg-danger text-white',
+        'unpaid'          => 'bg-danger text-white',
+        'partial'          => 'bg-info text-white',
+        'paid'           => 'bg-success text-white',
+        'completed'           => 'bg-success text-white',
+        'pending'          => 'bg-danger text-white',
+        'confirmed'                => 'bg-info text-white',
     ];
 
-    return $statusColors[strtolower($status)] ?? 'bg-dark text-white';
+    return $statusColors[strtolower($status)];
 }
 
 function statuses(){

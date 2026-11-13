@@ -102,6 +102,7 @@ class StatusSeeder extends Seeder
             ['model' => 'Invoice', 'name' => 'Draft'],
             ['model' => 'Invoice', 'name' => 'Pending'],
             ['model' => 'Invoice', 'name' => 'Paid'],
+            ['model' => 'Invoice', 'name' => 'Partial'],
             ['model' => 'Invoice', 'name' => 'Overdue'],
         ];
 

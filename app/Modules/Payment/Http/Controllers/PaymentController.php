@@ -29,7 +29,7 @@ class PaymentController extends BaseModuleController
     protected $paymentMethodModel;
     protected $serviceModel;
     protected $packageModel;
-    
+
     public function __construct(
         protected PaymentContract $paymentRepo
     ){
@@ -78,7 +78,7 @@ class PaymentController extends BaseModuleController
         $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                     . strtoupper($status) .
                     '</span>';
-        
+
         $row->author_id = $row->author
                 ? view('back-office.partials.avatar', ['user' => $row->author])->render()
                 : '-';
@@ -110,6 +110,7 @@ class PaymentController extends BaseModuleController
     public function store(PaymentRequest $request)
     {
         $payload = $request->validated();
+
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {
@@ -234,14 +235,14 @@ class PaymentController extends BaseModuleController
         }
     }
 
-    
+
 
     public function paymentContent(Request $request, Event $event)
     {
         $formData = $this->getFormData();
 
         $model = $event->where('ulid', $request->event_id)->first();
-        
+
         $orders = $model->orders()
             ->with([
                 'invoice.status',

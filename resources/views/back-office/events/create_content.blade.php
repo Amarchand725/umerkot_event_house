@@ -2364,3 +2364,8 @@
 </div>
 
 <script src="{{ asset('back-office/event-js/event-form.js') }}"></script>
+<script>
+    $(document).ready(function () {
+        initializeSelect2();
+    });
+</script>

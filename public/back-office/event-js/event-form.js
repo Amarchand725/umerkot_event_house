@@ -197,22 +197,73 @@
             });
         }
 
+        // function addRow(containerSelector, rowSelector, kind) {
+        //     const $container = $(containerSelector);
+        //     const $first = $container.find(rowSelector).first();
+        //     if (!$first.length) return;
+        //     const $clone = $first.clone(false, false);
+        //     $clone.find('select').each(function () { $(this).val(''); });
+        //     $clone.find('input').each(function () {
+        //         const $input = $(this);
+        //         if ($input.is('[type="number"]')) $input.val($input.hasClass('quantity') || $input.hasClass('service-quantity') ? 1 : 0);
+        //         else $input.val('');
+        //     });
+        //     $clone.find('.unit-price, .service-unit-price').val('0');
+        //     $clone.find('.item-subtotal, .service-subtotal').val('0.00');
+        //     $container.append($clone);
+        //     renumberRows($container, rowSelector, kind);
+        //     if ($.fn.select2) $clone.find('.select2').removeClass('select2-hidden-accessible').next('.select2').remove();
+        //     calculateTotals();
+        // }
+
+
         function addRow(containerSelector, rowSelector, kind) {
             const $container = $(containerSelector);
             const $first = $container.find(rowSelector).first();
+
             if (!$first.length) return;
+
             const $clone = $first.clone(false, false);
-            $clone.find('select').each(function () { $(this).val(''); });
+
+            // Clean cloned Select2 elements BEFORE reinitializing
+            $clone.find('select').each(function () {
+                const $select = $(this);
+
+                $select.next('.select2-container').remove();
+
+                $select.removeClass('select2-hidden-accessible')
+                    .removeAttr('data-select2-id')
+                    .removeAttr('aria-hidden')
+                    .removeAttr('tabindex');
+
+                $select.find('option').removeAttr('data-select2-id');
+
+                $select.val('');
+            });
+
             $clone.find('input').each(function () {
                 const $input = $(this);
-                if ($input.is('[type="number"]')) $input.val($input.hasClass('quantity') || $input.hasClass('service-quantity') ? 1 : 0);
-                else $input.val('');
+
+                if ($input.is('[type="number"]')) {
+                    $input.val(
+                        $input.hasClass('quantity') ||
+                        $input.hasClass('service-quantity') ? 1 : 0
+                    );
+                } else {
+                    $input.val('');
+                }
             });
+
             $clone.find('.unit-price, .service-unit-price').val('0');
             $clone.find('.item-subtotal, .service-subtotal').val('0.00');
+
             $container.append($clone);
+
             renumberRows($container, rowSelector, kind);
-            if ($.fn.select2) $clone.find('.select2').removeClass('select2-hidden-accessible').next('.select2').remove();
+
+            // Initialize Select2 only once
+            initializeSelect2($clone);
+
             calculateTotals();
         }
 
@@ -309,3 +360,16 @@
         showStep(currentStep);
     });
 })(jQuery);
+
+function initializeSelect2(element = document) {
+    $(element).find('select').each(function () {
+        const $select = $(this);
+
+        if ($.fn.select2 && !$select.hasClass('select2-hidden-accessible')) {
+            $select.select2({
+                width: '100%',
+                dropdownParent: $select.parent()
+            });
+        }
+    });
+}

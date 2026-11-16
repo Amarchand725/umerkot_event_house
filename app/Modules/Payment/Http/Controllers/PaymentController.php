@@ -50,9 +50,9 @@ class PaymentController extends BaseModuleController
     {
         $columns = [
             'event_number'      => ['label' => 'Event No', 'html' => true, 'searchable' => false],
-            'amount'      => ['label' => 'Amount', 'html' => true, 'searchable' => false],
-            'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
+            'paid_amount'      => ['label' => 'Amount', 'html' => true, 'searchable' => false],
             'payment_method_id'      => ['label' => 'Payment Method', 'html' => true, 'searchable' => false],
+            'status_name'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
             'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
             'action'     => ['label' => 'Action', 'html' => true, 'searchable' => false],
@@ -77,11 +77,11 @@ class PaymentController extends BaseModuleController
     public function formatRow($row)
     {
         $status = $row->status?->name ?? 'de-active';
-        $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
+        $row->status_name = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                     . strtoupper($status) .
                     '</span>';
 
-        $row->amount = '<span class="badge rounded-pill px-3 py-2 '. badgeClass('paid') .'">'
+        $row->paid_amount = '<span class="badge rounded-pill px-3 py-2 '. badgeClass('paid') .'">Rs.'
                     . $row->amount .
                     '</span>';
 

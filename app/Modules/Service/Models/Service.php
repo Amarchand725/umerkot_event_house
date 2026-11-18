@@ -10,6 +10,7 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Status;
 use App\Models\User;
+use App\Modules\Unit\Models\Unit;
 
 class Service extends Model
 {

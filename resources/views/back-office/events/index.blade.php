@@ -26,7 +26,7 @@
                                 label="{{ module_label('tooltip_add', $singularLabel) }}"
                                 icon="ti ti-plus me-0 me-sm-1 ti-xs"
                                 data-bs-toggle="modal"
-                                data-bs-target="#create-pop-up-modal-x-large-for-file"
+                                data-bs-target="#create-pop-up-modal-for-file"
                                 :data-attributes="[
                                     'data-url' => route($routeInitialize.'.store'),
                                     'data-create-url' => route($routeInitialize.'.create')

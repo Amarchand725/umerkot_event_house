@@ -1,3 +1,7 @@
+@props([
+    'size' => 'modal-lg',
+])
+
 <div class="dropdown">
     <a class="dropdown-toggle text-body cursor-pointer" data-bs-toggle="dropdown" style="--bs-dropdown-item-padding-y:0;">
         <i class="ti ti-dots-vertical ti-sm"></i>
@@ -56,7 +60,7 @@
                     title="{{ module_label('edit', $singularLabel) }}"
                     label="{{ module_label('edit', $singularLabel) }}"
                     data-bs-toggle="modal"
-                    data-bs-target="#create-pop-up-modal-x-large-for-file"
+                    data-bs-target="#create-pop-up-modal-for-file"
                     :data-attributes="[
                         'data-url' => route($routeInitialize. '.update', $model->ulid),
                         'data-edit-url' => route($routeInitialize. '.edit', $model->ulid)

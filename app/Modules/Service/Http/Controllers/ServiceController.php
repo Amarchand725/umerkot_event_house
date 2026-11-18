@@ -100,8 +100,12 @@ class ServiceController extends BaseModuleController
 
     public function edit(Service $service)
     {
+        $activeUnitStatusId = $this->status->where('model', 'Service')->where('name', 'active')->value('id');
+        $units = $this->unit->where('status_id', $activeUnitStatusId)->get();
+        
         $statuses = $this->status->where('model', 'Service')->get();
         $model = $this->serviceRepo->showModel($service);
+        
         return (string) view($this->pathInitialize.'.edit_content', get_defined_vars());
     }
 

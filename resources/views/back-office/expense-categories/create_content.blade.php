@@ -1,6 +1,6 @@
 <div class="row g-3 mb-4">
     <!-- Name Input -->
-    <div class="col-12 col-md-6">
+    <div class="col-12 col-md-12">
         <label for="name" class="form-label fw-semibold">
             Name <span class="text-danger">*</span>
         </label>

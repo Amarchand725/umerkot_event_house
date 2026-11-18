@@ -58,7 +58,7 @@
         </div>
     </div>
     <!-- Modals -->
-    <x-modals />
+    <x-modals size="modal-lg" />
     <!--/ Modals -->
 
     @push('js')

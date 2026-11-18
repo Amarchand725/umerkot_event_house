@@ -33,7 +33,7 @@
                     title="New Order"
                     label="New Order"
                     data-bs-toggle="modal"
-                    data-bs-target="#create-pop-up-modal-x-large-for-file"
+                    data-bs-target="#create-pop-up-modal-for-file"
                     :data-attributes="[
                         'data-url' => route('back-office.events.store'),
                         'data-create-url' => route('back-office.events.create')

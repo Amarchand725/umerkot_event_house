@@ -10,15 +10,26 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Status;
+use App\Modules\InventoryCategory\Models\InventoryCategory;
+use App\Modules\InventoryItem\Models\InventoryItem;
+use App\Modules\Service\Models\Service;
 
 class PackageController extends BaseModuleController
 {
-    protected $status;
+    protected $statusModel;
+    protected $inventoryCategoryModel;
+    protected $inventoryItemModel;
+    protected $serviceModel;
+
 
     public function __construct(
         protected PackageContract $packageRepo
     ){
-        $this->status = new Status();
+        $this->statusModel = new Status();
+        $this->inventoryCategoryModel = new InventoryCategory();
+        $this->inventoryItemModel = new InventoryItem();
+        $this->serviceModel = new Service();
+
         // Initialize common module variables automatically
         $this->autoInit();
     }
@@ -74,12 +85,18 @@ class PackageController extends BaseModuleController
 
     public function create()
     {
-        return (string) view($this->pathInitialize.'.create_content', get_defined_vars());
+        $formData = $this->getFormData();
+        
+        return (string) view(
+            $this->pathInitialize . '.create_content',
+            array_merge($formData, get_defined_vars())
+        );
     }
 
     public function store(PackageRequest $request)
     {
         $payload = $request->validated();
+        
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {
@@ -96,9 +113,14 @@ class PackageController extends BaseModuleController
 
     public function edit(Package $package)
     {
-        $statuses = $this->status->where('model', 'Package')->get();
+        $statuses = $this->statusModel->where('model', 'Package')->get();
         $model = $this->packageRepo->showModel($package);
-        return (string) view($this->pathInitialize.'.edit_content', get_defined_vars());
+        $formData = $this->getFormData();
+        
+        return (string) view(
+            $this->pathInitialize . '.edit_content',
+            array_merge($formData, get_defined_vars())
+        );
     }
 
     public function update(PackageRequest $request, Package $package)
@@ -202,5 +224,26 @@ class PackageController extends BaseModuleController
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
+    }
+
+    private function getFormData(): array
+    {
+        $activeInventoryCatStatusId = $this->statusModel->where('model', 'InventoryCategory')
+            ->where('name', 'active')
+            ->value('id');
+
+        $activeInventoryItemStatusId = $this->statusModel->where('model', 'InventoryItem')
+            ->where('name', 'active')
+            ->value('id');
+
+        $activeServiceStatusId = $this->statusModel->where('model', 'Service')
+            ->where('name', 'active')
+            ->value('id');
+
+        return [
+            'inventoryCategories' => $this->inventoryCategoryModel->where('status_id', $activeInventoryCatStatusId)->get(),
+            'inventoryItems'   => $this->inventoryItemModel->where('status_id', $activeInventoryItemStatusId)->get(),
+            'inventoryServices' => $this->serviceModel->where('status_id', $activeServiceStatusId)->get(),
+        ];
     }
 }

@@ -270,9 +270,9 @@ if (!function_exists('module_message')) {
     }
 }
 
-function statusName($model, $status_id){
-    $status = Status::where('model', $model)->where('id', $status_id)->first();
-    return $status ? $status->name : null;
+function statusId($model, $name){
+    $status = Status::where('model', $model)->where('name', $name)->first();
+    return $status ? $status->id : null;
 }
 
 if (!function_exists('formatAmount')) {

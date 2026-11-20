@@ -49,38 +49,75 @@
         <hr>
     </div>
 
-    <div class="col-md-6">
+    {{-- Original Price --}}
+    <div class="col-md-4">
         <label class="form-label fw-semibold">
-            Price <span class="text-danger">*</span>
+            Original Price <span class="text-danger">*</span>
         </label>
+
         <input
             type="number"
             name="price"
+            id="package-original-price"
             class="form-control form-control-lg"
-            placeholder="Enter package price"
+            placeholder="0.00"
             min="0"
             step="0.01"
-            value="{{ old('price') }}"
+            value="{{ old('price', 0) }}"
+            readonly
         >
+
+        <small class="text-muted">
+            Automatically calculated from inventory items and services.
+        </small>
+
         <span id="price_error" class="text-danger error">
             {{ $errors->first('price') }}
         </span>
     </div>
 
-    <div class="col-md-6">
-        <label class="form-label fw-semibold">Discount</label>
+    {{-- Discount --}}
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">
+            Discount
+        </label>
+
         <input
             type="number"
             name="discount"
+            id="package-discount"
             class="form-control form-control-lg"
             placeholder="Enter discount"
             min="0"
             step="0.01"
             value="{{ old('discount', 0) }}"
         >
+
         <span id="discount_error" class="text-danger error">
             {{ $errors->first('discount') }}
         </span>
+    </div>
+
+    {{-- Final Price --}}
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">
+            Final Package Price
+        </label>
+
+        <input
+            type="number"
+            id="package-final-price"
+            class="form-control form-control-lg"
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+            value="{{ old('price', 0) }}"
+            readonly
+        >
+
+        <small class="text-success fw-semibold">
+            Final amount after discount.
+        </small>
     </div>
 
     {{-- Inventory Items --}}
@@ -241,6 +278,63 @@
         });
     }
 
+    // Calculate package pricing
+    function calculatePackagePrice() {
+
+        let originalPrice = 0;
+
+        // Inventory items
+        $('#package-items-wrapper tr').each(function () {
+
+            let quantity = parseFloat(
+                $(this).find('input[name*="[quantity]"]').val()
+            ) || 0;
+
+            let unitPrice = parseFloat(
+                $(this).find('.item-unit-price').val()
+            ) || 0;
+
+            originalPrice += quantity * unitPrice;
+        });
+
+        // Services
+        $('#package-services-wrapper tr').each(function () {
+
+            let quantity = parseFloat(
+                $(this).find('input[name*="[quantity]"]').val()
+            ) || 0;
+
+            let unitPrice = parseFloat(
+                $(this).find('.service-unit-price').val()
+            ) || 0;
+
+            originalPrice += quantity * unitPrice;
+        });
+
+        // Discount
+        let discount = parseFloat(
+            $('#package-discount').val()
+        ) || 0;
+
+        // Discount cannot exceed original price
+        if (discount > originalPrice) {
+            discount = originalPrice;
+            $('#package-discount').val(discount);
+        }
+
+        // Final amount
+        let finalPrice = originalPrice - discount;
+
+        if (finalPrice < 0) {
+            finalPrice = 0;
+        }
+
+        // Update fields
+        $('#package-original-price').val(originalPrice.toFixed(2));
+        $('#package-final-price').val(finalPrice.toFixed(2));
+    }
+
+
     // Add Inventory Item
     $('#add-package-item').on('click', function () {
 
@@ -266,7 +360,10 @@
         $('#package-items-wrapper').append(row);
 
         initializePackageSelect(row.find('select'));
+
+        calculatePackagePrice();
     });
+
 
     // Add Service
     $('#add-package-service').on('click', function () {
@@ -293,39 +390,81 @@
         $('#package-services-wrapper').append(row);
 
         initializePackageSelect(row.find('select'));
+
+        calculatePackagePrice();
     });
 
-    // Auto-fill inventory item price
+
+    // Inventory item selected
     $(document).on('change', '.inventory-item-select', function () {
 
-        let price = $(this).find(':selected').data('price') || 0;
+        let price = parseFloat(
+            $(this).find(':selected').data('price')
+        ) || 0;
 
-        $(this).closest('tr')
+        $(this)
+            .closest('tr')
             .find('.item-unit-price')
             .val(price);
+
+        calculatePackagePrice();
     });
 
-    // Auto-fill service price
+
+    // Service selected
     $(document).on('change', '.package-service-select', function () {
 
-        let price = $(this).find(':selected').data('price') || 0;
+        let price = parseFloat(
+            $(this).find(':selected').data('price')
+        ) || 0;
 
-        $(this).closest('tr')
+        $(this)
+            .closest('tr')
             .find('.service-unit-price')
             .val(price);
+
+        calculatePackagePrice();
     });
+
+
+    // Quantity or unit price changed
+    $(document).on(
+        'input',
+        '#package-items-wrapper input, #package-services-wrapper input',
+        function () {
+            calculatePackagePrice();
+        }
+    );
+
+
+    // Discount changed
+    $(document).on('input', '#package-discount', function () {
+        calculatePackagePrice();
+    });
+
 
     // Remove inventory item
     $(document).on('click', '.remove-package-item', function () {
+
         $(this).closest('tr').remove();
+
+        calculatePackagePrice();
     });
+
 
     // Remove service
     $(document).on('click', '.remove-package-service', function () {
+
         $(this).closest('tr').remove();
+
+        calculatePackagePrice();
     });
+
 
     // Initialize default rows
     $('#add-package-item').trigger('click');
     $('#add-package-service').trigger('click');
+
+    // Initial calculation
+    calculatePackagePrice();
 </script>

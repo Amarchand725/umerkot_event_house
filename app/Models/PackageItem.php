@@ -13,7 +13,7 @@ class PackageItem extends Model
 {
     use SoftDeletes, ModelTrait;
 
-    protected $fillable = ['package_id', 'inventory_item_id', 'quantity', 'unit_price'];
+    protected $fillable = ['package_id', 'inventory_item_id', 'service_id', 'quantity', 'unit_price', 'subtotal'];
 
     public function package()
     {

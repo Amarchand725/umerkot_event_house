@@ -38,9 +38,9 @@ class PackageController extends BaseModuleController
     {
         $columns = [
             'name'      => ['label' => 'name', 'searchable' => 'name'],
-            'price'      => ['label' => 'price', 'searchable' => 'price'],
+            'price'      => ['label' => 'price', 'html' => true, 'searchable' => 'price'],
             'discount'      => ['label' => 'discount', 'searchable' => 'discount'],
-            'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
+            'status_name'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
             'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
             'action'     => ['label' => 'Action', 'html' => true, 'searchable' => false],
@@ -65,9 +65,11 @@ class PackageController extends BaseModuleController
     public function formatRow($row)
     {
         $status = $row->status?->name ?? 'de-active';
-        $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
+        $row->status_name = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                     . strtoupper($status) .
                     '</span>';
+
+        $row->price = view('back-office.packages.price', ['model' => $row])->render();
 
         $row->author_id = $row->author
                 ? view('back-office.partials.avatar', ['user' => $row->author])->render()
@@ -86,7 +88,7 @@ class PackageController extends BaseModuleController
     public function create()
     {
         $formData = $this->getFormData();
-        
+
         return (string) view(
             $this->pathInitialize . '.create_content',
             array_merge($formData, get_defined_vars())
@@ -228,22 +230,10 @@ class PackageController extends BaseModuleController
 
     private function getFormData(): array
     {
-        $activeInventoryCatStatusId = $this->statusModel->where('model', 'InventoryCategory')
-            ->where('name', 'active')
-            ->value('id');
-
-        $activeInventoryItemStatusId = $this->statusModel->where('model', 'InventoryItem')
-            ->where('name', 'active')
-            ->value('id');
-
-        $activeServiceStatusId = $this->statusModel->where('model', 'Service')
-            ->where('name', 'active')
-            ->value('id');
-
         return [
-            'inventoryCategories' => $this->inventoryCategoryModel->where('status_id', $activeInventoryCatStatusId)->get(),
-            'inventoryItems'   => $this->inventoryItemModel->where('status_id', $activeInventoryItemStatusId)->get(),
-            'inventoryServices' => $this->serviceModel->where('status_id', $activeServiceStatusId)->get(),
+            'inventoryCategories' => $this->inventoryCategoryModel->where('status_id', statusId('InventoryCategory', 'active'))->get(),
+            'inventoryItems'   => $this->inventoryItemModel->where('status_id', statusId('InventoryItem', 'active'))->get(),
+            'inventoryServices' => $this->serviceModel->where('status_id', statusId('Service', 'active'))->get(),
         ];
     }
 }

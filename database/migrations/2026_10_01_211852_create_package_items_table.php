@@ -16,8 +16,10 @@ return new class extends Migration
             $table->ulid('ulid')->unique();
             $table->foreignId('package_id')->nullable()->constrained('packages')->nullOnDelete();
             $table->foreignId('inventory_item_id')->nullable()->constrained('inventory_items')->nullOnDelete();
+            $table->foreignId('service_id')->nullable()->constrained('services')->nullOnDelete();
             $table->integer('quantity')->nullable();
             $table->decimal('unit_price', 12, 2)->default(0);
+            $table->decimal('subtotal', 12, 2)->default(0);
             $table->softDeletes();
             $table->timestamps();
         });

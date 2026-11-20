@@ -1,19 +1,4 @@
-
 @method('PUT')
-
-@php
-    $selectedItems = old('items', $model->items->map(fn($item) => [
-        'inventory_item_id' => $item->inventory_item_id,
-        'quantity' => $item->quantity,
-        'unit_price' => $item->unit_price,
-    ])->toArray());
-
-    $selectedServices = old('services', $model->services->map(fn($service) => [
-        'service_id' => $service->service_id,
-        'quantity' => $service->quantity,
-        'unit_price' => $service->unit_price,
-    ])->toArray());
-@endphp
 
 <div class="row g-3">
 
@@ -30,30 +15,79 @@
         <label class="form-label fw-semibold">
             Package Name <span class="text-danger">*</span>
         </label>
+
         <input
             type="text"
             name="name"
             class="form-control form-control-lg"
             placeholder="Enter package name"
-            value="{{ old('name', $model->name) }}"
+            value="{{ old('name', $package->name) }}"
         >
+
         <span id="name_error" class="text-danger error">
             {{ $errors->first('name') }}
         </span>
     </div>
 
     <div class="col-md-6">
-        <label class="form-label fw-semibold">Description</label>
+        <label class="form-label fw-semibold">
+            Description
+        </label>
+
         <input
             type="text"
             name="description"
             class="form-control form-control-lg"
             placeholder="Enter package description"
-            value="{{ old('description', $model->description) }}"
+            value="{{ old('description', $package->description) }}"
         >
+
         <span id="description_error" class="text-danger error">
             {{ $errors->first('description') }}
         </span>
+    </div>
+
+    <div class="col-12">
+
+        <label
+            for="status_id"
+            class="form-label fw-semibold"
+        >
+            Status <span class="text-danger">*</span>
+        </label>
+
+        <select
+            id="status_id"
+            name="status_id"
+            class="form-select form-select-lg"
+        >
+
+            <option value="">
+                Select Status
+            </option>
+
+            @foreach($statuses as $status)
+
+                <option
+                    value="{{ $status->ulid }}"
+                    @selected(
+                        old(
+                            'status_id',
+                            $model?->status_id
+                        ) == $status->id
+                    )
+                >
+                    {{ ucfirst($status->name) }}
+                </option>
+
+            @endforeach
+
+        </select>
+
+        <span class="text-danger error">
+            {{ $errors->first('status_id') }}
+        </span>
+
     </div>
 
     {{-- Package Pricing --}}
@@ -65,41 +99,80 @@
         <hr>
     </div>
 
-    <div class="col-md-6">
+    {{-- Original Price --}}
+    <div class="col-md-4">
         <label class="form-label fw-semibold">
-            Price <span class="text-danger">*</span>
+            Original Price <span class="text-danger">*</span>
         </label>
+
         <input
             type="number"
             name="price"
+            id="package-original-price"
             class="form-control form-control-lg"
+            placeholder="0.00"
             min="0"
             step="0.01"
-            placeholder="Enter package price"
-            value="{{ old('price', $model->price) }}"
+            value="{{ old('price', $package->price ?? 0) }}"
+            readonly
         >
+
+        <small class="text-muted">
+            Automatically calculated from inventory items and services.
+        </small>
+
         <span id="price_error" class="text-danger error">
             {{ $errors->first('price') }}
         </span>
     </div>
 
-    <div class="col-md-6">
-        <label class="form-label fw-semibold">Discount</label>
+
+    {{-- Discount --}}
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">
+            Discount
+        </label>
+
         <input
             type="number"
             name="discount"
+            id="package-discount"
             class="form-control form-control-lg"
+            placeholder="Enter discount"
             min="0"
             step="0.01"
-            placeholder="Enter discount"
-            value="{{ old('discount', $model->discount ?? 0) }}"
+            value="{{ old('discount', $package->discount ?? 0) }}"
         >
+
         <span id="discount_error" class="text-danger error">
             {{ $errors->first('discount') }}
         </span>
     </div>
 
-    {{-- Inventory Items --}}
+
+    {{-- Final Price --}}
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">
+            Final Package Price
+        </label>
+
+        <input
+            type="number"
+            id="package-final-price"
+            class="form-control form-control-lg"
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+            value="{{ $package->price-$package->discount }}"
+            readonly
+        >
+
+        <small class="text-success fw-semibold">
+            Final amount after discount.
+        </small>
+    </div>
+
+        {{-- Inventory Items --}}
     <div class="col-12 mt-4">
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0">
@@ -107,17 +180,23 @@
                 Package Items
             </h5>
 
-            <button type="button" class="btn btn-primary btn-sm" id="add-package-item">
+            <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                id="add-package-item"
+            >
                 <i class="ti ti-plus me-1"></i>
                 Add Item
             </button>
         </div>
+
         <hr>
     </div>
 
     <div class="col-12">
         <div class="table-responsive">
             <table class="table table-bordered align-middle">
+
                 <thead class="table-light">
                     <tr>
                         <th width="45%">Inventory Item</th>
@@ -129,60 +208,83 @@
 
                 <tbody id="package-items-wrapper">
 
-                    @foreach($selectedItems as $index => $item)
-                        <tr>
-                            <td>
-                                <select
-                                    name="items[{{ $index }}][inventory_item_id]"
-                                    class="form-select inventory-item-select"
-                                    required
-                                >
-                                    <option value="">Select Inventory Item</option>
+                    @foreach($model->inventoryItems as $index => $packageItem)
+                        @if($packageItem->inventory_item_id)
+                            @php
+                                $inventoryItem = $packageItem;
 
-                                    @foreach($inventoryItems as $inventoryItem)
-                                        <option
-                                            value="{{ $inventoryItem->id }}"
-                                            data-price="{{ $inventoryItem->price ?? 0 }}"
-                                            @selected($item['inventory_item_id'] == $inventoryItem->id)
-                                        >
-                                            {{ $inventoryItem->name }}
+                                $quantity = $packageItem->quantity ?? 1;
+
+                                $unitPrice = $packageItem->unit_price ?? 0;
+                            @endphp
+
+                            <tr>
+
+                                <td>
+                                    <select
+                                        name="items[{{ $index }}][inventory_item_id]"
+                                        class="form-select inventory-item-select"
+                                        required
+                                    >
+
+                                        <option value="">
+                                            Select Inventory Item
                                         </option>
-                                    @endforeach
-                                </select>
-                            </td>
 
-                            <td>
-                                <input
-                                    type="number"
-                                    name="items[{{ $index }}][quantity]"
-                                    class="form-control"
-                                    min="1"
-                                    value="{{ $item['quantity'] }}"
-                                    required
-                                >
-                            </td>
+                                        @foreach($inventoryItems as $item)
 
-                            <td>
-                                <input
-                                    type="number"
-                                    name="items[{{ $index }}][unit_price]"
-                                    class="form-control item-unit-price"
-                                    min="0"
-                                    step="0.01"
-                                    value="{{ $item['unit_price'] }}"
-                                    required
-                                >
-                            </td>
+                                            <option
+                                                value="{{ $item->ulid }}"
+                                                data-price="{{ $item->price_per_unit ?? 0 }}"
+                                                {{ $inventoryItem->id == $item->id ? 'selected' : '' }}
+                                            >
+                                                {{ $item->name }}
+                                            </option>
 
-                            <td>
-                                <button type="button" class="btn btn-icon btn-label-danger remove-package-item">
-                                    <i class="ti ti-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+                                        @endforeach
+
+                                    </select>
+                                </td>
+
+                                <td>
+                                    <input
+                                        type="number"
+                                        name="items[{{ $index }}][quantity]"
+                                        class="form-control item-quantity"
+                                        min="1"
+                                        value="{{ $quantity }}"
+                                        required
+                                    >
+                                </td>
+
+                                <td>
+                                    <input
+                                        type="number"
+                                        name="items[{{ $index }}][unit_price]"
+                                        class="form-control item-unit-price"
+                                        min="0"
+                                        step="0.01"
+                                        value="{{ $unitPrice }}"
+                                        required
+                                    >
+                                </td>
+
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-icon btn-label-danger remove-package-item"
+                                    >
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </td>
+
+                            </tr>
+                        @endif
+
                     @endforeach
 
                 </tbody>
+
             </table>
         </div>
 
@@ -194,296 +296,622 @@
     {{-- Package Services --}}
     <div class="col-12 mt-4">
         <div class="d-flex justify-content-between align-items-center">
+
             <h5 class="mb-0">
                 <i class="ti ti-tools me-1"></i>
                 Package Services
             </h5>
 
-            <button type="button" class="btn btn-primary btn-sm" id="add-package-service">
+            <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                id="add-package-service"
+            >
                 <i class="ti ti-plus me-1"></i>
                 Add Service
             </button>
+
         </div>
+
         <hr>
     </div>
 
     <div class="col-12">
+
         <div class="table-responsive">
+
             <table class="table table-bordered align-middle">
+
                 <thead class="table-light">
+
                     <tr>
                         <th width="45%">Service</th>
                         <th width="20%">Quantity</th>
                         <th width="25%">Unit Price</th>
                         <th width="10%">Action</th>
                     </tr>
+
                 </thead>
 
                 <tbody id="package-services-wrapper">
 
-                    @foreach($selectedServices as $index => $service)
-                        <tr>
-                            <td>
-                                <select
-                                    name="services[{{ $index }}][service_id]"
-                                    class="form-select package-service-select"
-                                    required
-                                >
-                                    <option value="">Select Service</option>
+                    @foreach($model->inventoryItems as $index => $packageService)
+                        @if($packageService->service_id)
+                            @php
+                                $service = $packageService;
 
-                                    @foreach($inventoryServices as $inventoryService)
-                                        <option
-                                            value="{{ $inventoryService->id }}"
-                                            data-price="{{ $inventoryService->price ?? 0 }}"
-                                            @selected($service['service_id'] == $inventoryService->id)
-                                        >
-                                            {{ $inventoryService->name }}
+                                $quantity = $packageService->pivot->quantity
+                                    ?? $packageService->quantity
+                                    ?? 1;
+
+                                $unitPrice = $packageService->pivot->unit_price
+                                    ?? $packageService->unit_price
+                                    ?? $service->price
+                                    ?? 0;
+                            @endphp
+
+                            <tr>
+
+                                <td>
+
+                                    <select
+                                        name="services[{{ $index }}][service_id]"
+                                        class="form-select package-service-select"
+                                        required
+                                    >
+
+                                        <option value="">
+                                            Select Service
                                         </option>
-                                    @endforeach
-                                </select>
-                            </td>
 
-                            <td>
-                                <input
-                                    type="number"
-                                    name="services[{{ $index }}][quantity]"
-                                    class="form-control"
-                                    min="1"
-                                    value="{{ $service['quantity'] }}"
-                                    required
-                                >
-                            </td>
+                                        @foreach($inventoryServices as $itemService)
 
-                            <td>
-                                <input
-                                    type="number"
-                                    name="services[{{ $index }}][unit_price]"
-                                    class="form-control service-unit-price"
-                                    min="0"
-                                    step="0.01"
-                                    value="{{ $service['unit_price'] }}"
-                                    required
-                                >
-                            </td>
+                                            <option
+                                                value="{{ $itemService->ulid }}"
+                                                data-price="{{ $itemService->price ?? 0 }}"
+                                                {{ $service->service_id == $itemService->id ? 'selected' : '' }}
+                                            >
+                                                {{ $itemService->name }}
+                                            </option>
 
-                            <td>
-                                <button type="button" class="btn btn-icon btn-label-danger remove-package-service">
-                                    <i class="ti ti-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+                                        @endforeach
+
+                                    </select>
+
+                                </td>
+
+                                <td>
+
+                                    <input
+                                        type="number"
+                                        name="services[{{ $index }}][quantity]"
+                                        class="form-control service-quantity"
+                                        min="1"
+                                        value="{{ $quantity }}"
+                                        required
+                                    >
+
+                                </td>
+
+                                <td>
+
+                                    <input
+                                        type="number"
+                                        name="services[{{ $index }}][unit_price]"
+                                        class="form-control service-unit-price"
+                                        min="0"
+                                        step="0.01"
+                                        value="{{ $unitPrice }}"
+                                        required
+                                    >
+
+                                </td>
+
+                                <td>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-icon btn-label-danger remove-package-service"
+                                    >
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+
+                                </td>
+
+                            </tr>
+                        @endif
+
                     @endforeach
 
                 </tbody>
+
             </table>
+
         </div>
 
         <span id="services_error" class="text-danger error">
             {{ $errors->first('services') }}
         </span>
-    </div>
 
-    {{-- Status --}}
-    <div class="col-12 mt-4">
-        <h5 class="mb-0">
-            <i class="ti ti-toggle-right me-1"></i>
-            Package Status
-        </h5>
-        <hr>
-    </div>
-
-    <div class="col-md-6">
-        <label for="status_id" class="form-label fw-semibold">
-            Status
-        </label>
-
-        <select id="status_id" name="status_id" class="form-select">
-            <option value="">Select Status</option>
-
-            @foreach($statuses as $status)
-                <option
-                    value="{{ $status->ulid }}"
-                    @selected(old('status_id', $model->status?->ulid) == $status->ulid)
-                >
-                    {{ ucfirst($status->name) }}
-                </option>
-            @endforeach
-        </select>
-
-        <span id="status_id_error" class="text-danger error">
-            {{ $errors->first('status_id') }}
-        </span>
     </div>
 
 </div>
 
+</div>
+
+{{-- Inventory Item Template --}}
 {{-- Inventory Item Template --}}
 <template id="package-item-template">
     <tr>
+
         <td>
             <select class="form-select inventory-item-select" required>
-                <option value="">Select Inventory Item</option>
+
+                <option value="">
+                    Select Inventory Item
+                </option>
 
                 @foreach($inventoryItems as $item)
+
                     <option
-                        value="{{ $item->id }}"
-                        data-price="{{ $item->price ?? 0 }}"
+                        value="{{ $item->ulid }}"
+                        data-price="{{ $item->price_per_unit ?? 0 }}"
                     >
                         {{ $item->name }}
                     </option>
+
                 @endforeach
+
             </select>
         </td>
 
         <td>
-            <input type="number" class="form-control" min="1" value="1" required>
+            <input
+                type="number"
+                class="form-control item-quantity"
+                min="1"
+                value="1"
+                required
+            >
         </td>
 
         <td>
-            <input type="number" class="form-control item-unit-price"
-                   min="0" step="0.01" value="0" required>
+            <input
+                type="number"
+                class="form-control item-unit-price"
+                min="0"
+                step="0.01"
+                value="0"
+                required
+            >
         </td>
 
         <td>
-            <button type="button" class="btn btn-icon btn-label-danger remove-package-item">
+            <button
+                type="button"
+                class="btn btn-icon btn-label-danger remove-package-item"
+            >
                 <i class="ti ti-trash"></i>
             </button>
         </td>
+
     </tr>
 </template>
+
 
 {{-- Service Template --}}
 <template id="package-service-template">
     <tr>
+
         <td>
             <select class="form-select package-service-select" required>
-                <option value="">Select Service</option>
+
+                <option value="">
+                    Select Service
+                </option>
 
                 @foreach($inventoryServices as $service)
+
                     <option
-                        value="{{ $service->id }}"
+                        value="{{ $service->ulid }}"
                         data-price="{{ $service->price ?? 0 }}"
                     >
                         {{ $service->name }}
                     </option>
+
                 @endforeach
+
             </select>
         </td>
 
         <td>
-            <input type="number" class="form-control" min="1" value="1" required>
+            <input
+                type="number"
+                class="form-control service-quantity"
+                min="1"
+                value="1"
+                required
+            >
         </td>
 
         <td>
-            <input type="number" class="form-control service-unit-price"
-                   min="0" step="0.01" value="0" required>
+            <input
+                type="number"
+                class="form-control service-unit-price"
+                min="0"
+                step="0.01"
+                value="0"
+                required
+            >
         </td>
 
         <td>
-            <button type="button" class="btn btn-icon btn-label-danger remove-package-service">
+            <button
+                type="button"
+                class="btn btn-icon btn-label-danger remove-package-service"
+            >
                 <i class="ti ti-trash"></i>
             </button>
         </td>
+
     </tr>
 </template>
 
 <script>
-    let packageItemIndex = {{ count($selectedItems) }};
-    let packageServiceIndex = {{ count($selectedServices) }};
+    let packageItemIndex = {{ $model->inventoryItems->count() }};
+    let packageServiceIndex = {{ $model->inventoryItems->count() }};
+
+    // --------------------------------------------------
+    // Initialize Select2
+    // --------------------------------------------------
 
     function initializePackageSelect(element) {
+
         $(element).select2({
             dropdownParent: $(element).parent(),
             width: '100%'
         });
+
     }
 
-    // Initialize existing Select2 elements
-    $('.inventory-item-select, .package-service-select, #status_id').each(function () {
-        initializePackageSelect(this);
-    });
 
+    // --------------------------------------------------
+    // Calculate Package Price
+    // --------------------------------------------------
+
+    function calculatePackagePrice() {
+
+        let originalPrice = 0;
+
+
+        // ----------------------------------------------
+        // Inventory Items
+        // ----------------------------------------------
+
+        $('#package-items-wrapper tr').each(function () {
+
+            let quantity = parseFloat(
+                $(this).find('.item-quantity').val()
+            ) || 0;
+
+            let unitPrice = parseFloat(
+                $(this).find('.item-unit-price').val()
+            ) || 0;
+
+            originalPrice += quantity * unitPrice;
+
+        });
+
+
+        // ----------------------------------------------
+        // Services
+        // ----------------------------------------------
+
+        $('#package-services-wrapper tr').each(function () {
+
+            let quantity = parseFloat(
+                $(this).find('.service-quantity').val()
+            ) || 0;
+
+            let unitPrice = parseFloat(
+                $(this).find('.service-unit-price').val()
+            ) || 0;
+
+            originalPrice += quantity * unitPrice;
+
+        });
+
+
+        // ----------------------------------------------
+        // Discount
+        // ----------------------------------------------
+
+        let discount = parseFloat(
+            $('#package-discount').val()
+        ) || 0;
+
+
+        // Discount cannot exceed original price
+        if (discount > originalPrice) {
+
+            discount = originalPrice;
+
+            $('#package-discount').val(
+                discount.toFixed(2)
+            );
+
+        }
+
+
+        // ----------------------------------------------
+        // Final Price
+        // ----------------------------------------------
+
+        let finalPrice = originalPrice - discount;
+
+
+        if (finalPrice < 0) {
+            finalPrice = 0;
+        }
+
+
+        // ----------------------------------------------
+        // Update Fields
+        // ----------------------------------------------
+
+        $('#package-original-price').val(
+            originalPrice.toFixed(2)
+        );
+
+        $('#package-final-price').val(
+            finalPrice.toFixed(2)
+        );
+
+    }
+
+
+    // --------------------------------------------------
     // Add Inventory Item
+    // --------------------------------------------------
+
     $('#add-package-item').on('click', function () {
 
-        let row = $($('#package-item-template').html());
+        let row = $(
+            $('#package-item-template').html()
+        );
+
 
         row.find('select').attr(
             'name',
             `items[${packageItemIndex}][inventory_item_id]`
         );
 
-        row.find('input').eq(0).attr(
+
+        row.find('.item-quantity').attr(
             'name',
             `items[${packageItemIndex}][quantity]`
         );
 
-        row.find('input').eq(1).attr(
+
+        row.find('.item-unit-price').attr(
             'name',
             `items[${packageItemIndex}][unit_price]`
         );
 
+
         packageItemIndex++;
+
 
         $('#package-items-wrapper').append(row);
 
-        initializePackageSelect(row.find('select'));
+
+        initializePackageSelect(
+            row.find('select')
+        );
+
+
+        calculatePackagePrice();
+
     });
 
+
+    // --------------------------------------------------
     // Add Service
+    // --------------------------------------------------
+
     $('#add-package-service').on('click', function () {
 
-        let row = $($('#package-service-template').html());
+        let row = $(
+            $('#package-service-template').html()
+        );
+
 
         row.find('select').attr(
             'name',
             `services[${packageServiceIndex}][service_id]`
         );
 
-        row.find('input').eq(0).attr(
+
+        row.find('.service-quantity').attr(
             'name',
             `services[${packageServiceIndex}][quantity]`
         );
 
-        row.find('input').eq(1).attr(
+
+        row.find('.service-unit-price').attr(
             'name',
             `services[${packageServiceIndex}][unit_price]`
         );
 
+
         packageServiceIndex++;
+
 
         $('#package-services-wrapper').append(row);
 
-        initializePackageSelect(row.find('select'));
+
+        initializePackageSelect(
+            row.find('select')
+        );
+
+
+        calculatePackagePrice();
+
     });
 
-    // Auto-fill inventory item price
-    $(document).on('change', '.inventory-item-select', function () {
 
-        let price = $(this).find(':selected').data('price') || 0;
+    // --------------------------------------------------
+    // Inventory Item Selected
+    // --------------------------------------------------
 
-        $(this).closest('tr')
-            .find('.item-unit-price')
-            .val(price);
-    });
+    $(document).on(
+        'change',
+        '.inventory-item-select',
+        function () {
 
-    // Auto-fill service price
-    $(document).on('change', '.package-service-select', function () {
+            let price = parseFloat(
+                $(this)
+                    .find(':selected')
+                    .data('price')
+            ) || 0;
 
-        let price = $(this).find(':selected').data('price') || 0;
 
-        $(this).closest('tr')
-            .find('.service-unit-price')
-            .val(price);
-    });
+            $(this)
+                .closest('tr')
+                .find('.item-unit-price')
+                .val(price);
 
+
+            calculatePackagePrice();
+
+        }
+    );
+
+
+    // --------------------------------------------------
+    // Service Selected
+    // --------------------------------------------------
+
+    $(document).on(
+        'change',
+        '.package-service-select',
+        function () {
+
+            let price = parseFloat(
+                $(this)
+                    .find(':selected')
+                    .data('price')
+            ) || 0;
+
+
+            $(this)
+                .closest('tr')
+                .find('.service-unit-price')
+                .val(price);
+
+
+            calculatePackagePrice();
+
+        }
+    );
+
+
+    // --------------------------------------------------
+    // Quantity / Unit Price Changed
+    // --------------------------------------------------
+
+    $(document).on(
+        'input',
+        '#package-items-wrapper input, #package-services-wrapper input',
+        function () {
+
+            calculatePackagePrice();
+
+        }
+    );
+
+
+    // --------------------------------------------------
+    // Discount Changed
+    // --------------------------------------------------
+
+    $(document).on(
+        'input',
+        '#package-discount',
+        function () {
+
+            calculatePackagePrice();
+
+        }
+    );
+
+
+    // --------------------------------------------------
     // Remove Inventory Item
-    $(document).on('click', '.remove-package-item', function () {
-        $(this).closest('tr').remove();
-    });
+    // --------------------------------------------------
 
+    $(document).on(
+        'click',
+        '.remove-package-item',
+        function () {
+
+            $(this)
+                .closest('tr')
+                .remove();
+
+
+            calculatePackagePrice();
+
+        }
+    );
+
+
+    // --------------------------------------------------
     // Remove Service
-    $(document).on('click', '.remove-package-service', function () {
-        $(this).closest('tr').remove();
-    });
+    // --------------------------------------------------
+
+    $(document).on(
+        'click',
+        '.remove-package-service',
+        function () {
+
+            $(this)
+                .closest('tr')
+                .remove();
+
+
+            calculatePackagePrice();
+
+        }
+    );
+
+
+    // --------------------------------------------------
+    // Initialize Existing Select2
+    // --------------------------------------------------
+
+    $('#package-items-wrapper .inventory-item-select').each(
+        function () {
+
+            initializePackageSelect(this);
+
+        }
+    );
+
+
+    $('#package-services-wrapper .package-service-select').each(
+        function () {
+
+            initializePackageSelect(this);
+
+        }
+    );
+
+
+    // --------------------------------------------------
+    // Initial Calculation
+    // --------------------------------------------------
+
+    calculatePackagePrice();
+
 </script>

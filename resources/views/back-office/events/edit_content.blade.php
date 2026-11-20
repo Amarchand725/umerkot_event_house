@@ -346,7 +346,7 @@
                 <div class="col-6">
 
                     <label
-                        for="event_category_id"
+                        for="status_id"
                         class="form-label fw-semibold"
                     >
                         Status <span class="text-danger">*</span>
@@ -381,7 +381,7 @@
                     </select>
 
                     <span class="text-danger error">
-                        {{ $errors->first('event.event_category_id') }}
+                        {{ $errors->first('event.status_id') }}
                     </span>
 
                 </div>

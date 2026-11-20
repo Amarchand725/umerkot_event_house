@@ -197,40 +197,15 @@ class EventController extends BaseModuleController
 
     private function getFormData(): array
     {
-        $activeEventCatStatusId = $this->status->where('model', 'EventCategory')
-            ->where('name', 'active')
-            ->value('id');
-
-        $activeInventoryCatStatusId = $this->status->where('model', 'InventoryCategory')
-            ->where('name', 'active')
-            ->value('id');
-
-        $activeInventoryItemStatusId = $this->status->where('model', 'InventoryItem')
-            ->where('name', 'active')
-            ->value('id');
-
-        $activePaymentMethodStatusId = $this->status->where('model', 'PaymentMethod')
-            ->where('name', 'active')
-            ->value('id');
-
-        $activeServiceStatusId = $this->status->where('model', 'Service')
-            ->where('name', 'active')
-            ->value('id');
-
-        $activePackageStatusId = $this->status->where('model', 'Package')
-            ->where('name', 'active')
-            ->value('id');
-
         return [
-            'eventCategories' => $this->eventCategory->where('status_id', $activeEventCatStatusId)->get(),
-            'inventoryCategories' => $this->inventoryCategory->where('status_id', $activeInventoryCatStatusId)->get(),
-            'inventoryItems'   => $this->inventoryItem->where('status_id', $activeInventoryItemStatusId)->get(),
-            'paymentMethods' => $this->paymentMethod->where('status_id', $activePaymentMethodStatusId)->get(),
-            'inventoryServices' => $this->service->where('status_id', $activeServiceStatusId)->get(),
+            'eventCategories' => $this->eventCategory->where('status_id', statusId('EventCategory', 'active'))->get(),
+            'inventoryCategories' => $this->inventoryCategory->where('status_id', statusId('InventoryCategory', 'active'))->get(),
+            'inventoryItems'   => $this->inventoryItem->where('status_id', statusId('InventoryItem', 'active'))->get(),
+            'paymentMethods' => $this->paymentMethod->where('status_id', statusId('PaymentMethod', 'active'))->get(),
+            'inventoryServices' => $this->service->where('status_id', statusId('Service', 'active'))->get(),
             'packages' => $this->package->with([
                 'inventoryItems.inventoryItem.inventoryCategory',
-                'services',
-            ])->where('status_id', $activePackageStatusId)->get(),
+            ])->where('status_id', statusId('Package', 'active'))->get(),
         ];
     }
 

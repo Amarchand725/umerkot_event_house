@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
             PaymentMethodSeeder::class,
             InventoryCategorySeeder::class,
             InventoryItemSeeder::class,
-            PackageSeeder::class,
+            // PackageSeeder::class,
             ServiceSeeder::class,
         ]);
     }

@@ -113,7 +113,7 @@
         @endcanany
 
         {{-- ===================================================== --}}
-        {{-- OPERATIONS --}}
+        {{-- BOOKINGS & OPERATIONS --}}
         {{-- ===================================================== --}}
 
         @canany(['event-list', 'package-list', 'expense-list'])
@@ -170,6 +170,44 @@
                         </li>
                     @endcan
 
+                </ul>
+            </li>
+
+        @endcanany
+
+        {{-- ===================================================== --}}
+        {{-- FINANCE --}}
+        {{-- ===================================================== --}}
+
+        @canany(['payment-list'])
+
+            <li class="menu-header small text-uppercase">
+                <span class="menu-header-text">Payments</span>
+            </li>
+
+            {{-- PAYMENTS --}}
+            <li class="menu-item {{ request()->is('back-office/payments*') ? 'active open' : '' }}">
+
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons ti ti-calendar-event"></i>
+                    <div class="d-flex justify-content-between w-100">
+                        <span>Finance</span>
+                    </div>
+                </a>
+
+                <ul class="menu-sub">
+
+                    @can('payment-list')
+                        <li class="menu-item {{ request()->is('back-office/payments*') ? 'active' : '' }}">
+                            <a href="{{ route('back-office.payments.index') }}" class="menu-link">
+                                <i class="menu-icon tf-icons ti ti-calendar"></i>
+                                <div class="d-flex justify-content-between w-100">
+                                    <span>{{ module_label('list', 'Payments') }}</span>
+                                    <span class="badge bg-primary">{{ $sidebarCounts['payments'] ?? 0 }}</span>
+                                </div>
+                            </a>
+                        </li>
+                    @endcan
                 </ul>
             </li>
 

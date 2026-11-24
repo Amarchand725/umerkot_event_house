@@ -16,6 +16,7 @@ use App\Modules\Package\Models\Package;
 use App\Modules\Service\Models\Service;
 use App\Modules\ExpenseCategory\Models\ExpenseCategory;
 use App\Modules\Expense\Models\Expense;
+use App\Modules\Payment\Models\Payment;
 use Illuminate\View\View;
 
 class SidebarComposer
@@ -30,19 +31,19 @@ class SidebarComposer
             'customers'         => Customer::count(),
             'roles'         => Role::count(),
 
-            'services'         => Service::count(),
+            'events' => Event::count(),
             'packages' => Package::count(),
+            'expenses' => Expense::count(),
+
+            'payments' => Payment::count(),
+
+            'services'         => Service::count(),
             'units'         => Unit::count(),
             'inventory_categories' => InventoryCategory::count(),
             'inventory_items' => InventoryItem::count(),
-
             'event_categories' => EventCategory::count(),
-            'events' => Event::count(),
-
             'payment_methods' => PaymentMethod::count(),
-
             'expense_categories' => ExpenseCategory::count(),
-            'expenses' => Expense::count(),
 
             'activity_logs' => ActivityLog::count(),
         ]);

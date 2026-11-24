@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Modules\Event\Models\Event;
 use App\Modules\Order\Models\Order;
 use App\Modules\Payment\Models\Payment;
+use App\Modules\Expense\Models\Expense;
 
 class DashboardController extends Controller
 {
@@ -41,10 +42,9 @@ class DashboardController extends Controller
 
         $totalOrders = $this->orderModel->count();
 
-        $monthlyOrders = $this->orderModel->whereBetween(
-            'created_at',
-            [$monthStart, $monthEnd]
-        )->count();
+        $monthlyOrders = $this->orderModel
+            ->whereBetween('created_at', [$monthStart, $monthEnd])
+            ->count();
 
         /*
         |--------------------------------------------------------------------------
@@ -54,16 +54,48 @@ class DashboardController extends Controller
 
         $totalPayable = $this->orderModel->sum('payable_amount');
 
-        $totalPaid = $this->paymentModel->whereHas('status', function ($query) {
-            $query->whereIn('name', ['Completed', 'Paid']);
-        })->sum('amount');
+        $totalPaid = $this->paymentModel
+            ->whereHas('status', function ($query) {
+                $query->whereIn('name', ['Completed', 'Paid']);
+            })
+            ->sum('amount');
 
         $totalOutstanding = max(0, $totalPayable - $totalPaid);
 
-        $monthlyReceived = $this->paymentModel->whereHas('status', function ($query) {
-            $query->whereIn('name', ['Completed', 'Paid']);
-        })->whereBetween('paid_at', [$monthStart, $monthEnd])
-          ->sum('amount');
+        $monthlyReceived = $this->paymentModel
+            ->whereHas('status', function ($query) {
+                $query->whereIn('name', ['Completed', 'Paid']);
+            })
+            ->whereBetween('paid_at', [$monthStart, $monthEnd])
+            ->sum('amount');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Operational Expense Statistics
+        |--------------------------------------------------------------------------
+        | Soft-deleted expenses are automatically excluded by the model.
+        | Expenses are recorded against events or as general expenses.
+        */
+
+        $totalExpenses = Expense::sum('amount');
+
+        $monthlyExpenses = Expense::whereBetween('expense_date', [
+            $monthStart->toDateString(),
+            $monthEnd->toDateString()
+        ])->sum('amount');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Revenue Statistics
+        |--------------------------------------------------------------------------
+        | Net Revenue = Total Order Payable - Total Operational Expenses
+        */
+
+        $totalRevenue = $totalPayable - $totalExpenses;
+
+        $monthlyRevenue = $this->orderModel
+            ->whereBetween('created_at', [$monthStart, $monthEnd])
+            ->sum('payable_amount') - $monthlyExpenses;
 
         /*
         |--------------------------------------------------------------------------
@@ -73,10 +105,9 @@ class DashboardController extends Controller
 
         $totalInvoices = $this->invoiceModel->count();
 
-        $monthlyInvoices = $this->invoiceModel->whereBetween(
-            'created_at',
-            [$monthStart, $monthEnd]
-        )->count();
+        $monthlyInvoices = $this->invoiceModel
+            ->whereBetween('created_at', [$monthStart, $monthEnd])
+            ->count();
 
         /*
         |--------------------------------------------------------------------------
@@ -84,7 +115,8 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $upcomingEvents = $this->eventModel->whereDate('start_date', '>=', $today)
+        $upcomingEvents = $this->eventModel
+            ->whereDate('start_date', '>=', $today)
             ->orderBy('start_date')
             ->limit(5)
             ->get();
@@ -95,7 +127,8 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $recentOrders = $this->orderModel->latest()
+        $recentOrders = $this->orderModel
+            ->latest()
             ->limit(5)
             ->get();
 
@@ -105,10 +138,8 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $recentPayments = $this->paymentModel->with([
-                'paymentMethod',
-                'status'
-            ])
+        $recentPayments = $this->paymentModel
+            ->with(['paymentMethod', 'status'])
             ->latest()
             ->limit(8)
             ->get();
@@ -124,20 +155,31 @@ class DashboardController extends Controller
             $start = now()->startOfYear()->month($month)->startOfMonth();
             $end = $start->copy()->endOfMonth();
 
-            $invoiceAmount = $this->invoiceModel->whereBetween(
-                'issued_at',
-                [$start->toDateString(), $end->toDateString()]
-            )->sum('payable_amount');
+            $invoiceAmount = $this->invoiceModel
+                ->whereBetween('issued_at', [
+                    $start->toDateString(),
+                    $end->toDateString()
+                ])
+                ->sum('payable_amount');
 
-            $receivedAmount = $this->paymentModel->whereHas('status', function ($query) {
-                $query->whereIn('name', ['Completed', 'Paid']);
-            })->whereBetween('paid_at', [$start, $end])
-              ->sum('amount');
+            $receivedAmount = $this->paymentModel
+                ->whereHas('status', function ($query) {
+                    $query->whereIn('name', ['Completed', 'Paid']);
+                })
+                ->whereBetween('paid_at', [$start, $end])
+                ->sum('amount');
+
+            $expenseAmount = Expense::whereBetween('expense_date', [
+                $start->toDateString(),
+                $end->toDateString()
+            ])->sum('amount');
 
             return [
                 'month' => $start->format('M'),
                 'invoice' => (float) $invoiceAmount,
                 'received' => (float) $receivedAmount,
+                'expenses' => (float) $expenseAmount,
+                'revenue' => (float) ($invoiceAmount - $expenseAmount),
             ];
         });
 

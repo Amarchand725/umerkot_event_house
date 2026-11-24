@@ -2526,5 +2526,31 @@
 <script>
     $(document).ready(function () {
         initializeSelect2();
+
+        const startPicker = flatpickr("#start_date", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            altInput: true,
+            altFormat: "d-m-Y h:i K",
+            minDate: new Date(),
+            time_24hr: false
+        });
+
+        const endPicker = flatpickr("#end_date", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            altInput: true,
+            altFormat: "d-m-Y h:i K",
+            minDate: new Date(),
+            time_24hr: false
+        });
+
+        startPicker.config.onChange.push(function (selectedDates) {
+
+            if (selectedDates.length) {
+                endPicker.set("minDate", selectedDates[0]);
+            }
+
+        });
     });
 </script>

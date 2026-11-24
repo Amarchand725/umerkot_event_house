@@ -53,7 +53,8 @@
 
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="{{ asset('back-office/assets/vendor/libs/toastr/toastr.css') }}">
-    
+    <link rel="stylesheet" href="{{ asset('back-office/assets/vendor/libs/flatpickr/flatpickr.css') }}">
+
     <!-- Page CSS -->
     @stack('css')
 
@@ -139,7 +140,8 @@
     <script src="{{ asset('back-office') }}/assets/custom/ajax-gateway.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('back-office/assets/js') }}/libphonenumber-js.min.js"></script>
-    
+    <script src="{{ asset('back-office/assets/vendor/libs/flatpickr/flatpickr.js') }}"></script>
+
     <script>
         var btn = $('#scrollTop');
 

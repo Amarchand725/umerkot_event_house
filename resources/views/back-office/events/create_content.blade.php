@@ -357,18 +357,29 @@
                         <span class="text-danger">*</span>
                     </label>
 
-                    <input
+                    {{-- <input
                         type="datetime-local"
                         id="start_date"
                         name="event[start_date]"
                         class="form-control form-control-lg"
+                        min="{{ now()->format('Y-m-d\TH:i') }}"
                         value="{{ old(
                             'event.start_date',
                             isset($model->start_date)
                                 ? \Carbon\Carbon::parse($model->start_date)->format('Y-m-d\TH:i')
                                 : ''
                         ) }}"
-                    />
+                    /> --}}
+
+                    <input
+                        type="text"
+                        id="start_date"
+                        name="event[start_date]"
+                        class="form-control form-control-lg"
+                        placeholder="Select Start Date & Time"
+                        min="{{ now()->format('Y-m-d\TH:i') }}"
+                        value="{{ old('event.start_date', isset($model->start_date) ? \Carbon\Carbon::parse($model->start_date)->format('Y-m-d H:i') : '') }}"
+                    >
 
                     <span class="text-danger error">
                         {{ $errors->first('event.start_date') }}
@@ -388,18 +399,29 @@
                         <span class="text-danger">*</span>
                     </label>
 
-                    <input
+                    {{-- <input
                         type="datetime-local"
                         id="end_date"
                         name="event[end_date]"
                         class="form-control form-control-lg"
+                        min="{{ now()->format('Y-m-d\TH:i') }}"
                         value="{{ old(
                             'event.end_date',
                             isset($model->end_date)
                                 ? \Carbon\Carbon::parse($model->end_date)->format('Y-m-d\TH:i')
                                 : ''
                         ) }}"
-                    />
+                    /> --}}
+
+                    <input
+                        type="text"
+                        id="end_date"
+                        name="event[end_date]"
+                        class="form-control form-control-lg"
+                        placeholder="Select End Date & Time"
+                        min="{{ now()->format('Y-m-d\TH:i') }}"
+                        value="{{ old('event.end_date', isset($model->end_date) ? \Carbon\Carbon::parse($model->end_date)->format('Y-m-d H:i') : '') }}"
+                    >
 
                     <span class="text-danger error">
                         {{ $errors->first('event.end_date') }}
@@ -2367,5 +2389,31 @@
 <script>
     $(document).ready(function () {
         initializeSelect2();
+
+        const startPicker = flatpickr("#start_date", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            altInput: true,
+            altFormat: "d-m-Y h:i K",
+            minDate: new Date(),
+            time_24hr: false
+        });
+
+        const endPicker = flatpickr("#end_date", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            altInput: true,
+            altFormat: "d-m-Y h:i K",
+            minDate: new Date(),
+            time_24hr: false
+        });
+
+        startPicker.config.onChange.push(function (selectedDates) {
+
+            if (selectedDates.length) {
+                endPicker.set("minDate", selectedDates[0]);
+            }
+
+        });
     });
 </script>

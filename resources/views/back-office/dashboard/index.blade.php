@@ -89,6 +89,20 @@
                         'icon' => 'ti-calendar-event',
                         'color' => 'secondary',
                     ],
+                    [
+                        'title' => 'Total Expenses',
+                        'value' => 'Rs. ' . number_format($totalExpenses, 0),
+                        'month' => 'Rs. ' . number_format($monthlyExpenses, 0) . ' this month',
+                        'icon' => 'ti-receipt',
+                        'color' => 'danger',
+                    ],
+                    [
+                        'title' => 'Net Revenue',
+                        'value' => 'Rs. ' . number_format($totalRevenue, 0),
+                        'month' => 'After operational expenses',
+                        'icon' => 'ti-chart-line',
+                        'color' => 'success',
+                    ],
                 ];
             @endphp
 
@@ -166,6 +180,22 @@
                             <span class="text-muted">Outstanding</span>
                             <strong class="text-danger">
                                 Rs. {{ number_format($totalOutstanding, 2) }}
+                            </strong>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="text-muted">Operational Expenses</span>
+                            <strong class="text-danger">
+                                Rs. {{ number_format($totalExpenses, 2) }}
+                            </strong>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="text-muted fw-bold">Net Revenue</span>
+                            <strong class="text-success fs-5">
+                                Rs. {{ number_format($totalRevenue, 2) }}
                             </strong>
                         </div>
 
@@ -392,6 +422,14 @@
                         {
                             name: 'Received Amount',
                             data: @json($monthlyFinancials->pluck('received'))
+                        },
+                        {
+                            name: 'Operational Expenses',
+                            data: @json($monthlyFinancials->pluck('expenses'))
+                        },
+                        {
+                            name: 'Net Revenue',
+                            data: @json($monthlyFinancials->pluck('revenue'))
                         }
                     ],
 

@@ -12,6 +12,7 @@ class DocumentNumberService
         'order'   => 'ORD',
         'invoice' => 'INV',
         'payment' => 'PAY',
+        'employee' => 'EMP',
     ];
 
     public function generate(string $type): string

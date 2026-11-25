@@ -4,6 +4,9 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+use App\Enum\CommissionTypeEnum;
+use App\Enum\PayTypeEnum;
+
 return new class extends Migration
 {
     /**
@@ -20,13 +23,19 @@ return new class extends Migration
             $table->foreignId('designation_id')->nullable()->constrained('designations')->nullOnDelete();
             $table->date('effective_from');
             $table->date('effective_to')->nullable();
-            $table->string('pay_type')->comment('monthly, daily, hourly, commission, hybrid');
+            $table->enum(
+                'pay_type',
+                array_column(PayTypeEnum::cases(), 'value')
+            )->nullable();
             $table->decimal('basic_pay', 14, 2)->default(0)->comment('Monthly base or fixed component');
             $table->decimal('daily_rate', 14, 2)->nullable();
             $table->decimal('hourly_rate', 14, 2)->nullable();
 
             $table->string('commission_basis')->nullable()->comment('received_amount, booking_amount, profit, fixed_per_event');
-            $table->string('commission_type')->nullable()->comment('percentage, fixed');
+            $table->enum(
+                'commission_type',
+                array_column(CommissionTypeEnum::cases(), 'value')
+            )->nullable();
             $table->decimal('commission_rate', 8, 2)->nullable();
 
             $table->text('note')->nullable();

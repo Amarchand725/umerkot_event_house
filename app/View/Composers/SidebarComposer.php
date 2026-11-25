@@ -17,6 +17,7 @@ use App\Modules\Service\Models\Service;
 use App\Modules\ExpenseCategory\Models\ExpenseCategory;
 use App\Modules\Expense\Models\Expense;
 use App\Modules\Payment\Models\Payment;
+use App\Modules\Employee\Models\Employee;
 use Illuminate\View\View;
 
 class SidebarComposer
@@ -36,6 +37,8 @@ class SidebarComposer
             'expenses' => Expense::count(),
 
             'payments' => Payment::count(),
+
+            'employees' => Employee::count(),
 
             'services'         => Service::count(),
             'units'         => Unit::count(),

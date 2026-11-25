@@ -10,15 +10,21 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Status;
+use App\Modules\Designation\Models\Designation;
+
+use App\Enum\CommissionTypeEnum;
+use App\Enum\PayTypeEnum;
 
 class EmployeeController extends BaseModuleController
 {
     protected $status;
+    protected $designationModel;
 
     public function __construct(
         protected EmployeeContract $employeeRepo
     ){
         $this->status = new Status();
+        $this->designationModel = new Designation();
         // Initialize common module variables automatically
         $this->autoInit();
     }
@@ -72,12 +78,18 @@ class EmployeeController extends BaseModuleController
 
     public function create()
     {
-        return (string) view($this->pathInitialize.'.create_content', get_defined_vars());
+        $formData = $this->getFormData();
+
+        return (string) view(
+            $this->pathInitialize.'.create_content',
+            array_merge($formData, get_defined_vars())
+        );
     }
 
     public function store(EmployeeRequest $request)
     {
         $payload = $request->validated();
+
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {
@@ -94,9 +106,14 @@ class EmployeeController extends BaseModuleController
 
     public function edit(Employee $employee)
     {
+        $formData = $this->getFormData();
         $statuses = $this->status->where('model', 'Employee')->get();
         $model = $this->employeeRepo->showModel($employee);
-        return (string) view($this->pathInitialize.'.edit_content', get_defined_vars());
+
+        return (string) view(
+            $this->pathInitialize.'.edit_content',
+            array_merge($formData, get_defined_vars())
+        );
     }
 
     public function update(EmployeeRequest $request, Employee $employee)
@@ -200,5 +217,14 @@ class EmployeeController extends BaseModuleController
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
+    }
+
+    private function getFormData(): array
+    {
+        return [
+            'compensation_types' => CommissionTypeEnum::cases(),
+            'pay_types' => PayTypeEnum::cases(),
+            'designations' => $this->designationModel->where('status_id', statusId('Designation', 'active'))->get(),
+        ];
     }
 }

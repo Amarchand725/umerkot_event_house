@@ -311,6 +311,43 @@
 
         @endcanany
 
+        {{-- ===================================================== --}}
+        {{-- EMPLOYEE --}}
+        {{-- ===================================================== --}}
+
+        @canany([
+            'employee-list',
+        ])
+
+            <li class="menu-header small text-uppercase">
+                <span class="menu-header-text">Employee</span>
+            </li>
+
+            <li class="menu-item {{ request()->is('back-office/employees', 'back-office/employees/*') ? 'active open' : '' }}">
+
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons ti ti-chart-bar"></i>
+                    <div class="d-flex justify-content-between w-100">
+                        <span>Employees</span>
+                        <span class="badge bg-primary">{{ $sidebarCounts['employees'] ?? 0 }}</span>
+                    </div>
+                </a>
+
+                <ul class="menu-sub">
+
+                    @can('employee-list')
+                        <li class="menu-item {{ request()->is('back-office/employees') ? 'active' : '' }}">
+                            <a href="{{ route('back-office.employees.index') }}" class="menu-link">
+                                <i class="menu-icon tf-icons ti ti-layout-dashboard"></i>
+                                <div>All Employees</div>
+                            </a>
+                        </li>
+                    @endcan
+                </ul>
+            </li>
+
+        @endcanany
+
 
         {{-- ===================================================== --}}
         {{-- PRODUCT MANAGEMENT --}}

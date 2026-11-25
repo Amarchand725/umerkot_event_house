@@ -10,6 +10,8 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Status;
 use App\Models\User;
+use App\Services\DocumentNumberService;
+use App\Modules\EmployeeCompensation\Models\EmployeeCompensation;
 
 class Employee extends Model
 {
@@ -26,6 +28,11 @@ class Employee extends Model
                 $model->status_id = Status::where('model', 'Employee')
                     ->where('name', 'active')
                     ->value('id');
+            }
+
+            if (empty($model->employee_code)) {
+                $model->employee_code = app(DocumentNumberService::class)
+                    ->generate('employee');
             }
         });
     }
@@ -49,5 +56,9 @@ class Employee extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+    public function compensation()
+    {
+        return $this->hasMany(EmployeeCompensation::class, 'employee_id', 'id');
     }
 }

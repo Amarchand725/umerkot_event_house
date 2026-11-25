@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             InventoryItemSeeder::class,
             // PackageSeeder::class,
             ServiceSeeder::class,
+            DesignationSeeder::class
         ]);
     }
 }

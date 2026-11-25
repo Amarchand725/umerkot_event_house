@@ -357,20 +357,6 @@
                         <span class="text-danger">*</span>
                     </label>
 
-                    {{-- <input
-                        type="datetime-local"
-                        id="start_date"
-                        name="event[start_date]"
-                        class="form-control form-control-lg"
-                        min="{{ now()->format('Y-m-d\TH:i') }}"
-                        value="{{ old(
-                            'event.start_date',
-                            isset($model->start_date)
-                                ? \Carbon\Carbon::parse($model->start_date)->format('Y-m-d\TH:i')
-                                : ''
-                        ) }}"
-                    /> --}}
-
                     <input
                         type="text"
                         id="start_date"
@@ -398,20 +384,6 @@
                         End Date & Time
                         <span class="text-danger">*</span>
                     </label>
-
-                    {{-- <input
-                        type="datetime-local"
-                        id="end_date"
-                        name="event[end_date]"
-                        class="form-control form-control-lg"
-                        min="{{ now()->format('Y-m-d\TH:i') }}"
-                        value="{{ old(
-                            'event.end_date',
-                            isset($model->end_date)
-                                ? \Carbon\Carbon::parse($model->end_date)->format('Y-m-d\TH:i')
-                                : ''
-                        ) }}"
-                    /> --}}
 
                     <input
                         type="text"

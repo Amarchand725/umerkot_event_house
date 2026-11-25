@@ -24,4 +24,5 @@ return [
     \App\Modules\EmployeeCompensation\Repositories\Contracts\EmployeeCompensationContract::class => \App\Modules\EmployeeCompensation\Repositories\Eloquent\EmployeeCompensationRepository::class,
     \App\Modules\EmployeeAttendance\Repositories\Contracts\EmployeeAttendanceContract::class => \App\Modules\EmployeeAttendance\Repositories\Eloquent\EmployeeAttendanceRepository::class,
     \App\Modules\EmployeeAdvance\Repositories\Contracts\EmployeeAdvanceContract::class => \App\Modules\EmployeeAdvance\Repositories\Eloquent\EmployeeAdvanceRepository::class,
+    \App\Modules\Payroll\Repositories\Contracts\PayrollContract::class => \App\Modules\Payroll\Repositories\Eloquent\PayrollRepository::class,
 ];

@@ -132,6 +132,13 @@ class StatusSeeder extends Seeder
             ['model' => 'EmployeeAdvance', 'name' => 'rejected'],
             ['model' => 'EmployeeAdvance', 'name' => 'disbursed'],
             ['model' => 'EmployeeAdvance', 'name' => 'settled'],
+
+            //Payroll
+            ['model' => 'Payroll', 'name' => 'draft'],
+            ['model' => 'Payroll', 'name' => 'approved'],
+            ['model' => 'Payroll', 'name' => 'partially_paid'],
+            ['model' => 'Payroll', 'name' => 'paid'],
+            ['model' => 'Payroll', 'name' => 'cancelled'],
         ];
 
         foreach ($data as $item) {

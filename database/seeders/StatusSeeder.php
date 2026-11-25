@@ -118,6 +118,13 @@ class StatusSeeder extends Seeder
             //Employee Compensation
             ['model' => 'EmployeeCompensation', 'name' => 'active'],
             ['model' => 'EmployeeCompensation', 'name' => 'de-active'],
+
+            //Employee Attendance
+            ['model' => 'EmployeeAttandence', 'name' => 'present'],
+            ['model' => 'EmployeeAttandence', 'name' => 'absent'],
+            ['model' => 'EmployeeAttandence', 'name' => 'half_day'],
+            ['model' => 'EmployeeAttandence', 'name' => 'leave'],
+            ['model' => 'EmployeeAttandence', 'name' => 'holiday'],
         ];
 
         foreach ($data as $item) {

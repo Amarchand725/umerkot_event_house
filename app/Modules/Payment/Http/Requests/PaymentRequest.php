@@ -36,7 +36,7 @@ class PaymentRequest extends FormRequest
             'discount' => [
                 'nullable',
                 'numeric',
-                'min:0',
+                'min:0'
             ],
 
             'amount' => [

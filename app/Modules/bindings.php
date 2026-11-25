@@ -19,4 +19,6 @@ return [
     \App\Modules\Expense\Repositories\Contracts\ExpenseContract::class => \App\Modules\Expense\Repositories\Eloquent\ExpenseRepository::class,
     \App\Modules\Order\Repositories\Contracts\OrderContract::class => \App\Modules\Order\Repositories\Eloquent\OrderRepository::class,
     \App\Modules\OrderReturn\Repositories\Contracts\OrderReturnContract::class => \App\Modules\OrderReturn\Repositories\Eloquent\OrderReturnRepository::class,
+    \App\Modules\Employee\Repositories\Contracts\EmployeeContract::class => \App\Modules\Employee\Repositories\Eloquent\EmployeeRepository::class,
+    \App\Modules\Designation\Repositories\Contracts\DesignationContract::class => \App\Modules\Designation\Repositories\Eloquent\DesignationRepository::class,
 ];

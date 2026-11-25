@@ -104,6 +104,16 @@ class StatusSeeder extends Seeder
             ['model' => 'Invoice', 'name' => 'Paid'],
             ['model' => 'Invoice', 'name' => 'Partial'],
             ['model' => 'Invoice', 'name' => 'Overdue'],
+
+            //Designation
+            ['model' => 'Designation', 'name' => 'active'],
+            ['model' => 'Designation', 'name' => 'de-active'],
+
+            //Employee
+            ['model' => 'Employee', 'name' => 'active'],
+            ['model' => 'Employee', 'name' => 'de-active'],
+            ['model' => 'Employee', 'name' => 'resigned'],
+            ['model' => 'Employee', 'name' => 'terminated'],
         ];
 
         foreach ($data as $item) {

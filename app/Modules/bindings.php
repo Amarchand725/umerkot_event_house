@@ -21,4 +21,5 @@ return [
     \App\Modules\OrderReturn\Repositories\Contracts\OrderReturnContract::class => \App\Modules\OrderReturn\Repositories\Eloquent\OrderReturnRepository::class,
     \App\Modules\Employee\Repositories\Contracts\EmployeeContract::class => \App\Modules\Employee\Repositories\Eloquent\EmployeeRepository::class,
     \App\Modules\Designation\Repositories\Contracts\DesignationContract::class => \App\Modules\Designation\Repositories\Eloquent\DesignationRepository::class,
+    \App\Modules\EmployeeCompensation\Repositories\Contracts\EmployeeCompensationContract::class => \App\Modules\EmployeeCompensation\Repositories\Eloquent\EmployeeCompensationRepository::class,
 ];

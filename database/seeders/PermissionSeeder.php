@@ -267,6 +267,36 @@ class PermissionSeeder extends Seeder
             'report-settlements',
             'report-inventory',
             'report-customers',
+
+            /*
+            Designation Management
+            |--------------------------------------------------------------------------
+            */
+            'designation-list',
+            'designation-create',
+            'designation-view',
+            'designation-edit',
+            'designation-delete',
+
+            /*
+            Employee Management
+            |--------------------------------------------------------------------------
+            */
+            'employee-list',
+            'employee-create',
+            'employee-view',
+            'employee-edit',
+            'employee-delete',
+
+            /*
+            Employee Compensation Management
+            |--------------------------------------------------------------------------
+            */
+            'employee-compensation-list',
+            'employee-compensation-create',
+            'employee-compensation-view',
+            'employee-compensation-edit',
+            'employee-compensation-delete',
         ];
     }
 

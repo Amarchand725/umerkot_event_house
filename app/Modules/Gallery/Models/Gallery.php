@@ -15,7 +15,7 @@ class Gallery extends Model
 {
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
-    protected $fillable = ['name', 'status_id'];
+    protected $fillable = ['title', 'description', 'status_id', 'attachment_id'];
 
     protected static function booted()
     {

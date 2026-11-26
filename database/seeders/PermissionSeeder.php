@@ -308,6 +308,17 @@ class PermissionSeeder extends Seeder
             'employee_attendance-view',
             'employee_attendance-edit',
             'employee_attendance-delete',
+
+            /*
+            Slider Management
+            |--------------------------------------------------------------------------
+            */
+            'slider-list',
+            'slider-create',
+            'slider-view',
+            'slider-edit',
+            'slider-delete',
+            'slider-status',
         ];
     }
 

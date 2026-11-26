@@ -239,7 +239,7 @@ class EmployeeController extends BaseModuleController
 
         try {
             $response = null;
-            DB::transaction(function () use (&$response, $payload, $event) {
+            DB::transaction(function () use (&$response, $payload, $employee) {
                 $response = $this->employeeRepo->updateStatus($event, $payload);
             });
             $response['route'] = route($this->routePrefix . '.index');

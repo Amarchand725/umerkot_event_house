@@ -139,6 +139,10 @@ class StatusSeeder extends Seeder
             ['model' => 'Payroll', 'name' => 'partially_paid'],
             ['model' => 'Payroll', 'name' => 'paid'],
             ['model' => 'Payroll', 'name' => 'cancelled'],
+
+            //Slider
+            ['model' => 'Slider', 'name' => 'active'],
+            ['model' => 'Slider', 'name' => 'de-active'],
         ];
 
         foreach ($data as $item) {

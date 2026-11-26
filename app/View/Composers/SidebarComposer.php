@@ -18,6 +18,7 @@ use App\Modules\ExpenseCategory\Models\ExpenseCategory;
 use App\Modules\Expense\Models\Expense;
 use App\Modules\Payment\Models\Payment;
 use App\Modules\Employee\Models\Employee;
+use App\Modules\Slider\Models\Slider;
 use Illuminate\View\View;
 
 class SidebarComposer
@@ -43,6 +44,7 @@ class SidebarComposer
             'services'         => Service::count(),
             'units'         => Unit::count(),
             'inventory_categories' => InventoryCategory::count(),
+            'sliders' => Slider::count(),
             'inventory_items' => InventoryItem::count(),
             'event_categories' => EventCategory::count(),
             'payment_methods' => PaymentMethod::count(),

@@ -363,6 +363,7 @@
         {{-- ===================================================== --}}
 
         @canany([
+            'slider-list',
             'inventory_item-list',
             'service-list',
             'package-list',
@@ -385,6 +386,18 @@
                 </a>
 
                 <ul class="menu-sub">
+
+                    @can('slider-list')
+                        <li class="menu-item {{ request()->is('back-office/sliders*') ? 'active' : '' }}">
+                            <a href="{{ route('back-office.sliders.index') }}" class="menu-link">
+                                <i class="menu-icon tf-icons ti ti-package"></i>
+                                <div class="d-flex justify-content-between w-100">
+                                    <span>{{ module_label('list', 'Inventory Items') }}</span>
+                                    <span class="badge bg-primary">{{ $sidebarCounts['sliders'] ?? 0 }}</span>
+                                </div>
+                            </a>
+                        </li>
+                    @endcan
 
                     @can('inventory_item-list')
                         <li class="menu-item {{ request()->is('back-office/inventory-items*') ? 'active' : '' }}">

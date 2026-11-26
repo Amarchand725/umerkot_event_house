@@ -5,6 +5,7 @@ namespace App\Modules\Employee\Http\Controllers;
 use App\Http\Controllers\BackOffice\BaseModuleController;
 use App\Modules\Employee\Repositories\Contracts\EmployeeContract;
 use App\Modules\Employee\Http\Requests\EmployeeRequest;
+use App\Http\Requests\EmployeeStatusRequest;
 use App\Modules\Employee\Models\Employee;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -217,6 +218,38 @@ class EmployeeController extends BaseModuleController
             return redirect()->route('back-office.employees.index')->with('success', module_message('bulk-restored', $this->singularLabel));
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    public function status(Employee $employee)
+    {
+        $formData = $this->getFormData();
+        $statuses = $this->status->where('model', 'Employee')->get();
+        $model = $this->employeeRepo->showModel($event);
+
+        return (string) view(
+            $this->pathInitialize . '.status_content',
+            array_merge($formData, get_defined_vars())
+        );
+    }
+
+    public function updateStatus(EmployeeStatusRequest $request, Employee $employee)
+    {
+        $payload = $request->validated();
+
+        try {
+            $response = null;
+            DB::transaction(function () use (&$response, $payload, $event) {
+                $response = $this->employeeRepo->updateStatus($event, $payload);
+            });
+            $response['route'] = route($this->routePrefix . '.index');
+
+            return successResponse($response, module_message('status_changed', $this->singularLabel));
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500); // optional HTTP 500
         }
     }
 

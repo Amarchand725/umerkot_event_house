@@ -287,6 +287,7 @@ class PermissionSeeder extends Seeder
             'employee-view',
             'employee-edit',
             'employee-delete',
+            'employee-status',
 
             /*
             Employee Compensation Management

@@ -12,6 +12,9 @@ Route::group([
         Route::post('bulk-restore', 'bulkRestore')->name('bulkRestore');
         Route::post('{employee}/restore', 'restore')->name('restore');
         Route::delete('{employee}/force-delete', 'forceDelete')->name('forceDelete');
+
+        Route::get('action/edit/{employee}/status', 'status')->name('action.status');
+        Route::post('{employee}/update-status', 'updateStatus')->name('update-status');
     });
 
     // 🧱 Resource CRUD

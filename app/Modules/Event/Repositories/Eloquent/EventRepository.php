@@ -597,7 +597,7 @@ class EventRepository extends BaseRepository implements EventContract
         }, 3);
     }
 
-    public function updateStatus(Model $model, array $payload, bool $isResource = true)
+    public function updateStatus(Model $model, array $payload)
     {
         $log = $model->statusLogs()->make();
         $log->toFill($payload);

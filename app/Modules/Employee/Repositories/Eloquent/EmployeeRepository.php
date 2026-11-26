@@ -144,4 +144,14 @@ class EmployeeRepository extends BaseRepository implements EmployeeContract
 
         return $model->refresh();
     }
+
+    public function updateStatus(Model $model, array $payload)
+    {
+        $model->status_id = $payload['status_id'];
+        $model->leave_date = $payload['leave_date'] ?? null;
+        $model->note = $payload['note'] ?? null;
+        $model->save();
+
+        return $model->refresh();
+    }
 }

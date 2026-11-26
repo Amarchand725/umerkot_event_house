@@ -20,7 +20,7 @@ class Employee extends Model
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
     protected $fillable = ['referred_by_id', 'status_id', 'avatar_id', 'cnic_front_id', 'cnic_back_id',
-        'joining_date', 'name', 'father_name', 'caste', 'phone', 'email', 'address'
+        'joining_date', 'name', 'father_name', 'caste', 'phone', 'email', 'address', 'note'
     ];
 
     protected static function booted()

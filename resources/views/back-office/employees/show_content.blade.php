@@ -6,13 +6,21 @@
     <tr>
         <td class="text-nowrap fw-semibold">Status</td>
         <td>
-            @php 
+            @php
                 $status = $model?->status;
-            @endphp 
+            @endphp
             <span class="badge rounded-pill px-3 py-2 {{ badgeClass(strtolower($status->name)) ?? 'bg-light text-dark' }}">
                 {{ strtoupper($status->name) }}
             </span>
         </td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Note</td>
+        <td>{{ $model?->note ?? '-' }}</td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Leave Date</td>
+        <td>{{ date('d M y', strtotime($model?->leave_date)) ?? '-' }}</td>
     </tr>
     @if($author = $model->author)
     <tr>

@@ -143,6 +143,10 @@ class StatusSeeder extends Seeder
             //Slider
             ['model' => 'Slider', 'name' => 'active'],
             ['model' => 'Slider', 'name' => 'de-active'],
+
+            //Review
+            ['model' => 'Review', 'name' => 'active'],
+            ['model' => 'Review', 'name' => 'de-active'],
         ];
 
         foreach ($data as $item) {

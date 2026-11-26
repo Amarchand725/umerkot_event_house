@@ -4,12 +4,12 @@
         <label for="name" class="form-label fw-semibold">
             Name <span class="text-danger">*</span>
         </label>
-        <input 
-            type="text" 
-            id="name" 
-            name="name" 
-            class="form-control form-control-lg" 
-            placeholder="Enter name" 
+        <input
+            type="text"
+            id="name"
+            name="name"
+            class="form-control form-control-lg"
+            placeholder="Enter name"
             value="{{ old('name') }}"
         />
         <span id="name_error" class="text-danger error">{{ $errors->first('name') }}</span>

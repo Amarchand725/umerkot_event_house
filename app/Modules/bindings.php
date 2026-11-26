@@ -27,4 +27,5 @@ return [
     \App\Modules\Payroll\Repositories\Contracts\PayrollContract::class => \App\Modules\Payroll\Repositories\Eloquent\PayrollRepository::class,
     \App\Modules\PayrollPayment\Repositories\Contracts\PayrollPaymentContract::class => \App\Modules\PayrollPayment\Repositories\Eloquent\PayrollPaymentRepository::class,
     \App\Modules\Slider\Repositories\Contracts\SliderContract::class => \App\Modules\Slider\Repositories\Eloquent\SliderRepository::class,
+    \App\Modules\Review\Repositories\Contracts\ReviewContract::class => \App\Modules\Review\Repositories\Eloquent\ReviewRepository::class,
 ];

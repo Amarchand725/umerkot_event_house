@@ -319,6 +319,16 @@ class PermissionSeeder extends Seeder
             'slider-edit',
             'slider-delete',
             'slider-status',
+
+            /*
+            Review Management
+            |--------------------------------------------------------------------------
+            */
+            'review-list',
+            'review-create',
+            'review-view',
+            'review-edit',
+            'review-delete',
         ];
     }
 

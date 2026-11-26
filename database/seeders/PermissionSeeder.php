@@ -329,6 +329,16 @@ class PermissionSeeder extends Seeder
             'review-view',
             'review-edit',
             'review-delete',
+
+            /*
+            FrequentlyAskedQuestion Management
+            |--------------------------------------------------------------------------
+            */
+            'frequently_asked_question-list',
+            'frequently_asked_question-create',
+            'frequently_asked_question-view',
+            'frequently_asked_question-edit',
+            'frequently_asked_question-delete',
         ];
     }
 

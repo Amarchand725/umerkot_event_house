@@ -147,6 +147,10 @@ class StatusSeeder extends Seeder
             //Review
             ['model' => 'Review', 'name' => 'active'],
             ['model' => 'Review', 'name' => 'de-active'],
+
+            //Frequently asked questions
+            ['model' => 'FrequentlyAskedQuestion', 'name' => 'active'],
+            ['model' => 'FrequentlyAskedQuestion', 'name' => 'de-active'],
         ];
 
         foreach ($data as $item) {

@@ -30,6 +30,7 @@ class EmployeeAttendanceController extends BaseModuleController
     {
         $columns = [
             'employee_name'      => ['label' => 'Employee', 'html' => true, 'searchable' => false],
+            'date_time'      => ['label' => 'Attendance', 'searchable' => false],
             'status_name'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
             'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
@@ -58,6 +59,10 @@ class EmployeeAttendanceController extends BaseModuleController
         $row->status_name = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                             . strtoupper($status) .
                             '</span>';
+
+        $row->date_time = $row->date_time
+            ? date('d M y | h:i A', strtotime($row->date_time))
+            : '-';
 
         $row->author_id = $row->author
                 ? view('back-office.partials.avatar', ['user' => $row->author])->render()

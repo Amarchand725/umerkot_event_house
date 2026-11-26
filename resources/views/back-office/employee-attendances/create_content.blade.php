@@ -27,7 +27,20 @@
         <span class="text-danger error">{{ $errors->first('employee_id') }}</span>
     </div>
 
-    {{-- Attendance Status --}}
+    {{-- Attendance Date Time --}}
+    <div class="col-12 col-md-6">
+        <label for="date_time" class="form-label fw-semibold">
+            Attendance Date Time <span class="text-danger">*</span>
+        </label>
+        <input
+            type="text"
+            id="date_time"
+            name="date_time"
+            class="form-control form-control-lg"
+            value="{{ old('date_time', isset($model->date_time) ? \Carbon\Carbon::parse($model->date_time)->format('Y-m-d\TH:i') : '') }}"
+        />
+        <span class="text-danger error">{{ $errors->first('date_time') }}</span>
+    </div>
     <div class="col-12 col-md-6">
         <label for="status_id" class="form-label fw-semibold">
             Attendance Status <span class="text-danger">*</span>
@@ -51,7 +64,7 @@
     </div>
 
     {{-- Payable Units --}}
-    <div class="col-12 col-md-6">
+    <div class="col-12 col-md-12">
         <label for="payable_units" class="form-label fw-semibold">
             Payable Units <span class="text-danger">*</span>
         </label>
@@ -133,6 +146,17 @@
         $(this).select2({
             dropdownParent: $(this).parent(),
             width: '100%',
+        });
+    });
+
+    $(document).ready(function () {
+        flatpickr("#date_time", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i:S",
+            altInput: true,
+            altFormat: "d-m-Y h:i K",
+            time_24hr: false,
+            allowInput: true
         });
     });
 </script>

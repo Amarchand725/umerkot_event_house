@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
             $table->foreignId('employee_id')->nullable()->constrained('employees')->nullOnDelete();
+            $table->datetime('date_time')->nullable();
             $table->decimal('payable_units', 5, 2)->default(1)->comment('1 = full day, 0.5 = half day, 0 = unpaid');
             $table->decimal('worked_hours', 6, 2)->default(0);
             $table->decimal('overtime_hours', 6, 2)->default(0);

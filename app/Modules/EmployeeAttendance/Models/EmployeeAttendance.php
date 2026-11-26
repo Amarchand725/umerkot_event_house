@@ -16,7 +16,7 @@ class EmployeeAttendance extends Model
 {
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
-    protected $fillable = ['status_id', 'employee_id', 'payable_units', 'worked_hours', 'overtime_hours', 'notes'];
+    protected $fillable = ['status_id', 'employee_id', 'date_time', 'payable_units', 'worked_hours', 'overtime_hours', 'notes'];
 
     protected static function booted()
     {

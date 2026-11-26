@@ -4,6 +4,10 @@
         <td>{{ ucfirst($model?->employee?->name ?? '-') }} ({{ ucfirst($model?->employee?->compensation?->designation?->name ?? '-') }})</td>
     </tr>
     <tr>
+        <td class="text-nowrap fw-semibold">Attendance Date & Time</td>
+        <td>{{ date('d M y | h:i A', strtotime($model?->date_time)) ?? '-' }} </td>
+    </tr>
+    <tr>
         <td class="text-nowrap fw-semibold">Payable Unit</td>
         <td>
             @if($model->payable_units == 1.00)

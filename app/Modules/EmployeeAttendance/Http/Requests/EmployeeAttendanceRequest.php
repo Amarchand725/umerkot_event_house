@@ -22,6 +22,7 @@ class EmployeeAttendanceRequest extends FormRequest
             'worked_hours' => ['nullable', 'numeric', 'min:0', 'max:9999.99'],
             'overtime_hours' => ['nullable', 'numeric', 'min:0', 'max:9999.99'],
             'notes' => ['nullable', 'string', 'max:255'],
+            'date_time' => ['nullable', 'date_format:Y-m-d H:i:s'],
         ];
     }
 

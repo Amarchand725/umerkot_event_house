@@ -48,10 +48,10 @@ class RouteServiceProvider extends ServiceProvider
 
                 foreach ($routeFiles as $file) {
                     $fileName = pathinfo($file, PATHINFO_FILENAME); // e.g., 'activity-log'
-                    
+
                     // Convert to plural kebab-case for URL prefix
                     $prefix = Str::kebab(Str::plural($fileName)); // 'activity-logs'
-                    
+
                     // Use plural prefix as route URL, but keep file path as is
                     Route::as($prefix . '.')
                         ->prefix($prefix)

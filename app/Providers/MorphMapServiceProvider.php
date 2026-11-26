@@ -2,14 +2,17 @@
 
 namespace App\Providers;
 
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\ServiceProvider;
+
 use App\Models\{
     Attachment, Country, EntityRelationship, LogEntityStatus,
     OtpToken, Permission, Role, State, Status, User,
 };
 use App\Modules\Event\Models\Event;
 use App\Modules\Employee\Models\Employee;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\ServiceProvider;
+use App\Modules\Slider\Models\Slider;
+use App\Modules\Gallery\Models\Gallery;
 
 class MorphMapServiceProvider extends ServiceProvider
 {
@@ -39,7 +42,9 @@ class MorphMapServiceProvider extends ServiceProvider
             "LogEntityStatus"  => LogEntityStatus::class,
             "EntityRelationship"  => EntityRelationship::class,
             'Event' => Event::class,
-            'Employee' => Employee::class
+            'Employee' => Employee::class,
+            'Slider' => Slider::class,
+            'Gallery' => Gallery::class,
         ]);
     }
 }

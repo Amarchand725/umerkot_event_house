@@ -5,6 +5,8 @@ namespace App\Modules\Slider\Repositories\Eloquent;
 use App\Repositories\Eloquent\BaseRepository;
 use App\Modules\Slider\Repositories\Contracts\SliderContract;
 use App\Modules\Slider\Models\Slider;
+use App\Helpers\FileUploader;
+use Illuminate\Database\Eloquent\Model;
 
 class SliderRepository extends BaseRepository implements SliderContract
 {

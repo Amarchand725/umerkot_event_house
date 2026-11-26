@@ -29,4 +29,5 @@ return [
     \App\Modules\Slider\Repositories\Contracts\SliderContract::class => \App\Modules\Slider\Repositories\Eloquent\SliderRepository::class,
     \App\Modules\Review\Repositories\Contracts\ReviewContract::class => \App\Modules\Review\Repositories\Eloquent\ReviewRepository::class,
     \App\Modules\FrequentlyAskedQuestion\Repositories\Contracts\FrequentlyAskedQuestionContract::class => \App\Modules\FrequentlyAskedQuestion\Repositories\Eloquent\FrequentlyAskedQuestionRepository::class,
+    \App\Modules\Gallery\Repositories\Contracts\GalleryContract::class => \App\Modules\Gallery\Repositories\Eloquent\GalleryRepository::class,
 ];

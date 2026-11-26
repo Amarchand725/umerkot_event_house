@@ -1,17 +1,53 @@
 <table class="table table-flush-spacing">
     <tr>
-        <td class="text-nowrap fw-semibold">Name</td>
-        <td>{{ ucfirst($model?->name ?? '-') }}</td>
+        <td class="text-nowrap fw-semibold">Employee Name</td>
+        <td>{{ ucfirst($model?->employee?->name ?? '-') }} ({{ ucfirst($model?->employee?->compensation?->designation?->name ?? '-') }})</td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Payable Unit</td>
+        <td>
+            @if($model->payable_units == 1.00)
+                <span class="badge rounded-pill px-3 py-2 bg-success text-white ">
+                    Full Day
+                </span>
+            @elseif($model->payable_units == 0.5)
+                <span class="badge rounded-pill px-3 py-2 bg-warning text-white ">
+                    Half Day
+                </span>
+            @else
+                <span class="badge rounded-pill px-3 py-2 bg-danger text-white ">
+                    Unpaid
+                </span>
+            @endif
+        </td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Worked Hours</td>
+        <td>
+            {{$model->worked_hours ?? '0'}}
+        </td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Overtime Hours</td>
+        <td>
+            {{$model->overtime_hours ?? '0'}}
+        </td>
     </tr>
     <tr>
         <td class="text-nowrap fw-semibold">Status</td>
         <td>
-            @php 
+            @php
                 $status = $model?->status;
-            @endphp 
+            @endphp
             <span class="badge rounded-pill px-3 py-2 {{ badgeClass(strtolower($status->name)) ?? 'bg-light text-dark' }}">
                 {{ strtoupper($status->name) }}
             </span>
+        </td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Note</td>
+        <td>
+            {{$model->notes ?? '-'}}
         </td>
     </tr>
     @if($author = $model->author)

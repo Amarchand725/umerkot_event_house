@@ -10,12 +10,13 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Status;
 use App\Models\User;
+use App\Modules\Employee\Models\Employee;
 
 class EmployeeAttendance extends Model
 {
     use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
 
-    protected $fillable = ['status_id', 'employee_id', 'payable_units', 'worked_hours', 'overtime_hours'];
+    protected $fillable = ['status_id', 'employee_id', 'payable_units', 'worked_hours', 'overtime_hours', 'notes'];
 
     protected static function booted()
     {
@@ -47,5 +48,10 @@ class EmployeeAttendance extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id');
     }
 }

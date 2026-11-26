@@ -6,6 +6,7 @@ use App\Http\Controllers\BackOffice\BaseModuleController;
 use App\Modules\EmployeeAttendance\Repositories\Contracts\EmployeeAttendanceContract;
 use App\Modules\EmployeeAttendance\Http\Requests\EmployeeAttendanceRequest;
 use App\Modules\EmployeeAttendance\Models\EmployeeAttendance;
+use App\Modules\Employee\Models\Employee;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -14,11 +15,13 @@ use App\Models\Status;
 class EmployeeAttendanceController extends BaseModuleController
 {
     protected $status;
+    protected $employeeModel;
 
     public function __construct(
         protected EmployeeAttendanceContract $employeeAttendanceRepo
     ){
         $this->status = new Status();
+        $this->employeeModel = new Employee();
         // Initialize common module variables automatically
         $this->autoInit();
     }
@@ -26,8 +29,8 @@ class EmployeeAttendanceController extends BaseModuleController
     public function index(Request $request)
     {
         $columns = [
-            'name'      => ['label' => 'name', 'searchable' => 'name'],
-            'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
+            'employee_name'      => ['label' => 'Employee', 'html' => true, 'searchable' => false],
+            'status_name'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
             'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
             'action'     => ['label' => 'Action', 'html' => true, 'searchable' => false],
@@ -51,13 +54,16 @@ class EmployeeAttendanceController extends BaseModuleController
 
     public function formatRow($row)
     {
-        $status = $row->status?->name ?? 'de-active';
-        $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
-                    . strtoupper($status) .
-                    '</span>';
+        $status = $row->status?->name;
+        $row->status_name = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
+                            . strtoupper($status) .
+                            '</span>';
 
         $row->author_id = $row->author
                 ? view('back-office.partials.avatar', ['user' => $row->author])->render()
+                : '-';
+        $row->employee_name = $row->employee
+                ? view('back-office.partials.avatar', ['user' => $row->employee])->render()
                 : '-';
 
         $row->action = view('back-office.partials.actions', [
@@ -72,12 +78,18 @@ class EmployeeAttendanceController extends BaseModuleController
 
     public function create()
     {
-        return (string) view($this->pathInitialize.'.create_content', get_defined_vars());
+        $formData = $this->getFormData();
+
+        return (string) view(
+            $this->pathInitialize.'.create_content',
+            array_merge($formData, get_defined_vars())
+        );
     }
 
     public function store(EmployeeAttendanceRequest $request)
     {
         $payload = $request->validated();
+
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {
@@ -94,9 +106,13 @@ class EmployeeAttendanceController extends BaseModuleController
 
     public function edit(EmployeeAttendance $employeeAttendance)
     {
-        $statuses = $this->status->where('model', 'EmployeeAttendance')->get();
+        $formData = $this->getFormData();
         $model = $this->employeeAttendanceRepo->showModel($employeeAttendance);
-        return (string) view($this->pathInitialize.'.edit_content', get_defined_vars());
+
+        return (string) view(
+            $this->pathInitialize.'.edit_content',
+            array_merge($formData, get_defined_vars())
+        );
     }
 
     public function update(EmployeeAttendanceRequest $request, EmployeeAttendance $employeeAttendance)
@@ -200,5 +216,13 @@ class EmployeeAttendanceController extends BaseModuleController
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
+    }
+
+    private function getFormData(): array
+    {
+        return [
+            'employees' => $this->employeeModel->where('status_id', statusId('Employee', 'active'))->get(),
+            'statuses' => $this->status->where('model', 'EmployeeAttandence')->get(),
+        ];
     }
 }

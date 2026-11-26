@@ -292,11 +292,21 @@ class PermissionSeeder extends Seeder
             Employee Compensation Management
             |--------------------------------------------------------------------------
             */
-            'employee-compensation-list',
-            'employee-compensation-create',
-            'employee-compensation-view',
-            'employee-compensation-edit',
-            'employee-compensation-delete',
+            'employee_compensation-list',
+            'employee_compensation-create',
+            'employee_compensation-view',
+            'employee_compensation-edit',
+            'employee_compensation-delete',
+
+            /*
+            Employee Attendance Management
+            |--------------------------------------------------------------------------
+            */
+            'employee_attendance-list',
+            'employee_attendance-create',
+            'employee_attendance-view',
+            'employee_attendance-edit',
+            'employee_attendance-delete',
         ];
     }
 

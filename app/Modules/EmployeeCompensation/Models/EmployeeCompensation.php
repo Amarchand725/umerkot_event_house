@@ -9,6 +9,7 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Status;
 use App\Models\User;
+use App\Modules\Designation\Models\Designation;
 
 class EmployeeCompensation extends Model
 {
@@ -50,5 +51,9 @@ class EmployeeCompensation extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+    public function designation()
+    {
+        return $this->belongsTo(Designation::class, 'designation_id');
     }
 }

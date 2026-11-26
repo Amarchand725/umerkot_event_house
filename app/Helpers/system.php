@@ -143,6 +143,11 @@ function badgeClass(string $status): string
         'pending'          => 'bg-danger text-white',
         'de-active'          => 'bg-danger text-white',
         'confirmed'                => 'bg-info text-white',
+        'present'                => 'bg-success text-white',
+        'absent'                => 'bg-danger text-white',
+        'half day'                => 'bg-warning text-white',
+        'leave'                => 'bg-info text-white',
+        'holiday'                => 'bg-primary text-white',
     ];
 
     return $statusColors[strtolower($status)];

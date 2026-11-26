@@ -343,6 +343,15 @@
                             </a>
                         </li>
                     @endcan
+
+                    @can('employee-attendance-list')
+                        <li class="menu-item {{ request()->is('back-office/employee-attendances') ? 'active' : '' }}">
+                            <a href="{{ route('back-office.employee-attendances.index') }}" class="menu-link">
+                                <i class="menu-icon tf-icons ti ti-layout-dashboard"></i>
+                                <div>All Attendance</div>
+                            </a>
+                        </li>
+                    @endcan
                 </ul>
             </li>
 

@@ -10,6 +10,7 @@ use Illuminate\Validation\Rules\Enum;
 
 use App\Enum\CommissionTypeEnum;
 use App\Enum\PayTypeEnum;
+use App\Enum\CommissionBasisEnum;
 
 class EmployeeRequest extends FormRequest
 {
@@ -32,6 +33,10 @@ class EmployeeRequest extends FormRequest
             'email' => ['nullable', 'email', 'max:255'],
             'address' => ['nullable', 'string'],
 
+            'avatar' => ['nullable', 'image'],
+            'cnic_front' => ['nullable', 'image'],
+            'cnic_back' => ['nullable', 'image'],
+
             'reference.full_name' => ['nullable', 'string', 'max:255'],
             'reference.phone' => ['nullable', 'string', 'max:30'],
             'reference.address' => ['nullable', 'string'],
@@ -41,7 +46,8 @@ class EmployeeRequest extends FormRequest
             'compensation.basic_pay' => ['nullable', 'numeric', 'min:0'],
             'compensation.daily_rate' => ['nullable', 'numeric', 'min:0'],
             'compensation.hourly_rate' => ['nullable', 'numeric', 'min:0'],
-            'compensation.commission_basis' => ['nullable', 'string'],
+            // 'compensation.commission_basis' => ['nullable', 'string'],
+            'compensation.commission_basis' => ['nullable', new Enum(CommissionBasisEnum::class)],
             'compensation.commission_type' => ['nullable', new Enum(CommissionTypeEnum::class)],
             'compensation.commission_rate' => ['nullable', 'numeric', 'min:0'],
             'compensation.note' => ['nullable', 'string'],

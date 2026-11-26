@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 use App\Enum\CommissionTypeEnum;
 use App\Enum\PayTypeEnum;
+use App\Enum\CommissionBasisEnum;
 
 return new class extends Migration
 {
@@ -31,7 +32,10 @@ return new class extends Migration
             $table->decimal('daily_rate', 14, 2)->nullable();
             $table->decimal('hourly_rate', 14, 2)->nullable();
 
-            $table->string('commission_basis')->nullable()->comment('received_amount, booking_amount, profit, fixed_per_event');
+            $table->enum(
+                'commission_basis',
+                array_column(CommissionBasisEnum::cases(), 'value')
+            )->nullable();
             $table->enum(
                 'commission_type',
                 array_column(CommissionTypeEnum::cases(), 'value')

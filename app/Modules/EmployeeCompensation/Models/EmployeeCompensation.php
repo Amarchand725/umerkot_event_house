@@ -4,7 +4,6 @@ namespace App\Modules\EmployeeCompensation\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\ModelTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +12,7 @@ use App\Models\User;
 
 class EmployeeCompensation extends Model
 {
-    use SoftDeletes, LogsActivity, ModelTrait, HasFactory;
+    use LogsActivity, ModelTrait, HasFactory;
 
     protected $fillable = [
         'employee_id', 'status_id', 'designation_id', 'pay_type',

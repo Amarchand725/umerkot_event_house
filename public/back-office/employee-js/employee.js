@@ -260,16 +260,18 @@ function initializeSelect2(element = document) {
 
 // Image Preview
 $('.image-preview-input').on('change', function () {
+
     const input = this;
     const previewId = $(this).data('preview');
     const preview = $('#' + previewId);
 
     if (input.files && input.files[0]) {
+
         const file = input.files[0];
 
         if (!file.type.startsWith('image/')) {
             input.value = '';
-            preview.attr('src', '').addClass('d-none');
+            alert('Please select a valid image file.');
             return;
         }
 
@@ -281,7 +283,5 @@ $('.image-preview-input').on('change', function () {
         };
 
         reader.readAsDataURL(file);
-    } else {
-        preview.attr('src', '').addClass('d-none');
     }
 });

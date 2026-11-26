@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Refrence;
 use App\Models\Status;
 use App\Models\User;
+use App\Models\Attachment;
 use App\Services\DocumentNumberService;
 use App\Modules\EmployeeCompensation\Models\EmployeeCompensation;
 
@@ -57,8 +59,30 @@ class Employee extends Model
     {
         return $this->belongsTo(User::class, 'author_id');
     }
-    public function compensation()
+    public function compensations()
     {
         return $this->hasMany(EmployeeCompensation::class, 'employee_id', 'id');
+    }
+
+    public function compensation()
+    {
+        return $this->hasOne(EmployeeCompensation::class, 'employee_id', 'id');
+    }
+
+    public function refrence()
+    {
+        return $this->hasOne(Refrence::class, 'id', 'referred_by_id');
+    }
+    public function avatar()
+    {
+        return $this->belongsTo(Attachment::class, 'avatar_id');
+    }
+    public function cnicFront()
+    {
+        return $this->belongsTo(Attachment::class, 'cnic_front_id');
+    }
+    public function cnicBack()
+    {
+        return $this->belongsTo(Attachment::class, 'cnic_back_id');
     }
 }

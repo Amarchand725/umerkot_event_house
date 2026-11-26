@@ -187,55 +187,6 @@
                     </span>
                 </div>
 
-                {{-- <div class="col-12 col-md-4">
-                    <label for="avatar" class="form-label fw-semibold">
-                        Avatar
-                    </label>
-
-                    <input type="file"
-                            id="avatar"
-                            name="avatar"
-                            class="form-control"
-                            accept="image/*">
-
-                    <span class="text-danger error">
-                        {{ $errors->first('avatar') }}
-                    </span>
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <label for="cnic_front" class="form-label fw-semibold">
-                        CNIC Front
-                    </label>
-
-                    <input type="file"
-                            id="cnic_front"
-                            name="cnic_front"
-                            class="form-control"
-                            accept="image/*">
-
-                    <span class="text-danger error">
-                        {{ $errors->first('cnic_front') }}
-                    </span>
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <label for="cnic_back" class="form-label fw-semibold">
-                        CNIC Back
-                    </label>
-
-                    <input type="file"
-                            id="cnic_back"
-                            name="cnic_back"
-                            class="form-control"
-                            accept="image/*">
-
-                    <span class="text-danger error">
-                        {{ $errors->first('cnic_back') }}
-                    </span>
-                </div> --}}
-
-
                 {{-- Avatar --}}
                 <div class="col-12 col-md-4">
                     <label for="avatar" class="form-label fw-semibold">Avatar</label>
@@ -458,25 +409,12 @@
                             class="form-select form-select-lg">
                         <option value="">Select Commission Basis</option>
 
-                        <option value="received_amount"
-                            @selected(old('commission_basis') == 'received_amount')>
-                            Received Amount
-                        </option>
-
-                        <option value="booking_amount"
-                            @selected(old('commission_basis') == 'booking_amount')>
-                            Booking Amount
-                        </option>
-
-                        <option value="profit"
-                            @selected(old('commission_basis') == 'profit')>
-                            Profit
-                        </option>
-
-                        <option value="fixed_per_event"
-                            @selected(old('commission_basis') == 'fixed_per_event')>
-                            Fixed Per Event
-                        </option>
+                        @foreach ($commission_basises as $value => $label)
+                            <option value="{{ $value }}"
+                                @selected(old('commission_basis') == $value)>
+                                {{ $label }}
+                            </option>
+                        @endforeach
                     </select>
 
                     <span class="text-danger error">

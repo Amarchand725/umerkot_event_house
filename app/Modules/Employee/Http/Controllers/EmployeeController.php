@@ -14,6 +14,7 @@ use App\Modules\Designation\Models\Designation;
 
 use App\Enum\CommissionTypeEnum;
 use App\Enum\PayTypeEnum;
+use App\Enum\CommissionBasisEnum;
 
 class EmployeeController extends BaseModuleController
 {
@@ -224,6 +225,7 @@ class EmployeeController extends BaseModuleController
         return [
             'compensation_types' => CommissionTypeEnum::cases(),
             'pay_types' => PayTypeEnum::cases(),
+            'commission_basises' => CommissionBasisEnum::cases(),
             'designations' => $this->designationModel->where('status_id', statusId('Designation', 'active'))->get(),
         ];
     }

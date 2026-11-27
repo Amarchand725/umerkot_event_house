@@ -1,11 +1,25 @@
 <table class="table table-flush-spacing">
     <tr>
-        <td class="text-nowrap fw-semibold">Name</td>
+        <td class="text-nowrap fw-semibold">Employee</td>
         <td>
-            {{ ucfirst($model?->name ?? '-') }}
-            @if($designation = $model?->compensation?->designation?->name)
-                ({{ $designation }})
-            @endif
+            @php
+                $avatarPath = optional($model->avatar)->path
+                        ? asset('storage/' . $model->avatar->path)
+                        : asset('back-office/assets/img/avatars/default-avatar.png');
+            @endphp
+            <div class="d-flex align-items-center gap-2">
+                <img src="{{ $avatarPath }}" width="36" height="36" class="rounded-circle" alt="Avatar">
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ $model->name ?? '-' }}</span>
+                    <small class="text-muted">{{ $model->email ?? '-' }}</small>
+                </div>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Designation</td>
+        <td>
+            {{ $model->compensation?->designation ? $model->compensation?->designation?->name : '-'; }}
         </td>
     </tr>
     <tr>
@@ -19,13 +33,30 @@
             </span>
         </td>
     </tr>
+
     <tr>
-        <td class="text-nowrap fw-semibold">Note</td>
-        <td>{{ $model?->note ?? '-' }}</td>
+        <td class="text-nowrap fw-semibold">Joining Date</td>
+        <td>
+            @if($model?->joining_date)
+                {{ date('d M y', strtotime($model?->joining_date)) ?? '-' }}
+            @else
+                -
+            @endif
+        </td>
     </tr>
     <tr>
         <td class="text-nowrap fw-semibold">Leave Date</td>
-        <td>{{ date('d M y', strtotime($model?->leave_date)) ?? '-' }}</td>
+        <td>
+            @if($model?->leave_date)
+                {{ date('d M y', strtotime($model?->leave_date)) ?? '-' }}
+            @else
+                -
+            @endif
+        </td>
+    </tr>
+    <tr>
+        <td class="text-nowrap fw-semibold">Note</td>
+        <td>{{ $model?->note ?? '-' }}</td>
     </tr>
     @if($author = $model->author)
     <tr>

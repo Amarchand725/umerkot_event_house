@@ -34,7 +34,8 @@ class EmployeeController extends BaseModuleController
     public function index(Request $request)
     {
         $columns = [
-            'employee_display_name' => ['label' => 'Name (Designation)', 'html' => true, 'searchable' => 'name'],
+            'employee_display_name' => ['label' => 'Employee', 'html' => true, 'searchable' => 'name'],
+            'designation' => ['label' => 'Designation', 'searchable' => false],
             'status_name'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
             'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
@@ -59,9 +60,8 @@ class EmployeeController extends BaseModuleController
 
     public function formatRow($row)
     {
-        $designation = $row->compensation?->designation?->name;
-        $row->employee_display_name = e(ucfirst($row->name ?? '-'))
-            . ($designation ? ' ('.e($designation).')' : '');
+        $row->designation = $row->compensation?->designation ? $row->compensation?->designation?->name : '-';
+        $row->employee_display_name =  view('back-office.partials.avatar', ['user' => $row])->render() ?? '-';
 
         $status = $row->status?->name ?? 'de-active';
         $row->status_name = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'

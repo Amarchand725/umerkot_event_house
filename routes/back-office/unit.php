@@ -5,7 +5,7 @@ use App\Modules\Unit\Http\Controllers\UnitController;
 
 // 🧩 Unit Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:unit']
 ], function () {
     Route::controller(UnitController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

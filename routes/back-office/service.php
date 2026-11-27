@@ -5,7 +5,7 @@ use App\Modules\Service\Http\Controllers\ServiceController;
 
 // 🧩 Service Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:service']
 ], function () {
     Route::controller(ServiceController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

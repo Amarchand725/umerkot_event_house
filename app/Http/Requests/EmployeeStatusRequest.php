@@ -39,7 +39,7 @@ class EmployeeStatusRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if ($this->has('status_id')) {
+        if ($this->filled('status_id') && !ctype_digit((string) $this->input('status_id'))) {
             $this->merge([
                 'status_id' => Status::where('ulid', $this->input('status_id'))->value('id')
             ]);

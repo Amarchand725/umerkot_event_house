@@ -7,9 +7,9 @@ use App\Modules\Employee\Models\Employee;
 use App\Modules\Designation\Models\Designation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rule;
 
 use App\Enum\CommissionTypeEnum;
-use App\Enum\PayTypeEnum;
 use App\Enum\CommissionBasisEnum;
 
 class EmployeeRequest extends FormRequest
@@ -42,7 +42,7 @@ class EmployeeRequest extends FormRequest
             'reference.address' => ['nullable', 'string'],
 
             'compensation.effective_from' => ['nullable', 'date'],
-            'compensation.pay_type' => ['nullable', new Enum(PayTypeEnum::class)],
+            'compensation.pay_type' => ['nullable', Rule::in(['monthly', 'daily', 'hourly'])],
             'compensation.basic_pay' => ['nullable', 'numeric', 'min:0'],
             'compensation.daily_rate' => ['nullable', 'numeric', 'min:0'],
             'compensation.hourly_rate' => ['nullable', 'numeric', 'min:0'],
@@ -56,19 +56,19 @@ class EmployeeRequest extends FormRequest
 
     public function prepareForValidation()
     {
-        if ($this->has('status_id')) {
+        if ($this->filled('status_id') && !ctype_digit((string) $this->input('status_id'))) {
             $this->merge([
                 'status_id' => Status::where('ulid', $this->input('status_id'))->value('id')
             ]);
         }
 
-        if ($this->has('compensation.designation_id')) {
+        if (
+            $this->filled('compensation.designation_id') &&
+            !ctype_digit((string) $this->input('compensation.designation_id'))
+        ) {
             $this->merge([
-                'designation_id' => array_merge($this->input('designation_id', []), [
-                    'designation_id' => Designation::where(
-                        'ulid',
-                        $this->input('compensation.designation_id')
-                    )->value('id'),
+                'compensation' => array_merge($this->input('compensation', []), [
+                    'designation_id' => Designation::where('ulid', $this->input('compensation.designation_id'))->value('id'),
                 ]),
             ]);
         }

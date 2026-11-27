@@ -5,7 +5,7 @@ use App\Modules\PayrollPayment\Http\Controllers\PayrollPaymentController;
 
 // 🧩 PayrollPayment Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:payroll_payment']
 ], function () {
     Route::controller(PayrollPaymentController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

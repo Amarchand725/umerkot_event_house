@@ -16,6 +16,8 @@ class PermissionActionsMiddleware
     protected array $map = [
         // Standard REST actions
         'index' => 'list',
+        'create' => 'create',
+        'edit' => 'edit',
         'store' => 'create',
         'show' => 'view',
         'update' => 'edit',
@@ -23,15 +25,39 @@ class PermissionActionsMiddleware
 
         // Common extended CRUD actions
         'bulkDelete' => 'bulk-delete',
+        'bulkRestore' => 'bulk-restore',
         'permanentlyDestroy' => 'permanent-delete',
+        'forceDelete' => 'force-delete',
         'restore' => 'restore',
         'exportCsv' => 'export',
         'export' => 'export',
         'download' => 'download',
 
         // User-specific
-        'directPermission' => 'direct-permission',
+        'directPermission' => 'direct_permission',
         'statusUpdate' => 'status',
+        'updateStatus' => 'status',
+        'status' => 'status',
+        'payment' => 'payment',
+        'storePayment' => 'payment',
+        'paymentContent' => 'create',
+        'order' => 'order',
+        'storeOrder' => 'order',
+        'returnOrder' => 'return-order',
+        'storeReturnOrder' => 'return-order',
+        'invoice' => 'invoice',
+        'events' => 'events',
+        'orders' => 'orders',
+        'payments' => 'payments',
+        'settlements' => 'settlements',
+        'inventory' => 'inventory',
+        'customers' => 'customers',
+        'getCategoryInventoryItems' => 'list',
+        'latest' => 'view',
+        'markAllRead' => 'view',
+        'sendCredentials' => 'change_password',
+        'editPassword' => 'change_password',
+        'changePassword' => 'change_password',
 
         // Team-specific
         'assignUsers' => 'assign-user',
@@ -54,6 +80,12 @@ class PermissionActionsMiddleware
 
         $action = $request->route()->getActionMethod();
         $suffix = $this->map[$action] ?? null;
+        if (
+            $action === 'changePassword' &&
+            !str_ends_with((string) $request->route()->getControllerClass(), '\\UserController')
+        ) {
+            $suffix = null;
+        }
         if ($suffix) {
             $permission = "{$prefix}-{$suffix}";
             if (!$user->can($permission)) {

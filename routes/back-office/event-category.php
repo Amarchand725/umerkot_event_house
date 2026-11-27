@@ -5,7 +5,7 @@ use App\Modules\EventCategory\Http\Controllers\EventCategoryController;
 
 // 🧩 EventCategory Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:event_category']
 ], function () {
     Route::controller(EventCategoryController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

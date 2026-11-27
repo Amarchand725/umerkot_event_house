@@ -5,7 +5,7 @@ use App\Modules\EmployeeCompensation\Http\Controllers\EmployeeCompensationContro
 
 // 🧩 EmployeeCompensation Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:employee_compensation']
 ], function () {
     Route::controller(EmployeeCompensationController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

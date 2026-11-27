@@ -10,6 +10,8 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Status;
 use App\Models\User;
+use App\Modules\Payroll\Models\Payroll;
+use App\Modules\PaymentMethod\Models\PaymentMethod;
 
 class PayrollPayment extends Model
 {
@@ -49,5 +51,15 @@ class PayrollPayment extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function payroll()
+    {
+        return $this->belongsTo(Payroll::class, 'payroll_id');
+    }
+
+    public function paymentMethod()
+    {
+        return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
     }
 }

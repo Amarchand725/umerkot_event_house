@@ -120,6 +120,11 @@ class StatusSeeder extends Seeder
             ['model' => 'EmployeeCompensation', 'name' => 'de-active'],
 
             //Employee Attendance
+            ['model' => 'EmployeeAttendance', 'name' => 'present'],
+            ['model' => 'EmployeeAttendance', 'name' => 'absent'],
+            ['model' => 'EmployeeAttendance', 'name' => 'half_day'],
+            ['model' => 'EmployeeAttendance', 'name' => 'leave'],
+            ['model' => 'EmployeeAttendance', 'name' => 'holiday'],
             ['model' => 'EmployeeAttandence', 'name' => 'present'],
             ['model' => 'EmployeeAttandence', 'name' => 'absent'],
             ['model' => 'EmployeeAttandence', 'name' => 'half_day'],
@@ -139,6 +144,10 @@ class StatusSeeder extends Seeder
             ['model' => 'Payroll', 'name' => 'partially_paid'],
             ['model' => 'Payroll', 'name' => 'paid'],
             ['model' => 'Payroll', 'name' => 'cancelled'],
+
+            //Payroll Payment
+            ['model' => 'PayrollPayment', 'name' => 'active'],
+            ['model' => 'PayrollPayment', 'name' => 'de-active'],
 
             //Slider
             ['model' => 'Slider', 'name' => 'active'],

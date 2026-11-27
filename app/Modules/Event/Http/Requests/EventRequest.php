@@ -43,15 +43,15 @@ class EventRequest extends FormRequest
             // Inventory Items
             'items' => ['nullable', 'array'],
             'items.*.inventory_category_id' => ['nullable', 'exists:inventory_categories,id'],
-            'items.*.inventory_item_id' => ['nullable', 'exists:inventory_items,id'],
-            'items.*.quantity' => ['nullable', 'numeric', 'gt:0'],
-            'items.*.unit_price' => ['nullable', 'numeric', 'min:0'],
+            'items.*.inventory_item_id' => ['required', 'exists:inventory_items,id'],
+            'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items.*.unit_price' => ['required', 'numeric', 'min:0'],
 
             // Services
             'services' => ['nullable', 'array'],
-            'services.*.service_id' => ['nullable', 'exists:services,id'],
-            'services.*.quantity' => ['nullable', 'numeric', 'gt:0'],
-            'services.*.unit_price' => ['nullable', 'numeric', 'min:0'],
+            'services.*.service_id' => ['required', 'exists:services,id'],
+            'services.*.quantity' => ['required', 'integer', 'min:1'],
+            'services.*.unit_price' => ['required', 'numeric', 'min:0'],
 
             // Payment Information
             'payment.payment_method_id' => ['nullable', 'exists:payment_methods,id'],
@@ -99,10 +99,13 @@ class EventRequest extends FormRequest
         }
 
         if ($this->has('items')) {
-            $items = $this->input('items', []);
+            $items = collect($this->input('items', []))
+                ->filter(fn ($item) => !empty($item['inventory_item_id']))
+                ->values()
+                ->all();
 
             foreach ($items as $key => $item) {
-                if (!empty($item['inventory_item_id'])) {
+                if (!empty($item['inventory_item_id']) && !ctype_digit((string) $item['inventory_item_id'])) {
                     $items[$key]['inventory_item_id'] = InventoryItem::where(
                         'ulid',
                         $item['inventory_item_id']
@@ -116,10 +119,13 @@ class EventRequest extends FormRequest
         }
 
         if ($this->has('services')) {
-            $services = $this->input('services', []);
+            $services = collect($this->input('services', []))
+                ->filter(fn ($service) => !empty($service['service_id']))
+                ->values()
+                ->all();
 
             foreach ($services as $key => $service) {
-                if (!empty($service['service_id'])) {
+                if (!empty($service['service_id']) && !ctype_digit((string) $service['service_id'])) {
                     $services[$key]['service_id'] = Service::where(
                         'ulid',
                         $service['service_id']

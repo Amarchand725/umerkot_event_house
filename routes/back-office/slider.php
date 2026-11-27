@@ -5,7 +5,7 @@ use App\Modules\Slider\Http\Controllers\SliderController;
 
 // 🧩 Slider Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:slider']
 ], function () {
     Route::controller(SliderController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

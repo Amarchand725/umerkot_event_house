@@ -5,7 +5,7 @@ use App\Modules\Gallery\Http\Controllers\GalleryController;
 
 // 🧩 Gallery Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:gallery']
 ], function () {
     Route::controller(GalleryController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

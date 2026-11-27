@@ -5,7 +5,7 @@ use App\Modules\Blog\Http\Controllers\BlogController;
 
 // 🧩 Blog Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:blog']
 ], function () {
     Route::controller(BlogController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

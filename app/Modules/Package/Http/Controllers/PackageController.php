@@ -102,7 +102,7 @@ class PackageController extends BaseModuleController
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {
-                $this->packageRepo->storeModel($payload);
+                $response = $this->packageRepo->storeModel($payload);
             });
             return successResponse($response, module_message('created', $this->singularLabel));
         } catch (Exception $e) {
@@ -131,7 +131,7 @@ class PackageController extends BaseModuleController
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload, $package) {
-                $this->packageRepo->updateModel($package, $payload);
+                $response = $this->packageRepo->updateModel($package, $payload);
             });
             return successResponse($response, module_message('updated', $this->singularLabel));
         } catch (Exception $e) {

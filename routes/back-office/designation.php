@@ -5,7 +5,7 @@ use App\Modules\Designation\Http\Controllers\DesignationController;
 
 // 🧩 Designation Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:designation']
 ], function () {
     Route::controller(DesignationController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

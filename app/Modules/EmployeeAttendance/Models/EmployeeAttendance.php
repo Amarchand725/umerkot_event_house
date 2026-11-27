@@ -23,7 +23,7 @@ class EmployeeAttendance extends Model
         static::creating(function ($model) {
             if (empty($model->status_id)) {
                 $model->status_id = Status::where('model', 'EmployeeAttendance')
-                    ->where('name', 'active')
+                    ->where('name', 'present')
                     ->value('id');
             }
         });

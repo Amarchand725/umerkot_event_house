@@ -5,7 +5,7 @@ use App\Modules\EmployeeAdvance\Http\Controllers\EmployeeAdvanceController;
 
 // 🧩 EmployeeAdvance Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:employee_advance']
 ], function () {
     Route::controller(EmployeeAdvanceController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

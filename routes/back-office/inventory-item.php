@@ -5,7 +5,7 @@ use App\Modules\InventoryItem\Http\Controllers\InventoryItemController;
 
 // 🧩 InventoryItem Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:inventory_item']
 ], function () {
     Route::controller(InventoryItemController::class)->group(function () {
         Route::get('get-category-inventory-items', 'getCategoryInventoryItems')->name('get-category-inventory-items');

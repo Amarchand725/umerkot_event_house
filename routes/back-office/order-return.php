@@ -5,7 +5,7 @@ use App\Modules\OrderReturn\Http\Controllers\OrderReturnController;
 
 // 🧩 OrderReturn Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:order_return']
 ], function () {
     Route::controller(OrderReturnController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

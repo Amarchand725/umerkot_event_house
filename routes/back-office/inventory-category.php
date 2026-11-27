@@ -5,7 +5,7 @@ use App\Modules\InventoryCategory\Http\Controllers\InventoryCategoryController;
 
 // 🧩 InventoryCategory Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:inventory_category']
 ], function () {
     Route::controller(InventoryCategoryController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

@@ -227,7 +227,7 @@ class EmployeeAttendanceController extends BaseModuleController
     {
         return [
             'employees' => $this->employeeModel->where('status_id', statusId('Employee', 'active'))->get(),
-            'statuses' => $this->status->where('model', 'EmployeeAttandence')->get(),
+            'statuses' => $this->status->where('model', 'EmployeeAttendance')->get(),
         ];
     }
 }

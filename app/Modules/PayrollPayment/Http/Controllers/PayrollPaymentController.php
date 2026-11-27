@@ -10,6 +10,8 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Status;
+use App\Modules\Payroll\Models\Payroll;
+use App\Modules\PaymentMethod\Models\PaymentMethod;
 
 class PayrollPaymentController extends BaseModuleController
 {
@@ -26,14 +28,20 @@ class PayrollPaymentController extends BaseModuleController
     public function index(Request $request)
     {
         $columns = [
-            'name'      => ['label' => 'name', 'searchable' => 'name'],
-            'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
-            'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
+            'employee_label' => ['label' => 'Employee', 'html' => true, 'orderable' => false, 'searchable' => false],
+            'period_label' => ['label' => 'Payroll Period', 'html' => true, 'orderable' => false, 'searchable' => false],
+            'amount_label' => ['label' => 'Amount', 'html' => true, 'orderable' => false, 'searchable' => false],
+            'payment_date_label' => ['label' => 'Payment Date', 'html' => true, 'orderable' => false, 'searchable' => false],
+            'payment_method_label' => ['label' => 'Payment Method', 'html' => true, 'orderable' => false, 'searchable' => false],
+            'status_label' => ['label' => 'Status', 'html' => true, 'orderable' => false, 'searchable' => false],
+            'author_display' => ['label' => 'Author', 'html' => true, 'orderable' => false, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
-            'action'     => ['label' => 'Action', 'html' => true, 'searchable' => false],
+            'action_html' => ['label' => 'Action', 'html' => true, 'orderable' => false, 'searchable' => false],
         ];
 
-        $query = $this->payrollPaymentRepo->getAll();
+        $query = $this->payrollPaymentRepo->getAll()->with([
+            'payroll.employee', 'paymentMethod', 'status', 'author',
+        ]);
         $total_count = $query->count();
 
         $dataTable = new \App\Services\DataTableService(
@@ -51,16 +59,26 @@ class PayrollPaymentController extends BaseModuleController
 
     public function formatRow($row)
     {
+        $employeeName = $row->payroll?->employee?->name ?? '-';
+        $row->employee_label = e($employeeName);
+        $row->period_label = $row->payroll
+            ? \Illuminate\Support\Carbon::create((int) $row->payroll->year, (int) $row->payroll->month, 1)->format('F Y')
+            : '-';
+        $row->payment_method_label = e($row->paymentMethod?->name ?? '-');
+        $row->payment_date_label = $row->payment_date
+            ? \Illuminate\Support\Carbon::parse($row->payment_date)->format('d M Y')
+            : '-';
+        $row->amount_label = 'Rs. '.number_format((float) $row->amount, 2);
         $status = $row->status?->name ?? 'de-active';
-        $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
+        $row->status_label = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                     . strtoupper($status) .
                     '</span>';
 
-        $row->author_id = $row->author
+        $row->author_display = $row->author
                 ? view('back-office.partials.avatar', ['user' => $row->author])->render()
                 : '-';
 
-        $row->action = view('back-office.partials.actions', [
+        $row->action_html = view('back-office.partials.actions', [
             'model'            => $row,
             'permissionPrefix' => $this->permissionPrefix,
             'routeInitialize'  => $this->routePrefix,
@@ -72,7 +90,8 @@ class PayrollPaymentController extends BaseModuleController
 
     public function create()
     {
-        return (string) view($this->pathInitialize.'.create_content', get_defined_vars());
+        $formData = $this->getFormData();
+        return (string) view($this->pathInitialize.'.create_content', array_merge($formData, get_defined_vars()));
     }
 
     public function store(PayrollPaymentRequest $request)
@@ -81,7 +100,7 @@ class PayrollPaymentController extends BaseModuleController
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {
-                $this->payrollPaymentRepo->storeModel($payload);
+                $response = $this->payrollPaymentRepo->storeModel($payload);
             });
             return successResponse($response, module_message('created', $this->singularLabel));
         } catch (Exception $e) {
@@ -94,9 +113,9 @@ class PayrollPaymentController extends BaseModuleController
 
     public function edit(PayrollPayment $payrollPayment)
     {
-        $statuses = $this->status->where('model', 'PayrollPayment')->get();
-        $model = $this->payrollPaymentRepo->showModel($payrollPayment);
-        return (string) view($this->pathInitialize.'.edit_content', get_defined_vars());
+        $formData = $this->getFormData($payrollPayment);
+        $model = $this->payrollPaymentRepo->showModel($payrollPayment, ['payroll.employee', 'paymentMethod', 'status']);
+        return (string) view($this->pathInitialize.'.edit_content', array_merge($formData, get_defined_vars()));
     }
 
     public function update(PayrollPaymentRequest $request, PayrollPayment $payrollPayment)
@@ -105,7 +124,7 @@ class PayrollPaymentController extends BaseModuleController
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload, $payrollPayment) {
-                $this->payrollPaymentRepo->updateModel($payrollPayment, $payload);
+                $response = $this->payrollPaymentRepo->updateModel($payrollPayment, $payload);
             });
             return successResponse($response, module_message('updated', $this->singularLabel));
         } catch (Exception $e) {
@@ -118,7 +137,7 @@ class PayrollPaymentController extends BaseModuleController
 
     public function show(PayrollPayment $payrollPayment)
     {
-        $model = $this->payrollPaymentRepo->showModel($payrollPayment);
+        $model = $this->payrollPaymentRepo->showModel($payrollPayment, ['payroll.employee', 'paymentMethod', 'status', 'author']);
         return (string) view($this->pathInitialize.'.show_content', get_defined_vars());
     }
 
@@ -186,7 +205,7 @@ class PayrollPaymentController extends BaseModuleController
     {
         try {
             $this->payrollPaymentRepo->bulkDelete();
-            return redirect()->route('back-office.payroll_payments.index')->with('success', value: module_message('bulk-deleted', $this->singularLabel));
+            return redirect()->route('back-office.payroll-payments.index')->with('success', value: module_message('bulk-deleted', $this->singularLabel));
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -196,9 +215,47 @@ class PayrollPaymentController extends BaseModuleController
     {
         try {
             $this->payrollPaymentRepo->bulkRestore();
-            return redirect()->route('back-office.payroll_payments.index')->with('success', module_message('bulk-restored', $this->singularLabel));
+            return redirect()->route('back-office.payroll-payments.index')->with('success', module_message('bulk-restored', $this->singularLabel));
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
+    }
+
+    private function getFormData(?PayrollPayment $payment = null): array
+    {
+        $activePaymentStatusId = statusId('PayrollPayment', 'active');
+        $payrollsQuery = Payroll::query()
+            ->with('employee')
+            ->withSum(['payments' => function ($query) use ($activePaymentStatusId) {
+                if ($activePaymentStatusId) {
+                    $query->where(function ($activeQuery) use ($activePaymentStatusId) {
+                        $activeQuery->where('status_id', $activePaymentStatusId)
+                            ->orWhereNull('status_id');
+                    });
+                }
+            }], 'amount')
+            ->orderByDesc('year')
+            ->orderByDesc('month');
+        $cancelledStatusId = statusId('Payroll', 'cancelled');
+        if ($cancelledStatusId) {
+            $payrollsQuery->where('status_id', '!=', $cancelledStatusId);
+        }
+        $payrolls = $payrollsQuery->get()
+            ->filter(function (Payroll $payroll) use ($payment) {
+                $remaining = (float) $payroll->net_payable - (float) ($payroll->payments_sum_amount ?? 0);
+                return $remaining > 0 || (int) $payment?->payroll_id === (int) $payroll->id;
+            });
+
+        $statuses = $this->status->where('model', 'PayrollPayment')->get();
+
+        return [
+            'payrolls' => $payrolls,
+            'paymentMethods' => PaymentMethod::query()
+                ->where('status_id', statusId('PaymentMethod', 'active'))
+                ->orderBy('name')
+                ->get(),
+            'statuses' => $statuses,
+            'defaultPaymentStatus' => $statuses->firstWhere('name', 'active')?->ulid,
+        ];
     }
 }

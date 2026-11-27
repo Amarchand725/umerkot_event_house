@@ -5,7 +5,7 @@ use App\Modules\EmployeeAttendance\Http\Controllers\EmployeeAttendanceController
 
 // 🧩 EmployeeAttendance Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:employee_attendance']
 ], function () {
     Route::controller(EmployeeAttendanceController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

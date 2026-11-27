@@ -34,14 +34,14 @@ class EmployeeController extends BaseModuleController
     public function index(Request $request)
     {
         $columns = [
-            'name'      => ['label' => 'name', 'searchable' => 'name'],
-            'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
+            'employee_display_name' => ['label' => 'Name (Designation)', 'html' => true, 'searchable' => 'name'],
+            'status_name'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
             'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
             'action'     => ['label' => 'Action', 'html' => true, 'searchable' => false],
         ];
 
-        $query = $this->employeeRepo->getAll();
+        $query = $this->employeeRepo->getAll()->with('compensation.designation');
         $total_count = $query->count();
 
         $dataTable = new \App\Services\DataTableService(
@@ -59,8 +59,12 @@ class EmployeeController extends BaseModuleController
 
     public function formatRow($row)
     {
+        $designation = $row->compensation?->designation?->name;
+        $row->employee_display_name = e(ucfirst($row->name ?? '-'))
+            . ($designation ? ' ('.e($designation).')' : '');
+
         $status = $row->status?->name ?? 'de-active';
-        $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
+        $row->status_name = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                     . strtoupper($status) .
                     '</span>';
 
@@ -124,7 +128,7 @@ class EmployeeController extends BaseModuleController
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload, $employee) {
-                $this->employeeRepo->updateModel($employee, $payload);
+                $response = $this->employeeRepo->updateModel($employee, $payload);
             });
             return successResponse($response, module_message('updated', $this->singularLabel));
         } catch (Exception $e) {
@@ -137,7 +141,7 @@ class EmployeeController extends BaseModuleController
 
     public function show(Employee $employee)
     {
-        $model = $this->employeeRepo->showModel($employee);
+        $model = $this->employeeRepo->showModel($employee, ['compensation.designation', 'status']);
         return (string) view($this->pathInitialize.'.show_content', get_defined_vars());
     }
 
@@ -225,7 +229,7 @@ class EmployeeController extends BaseModuleController
     {
         $formData = $this->getFormData();
         $statuses = $this->status->where('model', 'Employee')->get();
-        $model = $this->employeeRepo->showModel($event);
+        $model = $this->employeeRepo->showModel($employee);
 
         return (string) view(
             $this->pathInitialize . '.status_content',
@@ -240,8 +244,9 @@ class EmployeeController extends BaseModuleController
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload, $employee) {
-                $response = $this->employeeRepo->updateStatus($event, $payload);
+                $response = $this->employeeRepo->updateStatus($employee, $payload);
             });
+            $response = $response->toArray();
             $response['route'] = route($this->routePrefix . '.index');
 
             return successResponse($response, module_message('status_changed', $this->singularLabel));
@@ -257,7 +262,10 @@ class EmployeeController extends BaseModuleController
     {
         return [
             'compensation_types' => CommissionTypeEnum::cases(),
-            'pay_types' => PayTypeEnum::cases(),
+            'pay_types' => array_values(array_filter(
+                PayTypeEnum::cases(),
+                fn (PayTypeEnum $type) => in_array($type->value, ['monthly', 'daily', 'hourly'], true)
+            )),
             'commission_basises' => CommissionBasisEnum::cases(),
             'designations' => $this->designationModel->where('status_id', statusId('Designation', 'active'))->get(),
         ];

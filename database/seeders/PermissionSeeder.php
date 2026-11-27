@@ -34,7 +34,7 @@ class PermissionSeeder extends Seeder
      */
     private function getPermissions(): array
     {
-        return [
+        $permissions = [
 
             /*
             |--------------------------------------------------------------------------
@@ -185,6 +185,10 @@ class PermissionSeeder extends Seeder
             'event-order',
             'event-return-order',
             'event-invoice',
+            'event-restore',
+            'event-force-delete',
+            'event-bulk-delete',
+            'event-bulk-restore',
 
             /*
             Payment Method Management
@@ -205,6 +209,38 @@ class PermissionSeeder extends Seeder
             'payment-view',
             'payment-edit',
             'payment-delete',
+            'payment-restore',
+            'payment-force-delete',
+            'payment-bulk-delete',
+            'payment-bulk-restore',
+
+            /*
+            Payroll Management
+            |--------------------------------------------------------------------------
+            */
+            'payroll-list',
+            'payroll-create',
+            'payroll-view',
+            'payroll-edit',
+            'payroll-delete',
+            'payroll-restore',
+            'payroll-force-delete',
+            'payroll-bulk-delete',
+            'payroll-bulk-restore',
+
+            /*
+            Payroll Payment Management
+            |--------------------------------------------------------------------------
+            */
+            'payroll_payment-list',
+            'payroll_payment-create',
+            'payroll_payment-view',
+            'payroll_payment-edit',
+            'payroll_payment-delete',
+            'payroll_payment-restore',
+            'payroll_payment-force-delete',
+            'payroll_payment-bulk-delete',
+            'payroll_payment-bulk-restore',
 
             /*
             Package Management
@@ -215,6 +251,10 @@ class PermissionSeeder extends Seeder
             'package-view',
             'package-edit',
             'package-delete',
+            'package-restore',
+            'package-force-delete',
+            'package-bulk-delete',
+            'package-bulk-restore',
 
             /*
             Service Management
@@ -339,7 +379,81 @@ class PermissionSeeder extends Seeder
             'frequently_asked_question-view',
             'frequently_asked_question-edit',
             'frequently_asked_question-delete',
+
+            /*
+            Blog Management
+            |--------------------------------------------------------------------------
+            */
+            'blog-list',
+            'blog-create',
+            'blog-view',
+            'blog-edit',
+            'blog-delete',
+            'blog-restore',
+            'blog-force-delete',
+            'blog-bulk-delete',
+            'blog-bulk-restore',
+
+            /*
+            Gallery Management
+            |--------------------------------------------------------------------------
+            */
+            'gallery-list',
+            'gallery-create',
+            'gallery-view',
+            'gallery-edit',
+            'gallery-delete',
+            'gallery-restore',
+            'gallery-force-delete',
+            'gallery-bulk-delete',
+            'gallery-bulk-restore',
+
+            /*
+            Employee Advance Management
+            |--------------------------------------------------------------------------
+            */
+            'employee_advance-list',
+            'employee_advance-create',
+            'employee_advance-view',
+            'employee_advance-edit',
+            'employee_advance-delete',
+            'employee_advance-restore',
+            'employee_advance-force-delete',
+            'employee_advance-bulk-delete',
+            'employee_advance-bulk-restore',
+
+            /*
+            Order Return Management
+            |--------------------------------------------------------------------------
+            */
+            'order_return-list',
+            'order_return-create',
+            'order_return-view',
+            'order_return-edit',
+            'order_return-delete',
+            'order_return-restore',
+            'order_return-force-delete',
+            'order_return-bulk-delete',
+            'order_return-bulk-restore',
         ];
+
+        $modulesWithRecoveryActions = [
+            'blog', 'customer', 'designation', 'employee_advance',
+            'employee_attendance', 'employee_compensation', 'employee',
+            'event_category', 'event', 'expense_category', 'expense',
+            'frequently_asked_question', 'gallery', 'inventory_category',
+            'inventory_item', 'order_return', 'order', 'package', 'payment_method',
+            'payment', 'payroll_payment', 'payroll', 'review', 'role', 'service',
+            'slider', 'unit', 'user',
+        ];
+
+        foreach ($modulesWithRecoveryActions as $module) {
+            foreach (['restore', 'force-delete', 'bulk-delete', 'bulk-restore'] as $action) {
+                $permissions[] = "{$module}-{$action}";
+            }
+        }
+
+        return array_values(array_unique($permissions));
     }
 
     /**

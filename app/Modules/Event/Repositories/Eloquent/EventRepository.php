@@ -109,7 +109,7 @@ class EventRepository extends BaseRepository implements EventContract
 
         if(isset($payload['package_id']) && !empty($payload['package_id'])) {
             $package = Package::where('id', $payload['package_id'])->first();
-            $lineTotal = $package->price; // Assuming the package has a price attribute
+            $lineTotal = max(0, (float) $package->price - (float) $package->discount);
 
             $lines[] = [
                 'package_id'        => $package->id,
@@ -142,13 +142,25 @@ class EventRepository extends BaseRepository implements EventContract
         $discount = min($discount, $grandTotal);
 
         $payable = $grandTotal - $discount;
+
+        if ($securityDeposit < 0 || $advanceAmount < 0 || $advanceAmount > $payable) {
+            throw ValidationException::withMessages([
+                'payment.advance_amount' => 'Advance must be between zero and the payable amount.',
+            ]);
+        }
+
+        if ($advanceAmount > 0 && empty($payload['payment']['payment_method_id'])) {
+            throw ValidationException::withMessages([
+                'payment.payment_method_id' => 'Please select a payment method.',
+            ]);
+        }
         //security deposit is not part of the total, it's an additional amount to be paid upfront
         $order->security_deposit = $securityDeposit;
 
         $order->event_id = $event->id;
         $order->grand_total = $grandTotal;
-        // $order->discount = $discount;
-        $order->payable_amount = $payable;
+        $order->discount = $discount;
+        $order->payable_amount = max(0, $payable - $advanceAmount);
         $order->status_id = (clone $this->status)
                             ->where('model', 'Order')
                             ->where('name', 'Confirmed')
@@ -173,9 +185,13 @@ class EventRepository extends BaseRepository implements EventContract
         $invoice->event_id = $event->id;
         $invoice->issued_at = today();
         $invoice->due_at = today();
-        $invoice->outstanding_amount = $payable;
-        $invoice->discount = $discount;
-        $invoice->payable_amount = $advanceAmount;
+        $invoice->outstanding_amount = max(0, $payable - $advanceAmount);
+        $invoice->discount = 0;
+        $invoice->payable_amount = $payable;
+        $invoice->status_id = (clone $this->status)
+            ->where('model', 'Invoice')
+            ->where('name', $invoice->outstanding_amount <= 0 ? 'Paid' : 'Pending')
+            ->value('id');
         $invoice->save();
         $invoice->refresh();
 
@@ -189,10 +205,14 @@ class EventRepository extends BaseRepository implements EventContract
             $payment = new Payment();
             $payment->invoice_id = $invoice->id;
             $payment->payment_method_id = $payload['payment']['payment_method_id'];
-            $payment->discount = $discount;
+            $payment->discount = 0;
             $payment->amount = $advanceAmount;
             $payment->paid_at = now();
             $payment->note = $payload['event']['note'] ?? null;
+            $payment->status_id = (clone $this->status)
+                ->where('model', 'Payment')
+                ->where('name', 'Completed')
+                ->value('id');
             $payment->save();
 
             $paymentStatusId = (clone $this->status)
@@ -200,15 +220,17 @@ class EventRepository extends BaseRepository implements EventContract
                                 ->where('name', 'Completed')
                                 ->value('id');
 
-            if($payment->status_id === $paymentStatusId) {
-                $statusId = (clone $this->status)
-                                ->where('model', 'Invoice')
-                                ->where('name', 'Paid')
-                                ->value('id');
-
-                $invoice->status_id = $statusId;
-                $invoice->save();
-            }
+            $paidAmount = (float) $invoice->payments()
+                ->where('status_id', $paymentStatusId)
+                ->sum('amount');
+            $invoiceStatus = $invoice->outstanding_amount <= 0
+                ? 'Paid'
+                : ($paidAmount > 0 ? 'Partial' : 'Pending');
+            $invoice->status_id = (clone $this->status)
+                ->where('model', 'Invoice')
+                ->where('name', $invoiceStatus)
+                ->value('id');
+            $invoice->save();
         }
 
         return $event;
@@ -288,11 +310,11 @@ class EventRepository extends BaseRepository implements EventContract
                 'service_id' => null,
                 'package_id' => $package->id,
                 'quantity' => 1,
-                'unit_price' => $package->price,
-                'subtotal' => $package->price,
+                'unit_price' => max(0, (float) $package->price - (float) $package->discount),
+                'subtotal' => max(0, (float) $package->price - (float) $package->discount),
             ];
 
-            $grandTotal += $package->price;
+            $grandTotal += max(0, (float) $package->price - (float) $package->discount);
         }
 
         // 4. Update Order
@@ -316,11 +338,17 @@ class EventRepository extends BaseRepository implements EventContract
 
         $payable = $grandTotal - $discount;
 
+        if ($advanceAmount > $payable) {
+            throw ValidationException::withMessages([
+                'payment.advance_amount' => 'Advance cannot exceed the order payable amount.',
+            ]);
+        }
+
         $order = $event->order;
 
         $order->event_id = $event->id;
         $order->grand_total = $grandTotal;
-        // $order->discount = $discount;
+        $order->discount = $discount;
         $order->payable_amount = $payable;
         $order->security_deposit = $securityDeposit;
 
@@ -364,8 +392,8 @@ class EventRepository extends BaseRepository implements EventContract
         $invoice->issued_at = $invoice->issued_at ?? today();
         $invoice->due_at = $invoice->due_at ?? today();
         $invoice->outstanding_amount = $payable;
-        $invoice->discount = $discount;
-        $invoice->payable_amount = $advanceAmount;
+        $invoice->discount = 0;
+        $invoice->payable_amount = $payable;
 
         // 7. Update Payment
         $payment = $event->payment;
@@ -380,7 +408,7 @@ class EventRepository extends BaseRepository implements EventContract
             $payment->payment_method_id =
                 $payload['payment']['payment_method_id'];
 
-            $payment->discount = $discount;
+            $payment->discount = 0;
             $payment->amount = min($advanceAmount, $payable);
             $payment->paid_at = $payment->paid_at ?? now();
             $payment->note = $payload['event']['note'] ?? null;
@@ -392,18 +420,33 @@ class EventRepository extends BaseRepository implements EventContract
 
             $payment->save();
 
-        } elseif ($payment) {
-
-            // Only remove an existing advance payment if
-            // your business rules allow editing/deleting it.
-            $payment->delete();
         }
 
         // 8. Recalculate Financial Summary
+        $paidAmount = (float) $invoice->payments()
+            ->whereHas('status', fn ($query) => $query->where('name', 'Completed'))
+            ->sum('amount');
+        if ($paidAmount > $payable) {
+            throw ValidationException::withMessages([
+                'payment.discount' => 'The updated order total cannot be less than payments already received.',
+            ]);
+        }
+        $invoice->outstanding_amount = max(0, round($payable - $paidAmount, 2));
+        $order->payable_amount = $invoice->outstanding_amount;
+        $invoiceStatus = $invoice->outstanding_amount <= 0
+            ? 'Paid'
+            : ($paidAmount > 0 ? 'Partial' : 'Pending');
         $invoice->status_id = (clone $this->status)
-                                ->where('model', 'Invoice')
-                                ->where('name', 'Paid')
-                                ->value('id');
+            ->where('model', 'Invoice')
+            ->where('name', $invoiceStatus)
+            ->value('id');
+        if ($invoiceStatus === 'Paid') {
+            $order->status_id = (clone $this->status)
+                ->where('model', 'Order')
+                ->where('name', 'Completed')
+                ->value('id');
+        }
+        $order->save();
         $invoice->save();
 
         // $outstanding = max(0, $payable - $advanceAmount);
@@ -415,186 +458,12 @@ class EventRepository extends BaseRepository implements EventContract
 
     public function storePayment(Model $model, array $payload): Model
     {
-        return DB::transaction(function () use ($model, $payload) {
+        if (!$model instanceof Event) {
+            throw new \InvalidArgumentException('Expected an Event model.');
+        }
 
-            // 1. Lock the event to prevent concurrent balance updates.
-            $event = $model->newQuery()
-                ->whereKey($model->getKey())
-                ->lockForUpdate()
-                ->firstOrFail();
-
-            // 2. Calculate order totals.
-            $orders = $event->orders()
-                ->with('invoice')
-                ->get();
-
-            $totalOrderAmount = (float) $orders->sum('grand_total');
-            $totalOrderDiscount = (float) $orders->sum('discount');
-
-            // 3. Get invoice discounts.
-            $totalInvoiceDiscount = (float) $event->invoices()
-                ->sum('discount');
-
-            // IMPORTANT: grand_total must be before order discount.
-            $totalPayable = round(
-                $totalOrderAmount
-                - $totalOrderDiscount
-                - $totalInvoiceDiscount,
-                2
-            );
-
-            // 4. Only completed payments count as received money.
-            $completedStatusId = (clone $this->status)
-                ->where('model', 'Payment')
-                ->where('name', 'Completed')
-                ->value('id');
-
-            if (!$completedStatusId) {
-                throw new \RuntimeException(
-                    'Completed payment status is not configured.'
-                );
-            }
-
-            $totalPaid = (float) $event->payments()
-                ->where('payments.status_id', $completedStatusId)
-                ->sum('payments.amount');
-
-            $outstanding = round(
-                max(0, $totalPayable - $totalPaid),
-                2
-            );
-
-            // 5. Validate transaction amounts.
-            $amount = round((float) ($payload['amount'] ?? 0), 2);
-            $discount = round((float) ($payload['discount'] ?? 0), 2);
-
-            if ($amount < 0 || $discount < 0) {
-                throw ValidationException::withMessages([
-                    'amount' => 'Payment and discount cannot be negative.',
-                ]);
-            }
-
-            $transactionTotal = round($amount + $discount, 2);
-
-            if ($transactionTotal <= 0) {
-                throw ValidationException::withMessages([
-                    'amount' => 'Payment or discount must be greater than zero.',
-                ]);
-            }
-
-            if ($transactionTotal > $outstanding) {
-                throw ValidationException::withMessages([
-                    'amount' => 'Payment and discount exceed the outstanding balance.',
-                ]);
-            }
-
-            // 6. Find or create the invoice.
-            // This example uses one invoice per order.
-            // A production implementation should explicitly select the
-            // order being settled when an event has multiple orders.
-            $order = $orders->first(function ($order) use ($amount, $discount) {
-                return true;
-            });
-
-            if (!$order) {
-                throw ValidationException::withMessages([
-                    'amount' => 'No order is available for this event.',
-                ]);
-            }
-
-            if ($amount > 0) {
-                $invoice = $order->invoice;
-
-                if (!$invoice) {
-                    $invoice = new Invoice();
-                    $invoice->event_id = $event->id;
-                    $invoice->order_id = $order->id;
-                    $invoice->issued_at = today();
-                    $invoice->due_at = today();
-                    $invoice->discount = $invoice->discount+$discount;
-                    $invoice->payable_amount = 0;
-                    $invoice->outstanding_amount = 0;
-                    $invoice->save();
-                }
-
-                // 7. Record the additional invoice discount.
-                // Do not silently overwrite existing discounts.
-                $invoice->discount = round(
-                    (float) $invoice->discount + $discount,
-                    2
-                );
-
-                // 8. Record the actual payment.
-
-                $payment = new Payment();
-                $payment->status_id = $completedStatusId;
-                $payment->invoice_id = $invoice->id;
-                $payment->payment_method_id = $payload['payment_method_id'];
-                $payment->discount = $discount;
-                $payment->amount = $amount;
-                $payment->paid_at = $payload['paid_at'] ?? now();
-                $payment->note = $payload['payment_note'] ?? null;
-                $payment->save();
-
-                // 9. Recalculate this invoice's balances.
-                $invoicePaid = (float) $invoice->payments()
-                    ->where('payments.status_id', $completedStatusId)
-                    ->sum('payments.amount');
-
-                $invoiceGross = (float) $order->grand_total;
-                $invoiceOrderDiscount = (float) $order->discount;
-
-                $invoicePayable = round(
-                    $invoiceGross
-                    - $invoiceOrderDiscount
-                    - (float) $invoice->discount,
-                    2
-                );
-
-                $invoiceOutstanding = round(
-                    max(0, $invoicePayable - $invoicePaid),
-                    2
-                );
-
-                $invoice->payable_amount = $invoicePayable;
-                $invoice->outstanding_amount = $invoiceOutstanding;
-
-                $invoiceStatusName = $invoiceOutstanding <= 0
-                    ? 'Paid'
-                    : ($invoicePaid > 0 ? 'Partial' : 'Pending');
-
-                $invoice->status_id = (clone $this->status)
-                    ->where('model', 'Invoice')
-                    ->where('name', $invoiceStatusName)
-                    ->value('id');
-
-                $invoice->save();
-
-                // 10. Update order payable amount.
-                $order->payable_amount = $order->payable_amount+$discount;
-                if($invoiceStatusName=='Paid'){
-                    $order->status_id = (clone $this->status)
-                        ->where('model', 'Order')
-                        ->where('name', 'Completed')
-                        ->value('id');
-
-                    $logStatus['status_id'] = (clone $this->status)
-                                    ->where('model', 'Event')
-                                    ->where('name', 'Completed')
-                                    ->value('id');
-
-                    $logStatus['model_id'] = $event->id;
-                    $logStatus['model_type'] = $event->getMorphClass();
-
-                    $log = $event->statusLogs()->firstOrNew();
-                    $log->toFill($logStatus);
-                    $log->save();
-                }
-                $order->save();
-            }
-
-            return $event->refresh();
-        }, 3);
+        return app(\App\Modules\Payment\Services\PaymentSettlementService::class)
+            ->settle($model, $payload);
     }
 
     public function updateStatus(Model $model, array $payload)
@@ -722,11 +591,11 @@ class EventRepository extends BaseRepository implements EventContract
                     'service_id' => null,
                     'package_id' => $package->id,
                     'quantity' => 1,
-                    'unit_price' => $packagePrice,
-                    'subtotal' => $packagePrice,
+                'unit_price' => max(0, $packagePrice - (float) $package->discount),
+                'subtotal' => max(0, $packagePrice - (float) $package->discount),
                 ];
 
-                $grandTotal += $packagePrice;
+                $grandTotal += max(0, $packagePrice - (float) $package->discount);
             }
 
             $grandTotal = round($grandTotal, 2);
@@ -820,44 +689,34 @@ class EventRepository extends BaseRepository implements EventContract
             |--------------------------------------------------------------------------
             */
 
+            $invoice = new Invoice();
+            $invoice->order_id = $order->id;
+            $invoice->event_id = $event->id;
+            $invoice->issued_at = today();
+            $invoice->due_at = today();
+            $invoice->discount = 0;
+            $invoice->payable_amount = $payable;
+            $invoice->outstanding_amount = round($payable - $advanceAmount, 2);
+
+            $paymentStatusId = (clone $this->status)
+                ->where('model', 'Payment')
+                ->where('name', 'Completed')
+                ->value('id');
+
+            if (!$paymentStatusId) {
+                throw new \RuntimeException('Completed payment status was not found.');
+            }
+
+            $invoiceStatusName = $invoice->outstanding_amount <= 0
+                ? 'Paid'
+                : ($advanceAmount > 0 ? 'Partial' : 'Pending');
+            $invoice->status_id = (clone $this->status)
+                ->where('model', 'Invoice')
+                ->where('name', $invoiceStatusName)
+                ->value('id');
+            $invoice->save();
+
             if ($advanceAmount > 0) {
-                $invoice = new Invoice();
-
-                $invoice->order_id = $order->id;
-                $invoice->event_id = $event->id;
-                $invoice->issued_at = today();
-                $invoice->due_at = today();
-
-                // Invoice represents the complete discounted order.
-                $invoice->discount = $discount;
-                $invoice->payable_amount = $payable;
-                $invoice->outstanding_amount = round(
-                    $payable - $advanceAmount,
-                    2
-                );
-
-                $paymentStatusId = (clone $this->status)
-                    ->where('model', 'Payment')
-                    ->where('name', 'Completed')
-                    ->value('id');
-
-                $invoiceStatusId = (clone $this->status)
-                    ->where('model', 'Invoice')
-                    ->where('name', 'Paid')
-                    ->value('id');
-
-                if (!$paymentStatusId || !$invoiceStatusId) {
-                    throw new \RuntimeException(
-                        'Required payment or invoice status was not found.'
-                    );
-                }
-
-                if ($invoice->outstanding_amount <= 0) {
-                    $invoice->status_id = $invoiceStatusId;
-                }
-
-                $invoice->save();
-
                 $payment = new Payment();
 
                 $payment->invoice_id = $invoice->id;

@@ -10,6 +10,11 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Status;
 use App\Models\User;
+use App\Models\PayrollItem;
+use App\Modules\Employee\Models\Employee;
+use App\Modules\EmployeeCompensation\Models\EmployeeCompensation;
+use App\Modules\PayrollPayment\Models\PayrollPayment;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Payroll extends Model
 {
@@ -20,6 +25,13 @@ class Payroll extends Model
         'period_start', 'period_end', 'compensation_snapshot', 'gross_earnings', 'total_deductions',
         'net_payable', 'total_present_days', 'total_payable_days', 'total_working_hours', 'total_overtime_hours',
         'approved_at'
+    ];
+
+    protected $casts = [
+        'compensation_snapshot' => 'array',
+        'period_start' => 'date',
+        'period_end' => 'date',
+        'approved_at' => 'datetime',
     ];
 
     protected static function booted()
@@ -52,5 +64,25 @@ class Payroll extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id');
+    }
+
+    public function employeeCompensation()
+    {
+        return $this->belongsTo(EmployeeCompensation::class, 'employee_compensation_id');
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(PayrollItem::class, 'payroll_id');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(PayrollPayment::class, 'payroll_id');
     }
 }

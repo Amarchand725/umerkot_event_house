@@ -27,7 +27,7 @@ class DesignationController extends BaseModuleController
     {
         $columns = [
             'name'      => ['label' => 'name', 'searchable' => 'name'],
-            'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
+            'status_name'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
             'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
             'action'     => ['label' => 'Action', 'html' => true, 'searchable' => false],
@@ -52,7 +52,7 @@ class DesignationController extends BaseModuleController
     public function formatRow($row)
     {
         $status = $row->status?->name ?? 'de-active';
-        $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
+        $row->status_name = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                     . strtoupper($status) .
                     '</span>';
 

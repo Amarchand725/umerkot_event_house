@@ -5,7 +5,7 @@ use App\Modules\Review\Http\Controllers\ReviewController;
 
 // 🧩 Review Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:review']
 ], function () {
     Route::controller(ReviewController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

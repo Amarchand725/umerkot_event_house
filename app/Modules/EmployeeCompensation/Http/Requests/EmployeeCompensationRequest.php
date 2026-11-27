@@ -2,8 +2,13 @@
 
 namespace App\Modules\EmployeeCompensation\Http\Requests;
 
+use App\Enum\CommissionBasisEnum;
+use App\Enum\CommissionTypeEnum;
 use App\Models\Status;
+use App\Modules\Designation\Models\Designation;
+use App\Modules\Employee\Models\Employee;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class EmployeeCompensationRequest extends FormRequest
 {
@@ -16,26 +21,33 @@ class EmployeeCompensationRequest extends FormRequest
     {
         return [
             'status_id' => ['nullable', 'exists:statuses,id'],
-            'employee_id' => ['nullable', 'exists:employees,id'],
+            'employee_id' => ['required', 'exists:employees,id'],
             'designation_id' => ['nullable', 'exists:designations,id'],
-            'effective_from' => ['required'],
-            'pay_type' => ['required'],
-            'basic_pay' => ['nullable', 'numeric', 'min:0'],
-            'daily_rate' => ['nullable', 'numeric', 'min:0'],
-            'hourly_rate' => ['nullable', 'numeric', 'min:0'],
-            'commission_basis' => ['nullable', 'string', 'max:255'],
-            'commission_type' => ['nullable', 'string', 'max:255'],
+            'effective_from' => ['required', 'date'],
+            'effective_to' => ['nullable', 'date', 'after_or_equal:effective_from'],
+            'pay_type' => ['required', Rule::in(['monthly', 'daily', 'hourly'])],
+            'basic_pay' => ['nullable', 'numeric', 'min:0', 'required_if:pay_type,monthly,hybrid'],
+            'daily_rate' => ['nullable', 'numeric', 'min:0', 'required_if:pay_type,daily'],
+            'hourly_rate' => ['nullable', 'numeric', 'min:0', 'required_if:pay_type,hourly'],
+            'commission_basis' => ['nullable', new Enum(CommissionBasisEnum::class)],
+            'commission_type' => ['nullable', new Enum(CommissionTypeEnum::class)],
             'commission_rate' => ['nullable', 'numeric', 'min:0'],
-            'note' => ['nullable'],
+            'note' => ['nullable', 'string', 'max:2000'],
         ];
     }
 
-    public function prepareForValidation()
+    protected function prepareForValidation(): void
     {
-        if ($this->has('status_id')) {
-            $this->merge([
-                'status_id' => Status::where('ulid', $this->input('status_id'))->value('id')
-            ]);
+        foreach ([
+            'status_id' => Status::class,
+            'employee_id' => Employee::class,
+            'designation_id' => Designation::class,
+        ] as $field => $modelClass) {
+            if ($this->filled($field) && !ctype_digit((string) $this->input($field))) {
+                $this->merge([
+                    $field => $modelClass::query()->where('ulid', $this->input($field))->value('id'),
+                ]);
+            }
         }
     }
 }

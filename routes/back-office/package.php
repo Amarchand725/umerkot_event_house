@@ -5,7 +5,7 @@ use App\Modules\Package\Http\Controllers\PackageController;
 
 // 🧩 Package Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:package']
 ], function () {
     Route::controller(PackageController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

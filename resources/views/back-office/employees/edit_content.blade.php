@@ -249,7 +249,7 @@
                         <option value="">Select Designation</option>
                         @foreach ($designations as $designation)
                             <option value="{{ $designation->id }}"
-                                @selected(old('designation_id', $model?->compensation?->designation_id) == $designation->id)>
+                                @selected(old('compensation.designation_id', $compensation?->designation_id) == $designation->id)>
                                 {{ $designation->name }}
                             </option>
                         @endforeach
@@ -265,10 +265,10 @@
                     <select name="compensation[pay_type]" id="pay_type"
                             class="form-select form-select-lg" required>
                         <option value="">Select Salary Type</option>
-                        @foreach ($pay_types as $value => $label)
-                            <option value="{{ $value }}"
-                                @selected(old('pay_type', $model?->pay_type) == $value)>
-                                {{ $label }}
+                        @foreach ($pay_types as $type)
+                            <option value="{{ $type->value }}"
+                                @selected(old('compensation.pay_type', $compensation?->pay_type) == $type->value)>
+                                {{ $type->label() }}
                             </option>
                         @endforeach
                     </select>
@@ -282,7 +282,7 @@
                            name="compensation[basic_pay]" id="basic_pay"
                            class="form-control form-control-lg"
                            placeholder="Enter monthly basic pay"
-                           value="{{ old('basic_pay', $compensation?->basic_pay) }}">
+                           value="{{ old('compensation.basic_pay', $compensation?->basic_pay) }}">
                     <span class="text-danger error">{{ $errors->first('compensation.basic_pay') }}</span>
                 </div>
 
@@ -293,7 +293,7 @@
                            name="compensation[daily_rate]" id="daily_rate"
                            class="form-control form-control-lg"
                            placeholder="Enter daily rate"
-                           value="{{ old('daily_rate', $compensation?->daily_rate) }}">
+                           value="{{ old('compensation.daily_rate', $compensation?->daily_rate) }}">
                     <span class="text-danger error">{{ $errors->first('compensation.daily_rate') }}</span>
                 </div>
 
@@ -304,7 +304,7 @@
                            name="compensation[hourly_rate]" id="hourly_rate"
                            class="form-control form-control-lg"
                            placeholder="Enter hourly rate"
-                           value="{{ old('hourly_rate', $compensation?->hourly_rate) }}">
+                           value="{{ old('compensation.hourly_rate', $compensation?->hourly_rate) }}">
                     <span class="text-danger error">{{ $errors->first('compensation.hourly_rate') }}</span>
                 </div>
 
@@ -316,7 +316,7 @@
                         <option value="">Select Commission Basis</option>
                         @foreach ($commission_basises as $value => $label)
                             <option value="{{ $value }}"
-                                @selected(old('commission_basis', $compensation?->commission_basis) == $value)>
+                                @selected(old('compensation.commission_basis', $compensation?->commission_basis) == $value)>
                                 {{ $label }}
                             </option>
                         @endforeach
@@ -332,7 +332,7 @@
                         <option value="">Select Commission Type</option>
                         @foreach($compensation_types as $type)
                             <option value="{{ $type->value }}"
-                                @selected(old('compensation.commission_type', $compensation->commission_type) == $type->value)>
+                                @selected(old('compensation.commission_type', $compensation?->commission_type) == $type->value)>
                                 {{ $type->label() }}
                             </option>
                         @endforeach
@@ -349,7 +349,7 @@
                            name="compensation[commission_rate]" id="commission_rate"
                            class="form-control form-control-lg"
                            placeholder="Enter commission rate"
-                           value="{{ old('commission_rate', $compensation?->commission_rate) }}">
+                           value="{{ old('compensation.commission_rate', $compensation?->commission_rate) }}">
                     <span class="text-danger error">{{ $errors->first('compensation.commission_rate') }}</span>
                 </div>
 
@@ -360,7 +360,7 @@
                     </label>
                     <input type="date" name="compensation[effective_from]" id="effective_from"
                            class="form-control form-control-lg"
-                           value="{{ old('effective_from', $compensation?->effective_from) }}"
+                           value="{{ old('compensation.effective_from', $compensation?->effective_from) }}"
                            required>
                     <span class="text-danger error">{{ $errors->first('compensation.effective_from') }}</span>
                 </div>
@@ -372,7 +372,7 @@
                     </label>
                     <textarea name="compensation[note]" id="compensation_note"
                               rows="3" class="form-control"
-                              placeholder="Enter compensation details">{{ old('note', $compensation?->note) }}</textarea>
+                              placeholder="Enter compensation details">{{ old('compensation.note', $compensation?->note) }}</textarea>
                     <span class="text-danger error">{{ $errors->first('compensation.note') }}</span>
                 </div>
 

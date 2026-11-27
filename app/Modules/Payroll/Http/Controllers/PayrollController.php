@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Status;
+use App\Modules\EmployeeCompensation\Models\EmployeeCompensation;
 
 class PayrollController extends BaseModuleController
 {
@@ -26,14 +27,18 @@ class PayrollController extends BaseModuleController
     public function index(Request $request)
     {
         $columns = [
-            'name'      => ['label' => 'name', 'searchable' => 'name'],
-            'status'     => ['label' => 'Status', 'html' => true, 'searchable' => false],
-            'author_id'     => ['label' => 'Author', 'html' => true, 'searchable' => false],
+            'employee_label' => ['label' => 'Employee', 'html' => true, 'orderable' => false, 'searchable' => 'employee.name'],
+            'period_label' => ['label' => 'Period', 'html' => true, 'orderable' => false, 'searchable' => false],
+            'net_payable_label' => ['label' => 'Net Payable', 'html' => true, 'orderable' => false, 'searchable' => false],
+            'status_label' => ['label' => 'Status', 'html' => true, 'orderable' => false, 'searchable' => false],
+            'author_display' => ['label' => 'Author', 'html' => true, 'orderable' => false, 'searchable' => false],
             'created_at' => ['label' => 'Created At', 'searchable' => 'created_at'],
-            'action'     => ['label' => 'Action', 'html' => true, 'searchable' => false],
+            'action_html' => ['label' => 'Action', 'html' => true, 'orderable' => false, 'searchable' => false],
         ];
 
-        $query = $this->payrollRepo->getAll();
+        $query = $this->payrollRepo->getAll()->with([
+            'employee', 'employeeCompensation.designation', 'status', 'author',
+        ]);
         $total_count = $query->count();
 
         $dataTable = new \App\Services\DataTableService(
@@ -51,16 +56,25 @@ class PayrollController extends BaseModuleController
 
     public function formatRow($row)
     {
+        $employeeName = $row->employee?->name ?? '-';
+        $designation = $row->employeeCompensation?->designation?->name;
+        $row->employee_label = e($employeeName).($designation ? ' ('.e($designation).')' : '');
+        $row->period_label = \Illuminate\Support\Carbon::create(
+            (int) $row->year,
+            (int) $row->month,
+            1
+        )->format('F Y');
+        $row->net_payable_label = 'Rs. '.number_format((float) $row->net_payable, 2);
         $status = $row->status?->name ?? 'de-active';
-        $row->status = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
+        $row->status_label = '<span class="badge rounded-pill px-3 py-2 '. badgeClass($status) .'">'
                     . strtoupper($status) .
                     '</span>';
 
-        $row->author_id = $row->author
+        $row->author_display = $row->author
                 ? view('back-office.partials.avatar', ['user' => $row->author])->render()
                 : '-';
 
-        $row->action = view('back-office.partials.actions', [
+        $row->action_html = view('back-office.partials.actions', [
             'model'            => $row,
             'permissionPrefix' => $this->permissionPrefix,
             'routeInitialize'  => $this->routePrefix,
@@ -72,6 +86,13 @@ class PayrollController extends BaseModuleController
 
     public function create()
     {
+        $compensations = EmployeeCompensation::query()
+            ->with(['employee', 'designation'])
+            ->where('status_id', statusId('EmployeeCompensation', 'active'))
+            ->whereIn('pay_type', ['monthly', 'daily', 'hourly'])
+            ->orderByDesc('effective_from')
+            ->get();
+
         return (string) view($this->pathInitialize.'.create_content', get_defined_vars());
     }
 
@@ -81,7 +102,7 @@ class PayrollController extends BaseModuleController
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {
-                $this->payrollRepo->storeModel($payload);
+                $response = $this->payrollRepo->storeModel($payload);
             });
             return successResponse($response, module_message('created', $this->singularLabel));
         } catch (Exception $e) {
@@ -94,8 +115,13 @@ class PayrollController extends BaseModuleController
 
     public function edit(Payroll $payroll)
     {
-        $statuses = $this->status->where('model', 'Payroll')->get();
-        $model = $this->payrollRepo->showModel($payroll);
+        $compensations = EmployeeCompensation::query()
+            ->with(['employee', 'designation'])
+            ->where('status_id', statusId('EmployeeCompensation', 'active'))
+            ->whereIn('pay_type', ['monthly', 'daily', 'hourly'])
+            ->orderByDesc('effective_from')
+            ->get();
+        $model = $this->payrollRepo->showModel($payroll, ['employee', 'employeeCompensation']);
         return (string) view($this->pathInitialize.'.edit_content', get_defined_vars());
     }
 
@@ -105,7 +131,7 @@ class PayrollController extends BaseModuleController
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload, $payroll) {
-                $this->payrollRepo->updateModel($payroll, $payload);
+                $response = $this->payrollRepo->updateModel($payroll, $payload);
             });
             return successResponse($response, module_message('updated', $this->singularLabel));
         } catch (Exception $e) {
@@ -118,7 +144,9 @@ class PayrollController extends BaseModuleController
 
     public function show(Payroll $payroll)
     {
-        $model = $this->payrollRepo->showModel($payroll);
+        $model = $this->payrollRepo->showModel($payroll, [
+            'employee', 'employeeCompensation.designation', 'items.source', 'payments.status', 'payments.paymentMethod',
+        ]);
         return (string) view($this->pathInitialize.'.show_content', get_defined_vars());
     }
 

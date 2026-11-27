@@ -21,7 +21,7 @@ class PackageRequest extends FormRequest
             'price' => 'required|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
             'description' => 'nullable|string|max:1000',
-            'items' => 'required|array|min:1',
+            'items' => 'nullable|array',
             'items.*.inventory_item_id' => 'required|exists:inventory_items,id|distinct',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
@@ -33,6 +33,18 @@ class PackageRequest extends FormRequest
         ];
     }
 
+    public function after(): array
+    {
+        return [function ($validator) {
+            if (empty($this->input('items')) && empty($this->input('services'))) {
+                $validator->errors()->add(
+                    'items',
+                    'A package must contain at least one inventory item or service.'
+                );
+            }
+        }];
+    }
+
     public function prepareForValidation()
     {   
         if ($this->has('status_id')) {
@@ -41,14 +53,19 @@ class PackageRequest extends FormRequest
             ]);
         }
         if ($this->has('items')) {
-            $items = $this->input('items', []);
+            $items = collect($this->input('items', []))
+                ->filter(fn ($item) => !empty($item['inventory_item_id']))
+                ->values()
+                ->all();
 
             foreach ($items as $key => $item) {
                 if (!empty($item['inventory_item_id'])) {
-                    $items[$key]['inventory_item_id'] = InventoryItem::where(
-                        'ulid',
-                        $item['inventory_item_id']
-                    )->value('id');
+                    if (!ctype_digit((string) $item['inventory_item_id'])) {
+                        $items[$key]['inventory_item_id'] = InventoryItem::where(
+                            'ulid',
+                            $item['inventory_item_id']
+                        )->value('id');
+                    }
                 }
             }
 
@@ -58,14 +75,19 @@ class PackageRequest extends FormRequest
         }
 
         if ($this->has('services')) {
-            $services = $this->input('services', []);
+            $services = collect($this->input('services', []))
+                ->filter(fn ($service) => !empty($service['service_id']))
+                ->values()
+                ->all();
 
             foreach ($services as $key => $service) {
                 if (!empty($service['service_id'])) {
-                    $services[$key]['service_id'] = Service::where(
-                        'ulid',
-                        $service['service_id']
-                    )->value('id');
+                    if (!ctype_digit((string) $service['service_id'])) {
+                        $services[$key]['service_id'] = Service::where(
+                            'ulid',
+                            $service['service_id']
+                        )->value('id');
+                    }
                 }
             }
 

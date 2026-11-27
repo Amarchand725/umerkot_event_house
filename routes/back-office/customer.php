@@ -5,7 +5,7 @@ use App\Modules\Customer\Http\Controllers\CustomerController;
 
 // 🧩 Customer Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:customer']
 ], function () {
     Route::controller(CustomerController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

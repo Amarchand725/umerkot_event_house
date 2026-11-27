@@ -5,7 +5,7 @@ use App\Modules\PaymentMethod\Http\Controllers\PaymentMethodController;
 
 // 🧩 PaymentMethod Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:payment_method']
 ], function () {
     Route::controller(PaymentMethodController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

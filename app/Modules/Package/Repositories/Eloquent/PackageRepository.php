@@ -44,6 +44,7 @@ class PackageRepository extends BaseRepository implements PackageContract
         }
 
         $model->price = $model->inventoryItems()->sum('subtotal');
+        $model->discount = min((float) $model->discount, (float) $model->price);
         $model->save();
 
         return $model;
@@ -82,6 +83,7 @@ class PackageRepository extends BaseRepository implements PackageContract
 
         // Recalculate Original Package Price
         $model->price = $model->inventoryItems()->sum('subtotal');
+        $model->discount = min((float) $model->discount, (float) $model->price);
         $model->save();
 
         return $model->refresh();

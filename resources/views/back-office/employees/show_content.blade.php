@@ -1,7 +1,12 @@
 <table class="table table-flush-spacing">
     <tr>
         <td class="text-nowrap fw-semibold">Name</td>
-        <td>{{ ucfirst($model?->name ?? '-') }}</td>
+        <td>
+            {{ ucfirst($model?->name ?? '-') }}
+            @if($designation = $model?->compensation?->designation?->name)
+                ({{ $designation }})
+            @endif
+        </td>
     </tr>
     <tr>
         <td class="text-nowrap fw-semibold">Status</td>

@@ -5,7 +5,7 @@ use App\Modules\FrequentlyAskedQuestion\Http\Controllers\FrequentlyAskedQuestion
 
 // 🧩 FrequentlyAskedQuestion Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:frequently_asked_question']
 ], function () {
     Route::controller(FrequentlyAskedQuestionController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

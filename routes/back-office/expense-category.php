@@ -5,7 +5,7 @@ use App\Modules\ExpenseCategory\Http\Controllers\ExpenseCategoryController;
 
 // 🧩 ExpenseCategory Module Routes
 Route::group([
-    'middleware' => ['web', 'auth']
+    'middleware' => ['web', 'auth', 'permission.actions:expense_category']
 ], function () {
     Route::controller(ExpenseCategoryController::class)->group(function () {
         Route::post('bulk-delete', 'bulkDelete')->name('bulkDelete');

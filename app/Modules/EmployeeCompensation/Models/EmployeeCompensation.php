@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Status;
 use App\Models\User;
 use App\Modules\Designation\Models\Designation;
+use App\Modules\Employee\Models\Employee;
 
 class EmployeeCompensation extends Model
 {
@@ -18,7 +19,16 @@ class EmployeeCompensation extends Model
     protected $fillable = [
         'employee_id', 'status_id', 'designation_id', 'pay_type',
         'effective_from', 'effective_to', 'basic_pay', 'daily_rate',
-        'hourly_rate', 'commission_basis', 'commission_type', 'commission_rate',
+        'hourly_rate', 'commission_basis', 'commission_type', 'commission_rate', 'note',
+    ];
+
+    protected $casts = [
+        'effective_from' => 'date',
+        'effective_to' => 'date',
+        'basic_pay' => 'decimal:2',
+        'daily_rate' => 'decimal:2',
+        'hourly_rate' => 'decimal:2',
+        'commission_rate' => 'decimal:2',
     ];
 
     protected static function booted()
@@ -55,5 +65,10 @@ class EmployeeCompensation extends Model
     public function designation()
     {
         return $this->belongsTo(Designation::class, 'designation_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id');
     }
 }

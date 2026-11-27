@@ -105,13 +105,10 @@ class PaymentController extends BaseModuleController
     public function create()
     {
         $events = $this->eventModel::query()
-                ->whereHas('invoice', function ($query) {
+                ->whereHas('invoices', function ($query) {
                     $query->where('outstanding_amount', '>', 0);
                 })
-                ->with([
-                    'customer',
-                    'invoice',
-                ])
+                ->with('customer')
                 ->get();
         return (string) view($this->pathInitialize.'.create_content', get_defined_vars());
     }
@@ -123,7 +120,7 @@ class PaymentController extends BaseModuleController
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {
-                $this->paymentRepo->storeModel($payload);
+                $response = $this->paymentRepo->storeModel($payload);
             });
             return successResponse($response, module_message('created', $this->singularLabel));
         } catch (Exception $e) {
@@ -140,14 +137,14 @@ class PaymentController extends BaseModuleController
         $model = $this->paymentRepo->showModel($payment);
 
         $events = $this->eventModel::query()
-            ->whereHas('invoice', function ($query) use($model) {
-                $query->where('outstanding_amount', '>', 0);
-                $query->orWhere('id', $model->invoice_id);
+            ->where(function ($query) use ($model) {
+                $query->whereHas('invoices', function ($invoiceQuery) {
+                    $invoiceQuery->where('outstanding_amount', '>', 0);
+                })->orWhereHas('invoices', function ($invoiceQuery) use ($model) {
+                    $invoiceQuery->whereKey($model->invoice_id);
+                });
             })
-            ->with([
-                'customer',
-                'invoice',
-            ])
+            ->with('customer')
             ->get();
 
         return (string) view($this->pathInitialize.'.edit_content', get_defined_vars());
@@ -159,7 +156,7 @@ class PaymentController extends BaseModuleController
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload, $payment) {
-                $this->paymentRepo->updateModel($payment, $payload);
+                $response = $this->paymentRepo->updateModel($payment, $payload);
             });
             return successResponse($response, module_message('updated', $this->singularLabel));
         } catch (Exception $e) {

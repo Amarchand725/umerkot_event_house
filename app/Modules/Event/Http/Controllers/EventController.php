@@ -148,7 +148,7 @@ class EventController extends BaseModuleController
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload) {
-                $this->eventRepo->storeModel($payload);
+                $response = $this->eventRepo->storeModel($payload);
             });
             return successResponse($response, module_message('created', $this->singularLabel));
         } catch (Exception $e) {
@@ -178,7 +178,7 @@ class EventController extends BaseModuleController
         try {
             $response = null;
             DB::transaction(function () use (&$response, $payload, $event) {
-                $this->eventRepo->updateModel($event, $payload);
+                $response = $this->eventRepo->updateModel($event, $payload);
             });
             return successResponse($response, module_message('updated', $this->singularLabel));
         } catch (Exception $e) {
